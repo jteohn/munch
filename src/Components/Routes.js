@@ -27,7 +27,7 @@ export default function MunchRoutes(props) {
       />
 
       {/* Should we rename as /users/pagename for these or? Which ones should we do as nested routes? */}
-      <Route path="/profile" element={<Profile />} />
+      <Route path="/profile" element={<Profile currUser={props.currUser} />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/mealplan" element={<MealPlan />} />
       <Route path="/recipe" element={<Recipe />} />

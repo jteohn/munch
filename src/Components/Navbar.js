@@ -18,7 +18,7 @@ import RestaurantIcon from "@mui/icons-material/Restaurant";
 
 // NOTE: those commented out are needed for login status, I disabled the feature for user menu to set to login status for now.
 
-export default function Navbar({ logout, avatarURL }) {
+export default function Navbar({ handleLogout, avatarURL }) {
   const [pages] = useState(["About", "Posts", "MealPlan", "Recipe", "Contact"]); //am thinking logo when clicked can go back to main welcome page?
   const [settings] = useState(["Dashboard", "Profile", "Logout"]);
   // const [settingsNotUser] = useState(["Login", "Sign Up"]);
@@ -47,7 +47,7 @@ export default function Navbar({ logout, avatarURL }) {
 
   const handleUserMenu = (page) => {
     if (page === "Logout") {
-      logout();
+      handleLogout();
       setAnchorElUser(null);
     } else if (page === "Profile") {
       navigate("/profile");
