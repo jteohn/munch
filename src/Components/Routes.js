@@ -1,8 +1,9 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 //import our pages
 import Home from "../Pages/Home";
+import Landing from "../Pages/Landing";
 import Dashboard from "../Pages/Dashboard";
 import Login from "../Pages/Login";
 import Signup from "../Pages/Signup";
@@ -15,26 +16,109 @@ import Profile from "../Pages/Profile";
 import ErrorPage from "../Pages/ErrorPage";
 
 export default function MunchRoutes(props) {
-  // We can create a context to pass global variables around like isLoggedIn, userName, uid
+  const {
+    isLoggedIn,
+    handleSignup,
+    handleLogin,
+    name,
+    email,
+    password,
+    height,
+    weight,
+    gender,
+    age,
+    isPageLoading,
+  } = props;
+  // Connie: We can create a context to pass global variables around like isLoggedIn, userName, uid
+  // J: added all except uid! not too sure what's that!
+
+  // J: Added RequireAuth implementation to check if isLoggedIn is true, otherwise, redirect user to Landing page.
+  function RequireAuth({ children, redirectTo }) {
+    const isAuthenticated = isLoggedIn;
+    return isAuthenticated ? children : <Navigate to={redirectTo} />;
+  }
 
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/signup" element={<Signup signup={props.handleSignup} />} />
-      <Route
-        path="/login"
-        element={<Login handleLogin={props.handleLogin} />}
-      />
-
-      {/* Should we rename as /users/pagename for these or? Which ones should we do as nested routes? */}
-      <Route path="/profile" element={<Profile />} />
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/mealplan" element={<MealPlan />} />
-      <Route path="/recipe" element={<Recipe />} />
-      <Route path="/about" element={<About />} />
-      <Route path="/contact" element={<Contact />} />
-      <Route path="/posts" element={<Posts />} />
-      <Route path="*" element={<ErrorPage />} />
-    </Routes>
+    <>
+      {isPageLoading ? (
+        <p style={{ textAlign: "center", marginTop: "2rem" }}>
+          Page loading...
+        </p>
+      ) : (
+        <Routes>
+          <Route path="/landing" element={<Landing />} />
+          <Route
+            path="/signup"
+            element={<Signup handleSignup={handleSignup} />}
+          />
+          <Route path="/login" element={<Login handleLogin={handleLogin} />} />
+          {/* ONLY LOGGED IN USERS CAN ACCESS TO FOLLOWING PAGES */}
+          <Route
+            path="/"
+            element={
+              <RequireAuth redirectTo="/landing">
+                <Home />
+              </RequireAuth>
+            }
+          />
+          {/* Connie: Should we rename as /users/pagename for these or? Which ones should we do as nested routes? */}
+          {/* J: hmm, do yall think the following routes should be nested under Home page so that only logged in users can access them? */}
+          <Route
+            path="/profile"
+            element={
+              <Profile
+                name={name}
+                email={email}
+                password={password}
+                height={height}
+                weight={weight}
+                gender={gender}
+                age={age}
+              />
+            }
+          />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/mealplan" element={<MealPlan />} />
+          <Route path="/recipe" element={<Recipe />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/posts" element={<Posts />} />
+          <Route path="*" element={<ErrorPage />} />
+        </Routes>
+      )}
+    </>
   );
 }
+
+// J: Previous code, in case we need for ref?
+// <Route
+//         path="/"
+//         element={
+//           <RequireAuth redirectTo="/landing">
+//             <Home />
+//           </RequireAuth>
+//         }
+//       />
+
+//       {/* Should we rename as /users/pagename for these or? Which ones should we do as nested routes? */}
+//       {/* J: hmm, do yall think the following routes should be nested under Home page so that only logged in users can access them? */}
+//       <Route
+//         path="/profile"
+//         element={
+//           <Profile
+//             name={name}
+//             height={height}
+//             weight={weight}
+//             gender={gender}
+//             age={age}
+//           />
+//         }
+//       />
+//       <Route path="/dashboard" element={<Dashboard />} />
+//       <Route path="/mealplan" element={<MealPlan />} />
+//       <Route path="/recipe" element={<Recipe />} />
+//       <Route path="/about" element={<About />} />
+//       <Route path="/contact" element={<Contact />} />
+//       <Route path="/posts" element={<Posts />} />
+//       <Route path="*" element={<ErrorPage />} />
+//     </Routes>

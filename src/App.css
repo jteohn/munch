@@ -1,19 +1,51 @@
 .App {
-  text-align: center;
+  background-color: #fbf7f1;
+  min-height: 100vh;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.landing-buttons {
+  border: none;
+  padding: 8px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  margin: 0 10px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/* FOR LOGIN & SIGNUP */
+.header-message {
+  font-family: "Inria Serif", "Times New Roman", Times, serif;
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: 0.05rem;
+  color: #8ea4b8;
 }
 
-.App-header {
+.labels {
+  font-size: 0.9rem;
+  color: #42403f;
+}
+
+.login-signup-inputs {
+  width: 100%;
+  border: inset;
+  margin-bottom: 10px;
+  background-color: #efe9df;
+}
+
+.login-signup-footermsg {
+  text-decoration: none;
+  color: #0173dc;
+}
+
+.login-signup-buttons {
+  border: none;
+  padding: 8px 15px;
+  border-radius: 20px;
+  cursor: pointer;
+  width: 100%;
+}
+
+/* .App-header {
   background-color: #282c34;
   min-height: 100vh;
   display: flex;
@@ -22,17 +54,4 @@
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
+} */

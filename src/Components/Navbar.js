@@ -18,7 +18,7 @@ import RestaurantIcon from "@mui/icons-material/Restaurant";
 
 // NOTE: those commented out are needed for login status, I disabled the feature for user menu to set to login status for now.
 
-export default function Navbar({ logout, avatarURL }) {
+export default function Navbar({ handleLogout, avatarURL, isLoggedIn }) {
   const [pages] = useState(["About", "Posts", "MealPlan", "Recipe", "Contact"]); //am thinking logo when clicked can go back to main welcome page?
   const [settings] = useState(["Dashboard", "Profile", "Logout"]);
   // const [settingsNotUser] = useState(["Login", "Sign Up"]);
@@ -47,8 +47,9 @@ export default function Navbar({ logout, avatarURL }) {
 
   const handleUserMenu = (page) => {
     if (page === "Logout") {
-      logout();
+      handleLogout();
       setAnchorElUser(null);
+      navigate("/landing");
     } else if (page === "Profile") {
       navigate("/profile");
     } else if (page === "Login") {
@@ -62,10 +63,11 @@ export default function Navbar({ logout, avatarURL }) {
 
   return (
     <div>
-      <AppBar position="static" style={{ background: `#8b6041` }}>
+      <AppBar position="static" style={{ background: `#FBF7F1` }}>
         <Container maxWidth="xl">
           <Toolbar disableGutters>
             <RestaurantIcon
+              style={{ color: "#42403F" }}
               sx={{ display: { xs: "none", md: "flex" }, mr: 1 }}
             />
             <Typography
@@ -77,12 +79,14 @@ export default function Navbar({ logout, avatarURL }) {
                 mr: 2,
                 display: { xs: "none", md: "flex" },
                 fontWeight: 700,
-                letterSpacing: ".3rem",
-                color: "inherit",
+                fontSize: "1.5rem",
+                letterSpacing: "0.1875rem",
+                color: "#42403F",
                 textDecoration: "none",
+                fontFamily: "Inria Serif",
               }}
             >
-              Munch
+              munch
             </Typography>
             <Box xs={2} />
             <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
@@ -93,7 +97,7 @@ export default function Navbar({ logout, avatarURL }) {
                 aria-haspopup="true"
                 onClick={handleOpenNavMenu}
                 name="anchorElNav"
-                color="inherit"
+                color="#42403F"
               >
                 <MenuIcon />
               </IconButton>
@@ -112,7 +116,10 @@ export default function Navbar({ logout, avatarURL }) {
                   <Link
                     key={page}
                     to={`/${page.toLowerCase()}`}
-                    style={{ textDecoration: "none", color: "inherit" }}
+                    style={{
+                      textDecoration: "none",
+                      color: "#42403F",
+                    }}
                   >
                     <MenuItem key={page}>
                       <Typography textAlign="center">{page}</Typography>
@@ -131,12 +138,14 @@ export default function Navbar({ logout, avatarURL }) {
                 display: { xs: "flex", md: "none" },
                 flexGrow: 1,
                 fontWeight: 700,
-                letterSpacing: ".3rem",
-                color: "inherit",
+                fontSize: "2rem",
+                fontFamily: "Inria Serif",
+                letterSpacing: ".2rem",
+                color: "#42403F",
                 textDecoration: "none",
               }}
             >
-              Munch
+              munch
             </Typography>
             <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
               {pages.map((page) => (
@@ -147,7 +156,19 @@ export default function Navbar({ logout, avatarURL }) {
                 >
                   <Button
                     key={page}
-                    sx={{ my: 2, color: "white", display: "block" }}
+                    sx={{
+                      my: 1,
+                      color: "#42403F",
+                      fontFamily: "Cairo",
+                      fontWeight: "500",
+                      display: "block",
+                      cursor: "pointer",
+                      borderRadius: "10px",
+                      "&:hover": {
+                        backgroundColor: "#EEE8DE",
+                        border: "none",
+                      },
+                    }}
                   >
                     {page}
                   </Button>
