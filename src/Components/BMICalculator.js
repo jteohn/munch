@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useContext } from "react";
+import { UserContext } from "../App";
 
-export default function BMICalculator(props) {
+export default function BMICalculator() {
+  const user = useContext(UserContext);
   //BMI Calculator uses the formula of a person’s weight in kilograms divided by the square of the person’s height in metres (kg/m2).
 
   // Function to convert centimetres to metres if signup was done in centimetres
@@ -10,7 +12,10 @@ export default function BMICalculator(props) {
   // const bmi = props.weight / convertCentimetresToMetres(props.height) ** 2;
 
   //Calculation of BMI (hardcoded temporarily)
-  const bmi = (90 / convertCentimetresToMetres(185) ** 2).toFixed(2);
+  const bmi = (
+    user.weight /
+    convertCentimetresToMetres(user.height) ** 2
+  ).toFixed(2);
 
   //Measuring Nutritional Status off the calculated BMI
   const nutritionalStatus = () => {

@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { UserContext } from "../App";
+
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -13,18 +15,16 @@ import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import RestaurantIcon from "@mui/icons-material/Restaurant";
-// import { UserContext } from "../App";
-// import { useContext } from "react";
 
 // NOTE: those commented out are needed for login status, I disabled the feature for user menu to set to login status for now.
 
 export default function Navbar({ handleLogout, avatarURL, isLoggedIn }) {
   const [pages] = useState(["About", "Posts", "MealPlan", "Recipe", "Contact"]); //am thinking logo when clicked can go back to main welcome page?
-  const [settings] = useState(["Dashboard", "Profile", "Logout"]);
-  // const [settingsNotUser] = useState(["Login", "Sign Up"]);
+  const [settings] = useState(["Profile", "Dashboard", "Logout"]);
+  const [settingsNotUser] = useState(["Login", "Sign Up"]);
   const [anchorElUser, setAnchorElUser] = useState(null);
   const [anchorElNav, setAnchorElNav] = useState(null);
-  // const user = useContext(UserContext);
+  const user = useContext(UserContext);
   const navigate = useNavigate();
 
   const handleOpenNavMenu = (event) => {
@@ -193,20 +193,20 @@ export default function Navbar({ handleLogout, avatarURL, isLoggedIn }) {
                 name="anchorElUser"
                 onClose={handleCloseUserMenu}
               >
-                {/* {console.log(user.isLoggedIn)} */}
-                {/* {user.isLoggedIn && user.userID.length > 0 ? ( */}
-                <div>
-                  {settings.map((setting) => (
-                    <MenuItem
-                      key={setting}
-                      name="anchorElUser"
-                      onClick={() => handleUserMenu(setting)}
-                    >
-                      <Typography textAlign="center">{setting}</Typography>
-                    </MenuItem>
-                  ))}
-                </div>
-                {/* ) : (
+                {console.log(user.isLoggedIn)}
+                {user.name !== "" && user.isLoggedIn ? (
+                  <div>
+                    {settings.map((setting) => (
+                      <MenuItem
+                        key={setting}
+                        name="anchorElUser"
+                        onClick={() => handleUserMenu(setting)}
+                      >
+                        <Typography textAlign="center">{setting}</Typography>
+                      </MenuItem>
+                    ))}
+                  </div>
+                ) : (
                   <div>
                     {console.log(
                       "I'm in else, isLoggedIn is : ",
@@ -222,7 +222,7 @@ export default function Navbar({ handleLogout, avatarURL, isLoggedIn }) {
                       </MenuItem>
                     ))}
                   </div>
-                )} */}
+                )}
               </Menu>
             </Box>
           </Toolbar>

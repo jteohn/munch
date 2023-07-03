@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useContext } from "react";
+import { UserContext } from "../App";
 
-export default function CalorieRequirement(props) {
+export default function CalorieRequirement() {
+  const user = useContext(UserContext);
   //Men: BMR = 88.362 + (13.397 x weight in kg) + (4.799 x height in cm) – (5.677 x age in years)
   //Women: BMR = 447.593 + (9.247 x weight in kg) + (3.098 x height in cm) – (4.330 x age in years)
 
@@ -19,10 +21,10 @@ export default function CalorieRequirement(props) {
   // }
 
   // temporary hardcoded formula
-  let gender = "male";
-  let weight = 75;
-  let height = 170;
-  let age = 25;
+  let gender = user.gender;
+  let weight = user.weight;
+  let height = user.height;
+  let age = user.age;
   let basalMetabolicRate = 0;
   if (gender === "male") {
     basalMetabolicRate = (
