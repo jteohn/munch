@@ -42,7 +42,7 @@ export default function MunchRoutes(props) {
     <>
       {isPageLoading ? (
         <p style={{ textAlign: "center", marginTop: "2rem" }}>
-          Page loading...
+          Page Loading...
         </p>
       ) : (
         <Routes>
@@ -77,7 +77,7 @@ export default function MunchRoutes(props) {
               />
             }
           />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard name={name} />} />
           <Route path="/mealplan" element={<MealPlan />} />
           <Route path="/recipe" element={<Recipe />} />
           <Route path="/about" element={<About />} />
