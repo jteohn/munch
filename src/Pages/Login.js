@@ -31,7 +31,7 @@ export default function Login(props) {
           src={welcomebg}
           alt="welcome-sidebar"
           height="500rem"
-          style={{ borderRadius: "10px", opacity: "0.8" }}
+          style={{ borderRadius: "20px", opacity: "0.8" }}
         />
       </div>
       {/* RIGHT SIDE COLUMN */}

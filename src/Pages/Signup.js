@@ -168,7 +168,7 @@ export default function Signup(props) {
           src={signupbg}
           alt="welcome-sidebar"
           height="500rem"
-          style={{ borderRadius: "10px", opacity: "0.75" }}
+          style={{ borderRadius: "20px", opacity: "0.75" }}
         />
       </div>
     </div>
