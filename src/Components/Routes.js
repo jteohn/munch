@@ -32,7 +32,7 @@ export default function MunchRoutes(props) {
     <>
       {user.isPageLoading ? (
         <p style={{ textAlign: "center", marginTop: "2rem" }}>
-          Page loading...
+          Page Loading...
         </p>
       ) : (
         <Routes>
@@ -56,8 +56,26 @@ export default function MunchRoutes(props) {
           />
           {/* Connie: Should we rename as /users/pagename for these or? Which ones should we do as nested routes? */}
           {/* J: hmm, do yall think the following routes should be nested under Home page so that only logged in users can access them? */}
+<<<<<<< HEAD
           <Route path="/profile" element={<Profile />} />
           <Route path="/dashboard" element={<Dashboard />} />
+=======
+          <Route
+            path="/profile"
+            element={
+              <Profile
+                name={name}
+                email={email}
+                password={password}
+                height={height}
+                weight={weight}
+                gender={gender}
+                age={age}
+              />
+            }
+          />
+          <Route path="/dashboard" element={<Dashboard name={name} />} />
+>>>>>>> main
           <Route path="/mealplan" element={<MealPlan />} />
           <Route path="/recipe" element={<Recipe />} />
           <Route path="/about" element={<About />} />
