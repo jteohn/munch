@@ -51,13 +51,19 @@ export default function App() {
 
   const navigate = useNavigate();
 
+  // function is used to retrieve info of user from database based on the provided userID.
   const getUserInfo = async (userID) => {
+    // creates a reference to the user's info in database
     const userListRef = ref(database, `${DB_USER_KEY}/${userID}`);
 
     try {
+      // attempt to retrieve user's info from database using 'get' and awaits result of the async & stores it in 'snapshot' variable.
       const snapshot = await get(userListRef);
+      // if snapshot exists, extract the user data & create a 'userObj' storing these data.
       if (snapshot.exists()) {
+        // assign snapshot's value to userData
         const userData = snapshot.val();
+        // extract using Object.keys
         const objKey = Object.keys(userData);
         const curname = userData[`${objKey[0]}`].name;
         const curage = userData[`${objKey[0]}`].age;
@@ -74,6 +80,7 @@ export default function App() {
           gender: curgender,
         };
         console.log(userObj);
+        // return userObj if exists
         return userObj;
       } else {
         console.log("User not found");
@@ -83,11 +90,13 @@ export default function App() {
     }
   };
 
+  // checks for authentication state of the user & retrieving their info from database + update state variables.
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         const userID = user.uid;
         console.log(user);
+        // wait for getUserInfo to run before retrieve + update state variables (aka user details)
         const userObj = await getUserInfo(userID);
         // const userInfoRef = usersRef.orderByChild("userID").equalTo(userID);
         setName(userObj.name);
@@ -96,8 +105,8 @@ export default function App() {
         setHeight(userObj.height);
         setWeight(userObj.weight);
         setGender(userObj.gender);
-        setIsLoggedIn(true);
         setUID(userID);
+        setIsLoggedIn(true);
         console.log(
           name,
           email,
@@ -144,7 +153,6 @@ export default function App() {
   };
 
   const handleSignup = (name, email, password, height, weight, gender, age) => {
-    // J: verified. user info will be passed from signup.js to handleSignup function & stored in firebase auth.
     const userObj = {
       cuName: name,
       cuEmail: email,
@@ -165,6 +173,8 @@ export default function App() {
           .then(() => {
             console.log(`Display name has been updated successfully!`);
             console.log(userObj);
+            // J: testing to see if re-routing works!
+            navigate("/dashboard");
             //update Database with user info
             writeData(userID, userObj);
           })
@@ -177,8 +187,8 @@ export default function App() {
           `Hello ${name}, ! Welcome to munch, we are excited to have you here!`
         );
 
-        // J: testing to see if re-routing works!
-        navigate("/dashboard");
+        // // J: testing to see if re-routing works!
+        // navigate("/dashboard");
       })
       .catch((error) => {
         // J: min requirement for pw length?
@@ -235,3 +245,18 @@ export default function App() {
     </div>
   );
 }
+
+// const getName = userData[`${objKey[0]}`].name;
+// const getAge = userData[`${objKey[0]}`].age;
+// const getEmail = userData[`${objKey[0]}`].email;
+// const getHeight = userData[`${objKey[0]}`].height;
+// const getWeight = userData[`${objKey[0]}`].weight;
+// const getGender = userData[`${objKey[0]}`].gender;
+// const userObj = {
+//   name: getName,
+//   age: getAge,
+//   email: getEmail,
+//   height: getHeight,
+//   weight: getWeight,
+//   gender: getGender,
+// };
