@@ -10,17 +10,19 @@ import { useMediaQuery } from "@mui/material";
 export default function Dashboard() {
   const user = useContext(UserContext);
 
-  const isLargeScreen = useMediaQuery("(min-width: 900px)");
+  const isLargeScreen = useMediaQuery("(min-width: 910px)");
   const split2columns = (
-    <div className="dashboard-outercontainer" style={{ height: "60vh" }}>
-      <div className="dashboard-innercontainer" style={{ height: "55.5vh" }}>
+    <div className="dashboard-outercontainer" style={{ height: "25rem" }}>
+      <div className="dashboard-innercontainer" style={{ height: "23rem" }}>
         <div
-          style={{ display: "flex", flexDirection: "row", marginTop: "1rem" }}
+          style={{ display: "flex", flexDirection: "row", marginTop: "0.1rem" }}
         >
           <div>
             <BMICalculator />
           </div>
-          <hr style={{ margin: "1.5rem 2rem", opacity: "0.3" }} />
+          <hr
+            style={{ margin: "1.5rem 2rem", height: "20rem", opacity: "0.3" }}
+          />
           <div>
             <CalorieRequirement />
           </div>
@@ -58,6 +60,19 @@ export default function Dashboard() {
           </div>
         </>
       )}
+
+      <p className="smallFont dashboard-margin" style={{ textAlign: "center" }}>
+        <em>
+          Should you wish to make changes to your details, you can do so on the{" "}
+          <span>
+            <a href="/profile" className="footermsg">
+              'Profile'
+            </a>
+          </span>{" "}
+          page.
+        </em>
+      </p>
+      <br />
 
       {/* For testing purposes: */}
       <ApiTest1 />

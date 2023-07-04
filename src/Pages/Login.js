@@ -103,7 +103,7 @@ export default function Login(props) {
               }}
             >
               Don't have an account?{" "}
-              <a href="/signup" className="login-signup-footermsg">
+              <a href="/signup" className="footermsg">
                 Sign Up
               </a>
             </p>
@@ -172,7 +172,7 @@ export default function Login(props) {
             </button>
             <p style={{ color: "#42403F", fontSize: "0.8rem" }}>
               Don't have an account?{" "}
-              <a href="/signup" className="login-signup-footermsg">
+              <a href="/signup" className="footermsg">
                 Sign Up
               </a>
             </p>

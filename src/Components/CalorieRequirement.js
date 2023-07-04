@@ -17,7 +17,9 @@ export default function CalorieRequirement() {
 
   const calculateCalories = useCallback(() => {
     let basalMetabolicRate = 0;
-    let updateGender = gender.toLowerCase();
+    // note: Jaelyn to include gender.toLowerCase() after the signup issue is resolved
+    // let updateGender = gender.toLowerCase();
+    let updateGender = gender;
 
     if (updateGender === "male") {
       basalMetabolicRate = (
@@ -112,7 +114,7 @@ export default function CalorieRequirement() {
         <p className="smallFont" style={{ padding: "1rem 1rem" }}>
           Based on the information you have provided, for a{" "}
           <span className="bold">{age}-year old</span>,{" "}
-          <span className="bold">{gender.toLowerCase()}</span>, weighing{" "}
+          <span className="bold">{gender}</span>, weighing{" "}
           <span className="bold">{weight}kg</span>, your daily recommended
           calorie intake is <span className="bold">{Math.floor(BMR)}kcal</span>.
         </p>

@@ -154,7 +154,7 @@ export default function Signup(props) {
               }}
             >
               Already a user?{" "}
-              <a href="/login" className="login-signup-footermsg">
+              <a href="/login" className="footermsg">
                 Sign in
               </a>
             </p>
@@ -294,7 +294,7 @@ export default function Signup(props) {
           </div>
           <p style={{ color: "#42403F", fontSize: "0.8rem" }}>
             Already a user?{" "}
-            <a href="/login" className="login-signup-footermsg">
+            <a href="/login" className="footermsg">
               Sign in
             </a>
           </p>
@@ -303,5 +303,3 @@ export default function Signup(props) {
     </>
   );
 }
-
-// test account --> email: testJ@test.com, pw: 12345678
