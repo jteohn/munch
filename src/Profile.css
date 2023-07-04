@@ -1,0 +1,68 @@
+/* FOR STYLING PROFILE PAGE */
+.header {
+  margin: 1rem 2.5rem 0 2.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.height {
+  height: 40px;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-self: center;
+  background-color: #ffffff;
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.displaytext {
+  align-self: center;
+  text-align: center;
+  margin: 0.8rem;
+}
+
+.inner-container {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.update-button {
+  padding: 0.3rem 1rem;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  border: 1px solid #d3d3d3;
+  border-right: 0.5px solid #d3d3d3;
+  cursor: pointer;
+  color: #42403f;
+}
+
+.delete-button {
+  border: 1px solid #d3d3d3;
+  padding: 0.3rem 1rem;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  cursor: pointer;
+  color: #42403f;
+}
+
+.delete-button:hover,
+.update-button:hover {
+  background-color: #626262;
+  color: #fff;
+}
+
+.profile-inputs {
+  background-color: #efe9e0;
+  border: 0.5px solid #cacaca;
+  padding: 0.3rem;
+  border-radius: 8px;
+  width: 10rem;
+}

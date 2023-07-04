@@ -64,7 +64,11 @@
 }
 
 .dashboard-margin {
-  margin: 0 2.5rem;
+  margin: 1rem 2.5rem 0 2.5rem;
+}
+
+.dashboard-padding {
+  padding-left: 3.1rem;
 }
 
 /* FOR RENDERING BMI & CALORIE CALCULATOR */
@@ -118,7 +122,7 @@
 }
 
 .smallFont {
-  font-size: 0.8rem;
+  font-size: 0.7rem;
 }
 
 .yellow {
@@ -132,6 +136,7 @@
 .red {
   color: red;
 }
+
 /* padding: 1rem 2rem 0 2rem; */
 
 /* .App-header {
