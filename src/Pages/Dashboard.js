@@ -72,7 +72,7 @@ export default function Dashboard() {
       </p>
       <br />
 
-      {/* For testing purposes: */}
+      {/* For testing purposes - to be removed once testing is completed */}
       <ApiTest1 />
     </div>
   );
