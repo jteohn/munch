@@ -112,7 +112,7 @@ export default function CalorieRequirement() {
         <p className="smallFont" style={{ padding: "1rem 1rem" }}>
           Based on the information you have provided, for a{" "}
           <span className="bold">{age}-year old</span>,{" "}
-          <span className="bold">{gender.toLowerCase()}</span>, weighing{" "}
+          <span className="bold">{gender}</span>, weighing{" "}
           <span className="bold">{weight}kg</span>, your daily recommended
           calorie intake is <span className="bold">{Math.floor(BMR)}kcal</span>.
         </p>
@@ -120,6 +120,8 @@ export default function CalorieRequirement() {
     </div>
   );
 }
+
+// note: Jaelyn to include gender.toLowerCase() after the database issue is resolved
 
 // Previous code for reference:
 

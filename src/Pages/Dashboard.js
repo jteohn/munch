@@ -4,24 +4,25 @@ import CalorieRequirement from "../Components/CalorieRequirement";
 import ApiTest1 from "../Components/ApiTest1";
 import { UserContext } from "../App";
 import { useMediaQuery } from "@mui/material";
-import { UserContext } from "../App";
 
 // now the important moment of truth! did you pass?
 
 export default function Dashboard() {
   const user = useContext(UserContext);
 
-  const isLargeScreen = useMediaQuery("(min-width: 900px)");
+  const isLargeScreen = useMediaQuery("(min-width: 910px)");
   const split2columns = (
-    <div className="dashboard-outercontainer" style={{ height: "60vh" }}>
-      <div className="dashboard-innercontainer" style={{ height: "55.5vh" }}>
+    <div className="dashboard-outercontainer" style={{ height: "25rem" }}>
+      <div className="dashboard-innercontainer" style={{ height: "23rem" }}>
         <div
-          style={{ display: "flex", flexDirection: "row", marginTop: "1rem" }}
+          style={{ display: "flex", flexDirection: "row", marginTop: "0.1rem" }}
         >
           <div>
             <BMICalculator />
           </div>
-          <hr style={{ margin: "1.5rem 2rem", opacity: "0.3" }} />
+          <hr
+            style={{ margin: "1.5rem 2rem", opacity: "0.3", height: "20rem" }}
+          />
           <div>
             <CalorieRequirement />
           </div>
