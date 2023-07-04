@@ -41,7 +41,7 @@ export default function BMICalculator() {
       nutritionalStatus() === "pre-obesity"
     ) {
       return "yellow";
-    } else if (nutritionalStatus === "normal weight") {
+    } else if (nutritionalStatus() === "normal weight") {
       return "green";
     } else if (
       nutritionalStatus() === "obesity class I" ||

@@ -41,6 +41,18 @@ export default function CalorieRequirement() {
     calculateCalories();
   }, [calculateCalories]);
 
+  // const updateUserValues = (prop, value) => {
+  //   if (prop === "gender") {
+  //     setGender(value);
+  //   } else if (prop === "weight") {
+  //     setWeight(value);
+  //   } else if (prop === "height") {
+  //     setHeight(value);
+  //   } else if (prop === "age") {
+  //     setAge(value);
+  //   }
+  // };
+
   return (
     <div>
       <div style={{ textAlign: "center" }}>
