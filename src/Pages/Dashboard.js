@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import BMICalculator from "../Components/BMICalculator";
 import CalorieRequirement from "../Components/CalorieRequirement";
 import ApiTest1 from "../Components/ApiTest1";
+import { UserContext } from "../App";
 import { useMediaQuery } from "@mui/material";
 import { UserContext } from "../App";
 
@@ -33,7 +34,7 @@ export default function Dashboard() {
     <div>
       {/* TOP SECTION */}
       <div className="dashboard-margin">
-        <h2 style={{ marginBottom: "auto" }}>Hello, {user.name} </h2>
+        <h2 style={{ marginBottom: "auto" }}>Hello {user.name}, </h2>
         <p style={{ marginTop: "auto" }}>Welcome to your dashboard!</p>
       </div>
       <br />

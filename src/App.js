@@ -34,6 +34,8 @@ export default function App() {
   const [age, setAge] = useState("");
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [uid, setUID] = useState("");
+
+  // for context use
   const currUser = {
     isLoggedIn: isLoggedIn,
     name: name,
@@ -47,11 +49,12 @@ export default function App() {
     uid: uid,
   };
 
+  //database key for userInfo ie name,height,weight etc
   const DB_USER_KEY = "userInfo/";
 
   const navigate = useNavigate();
 
-  // function is used to retrieve info of user from database based on the provided userID.
+  // getting user info from database upon login
   const getUserInfo = async (userID) => {
     // creates a reference to the user's info in database
     const userListRef = ref(database, `${DB_USER_KEY}/${userID}`);
@@ -98,25 +101,30 @@ export default function App() {
         console.log(user);
         // wait for getUserInfo to run before retrieve + update state variables (aka user details)
         const userObj = await getUserInfo(userID);
-        // const userInfoRef = usersRef.orderByChild("userID").equalTo(userID);
-        setName(userObj.name);
-        setEmail(userObj.email);
-        setAge(userObj.age);
-        setHeight(userObj.height);
-        setWeight(userObj.weight);
-        setGender(userObj.gender);
-        setUID(userID);
-        setIsLoggedIn(true);
-        console.log(
-          name,
-          email,
-          age,
-          height,
-          weight,
-          gender,
-          isLoggedIn,
-          userID
-        );
+        console.log(userObj);
+        setName(user.displayName);
+        // added this to check if userObj is undefined, to prevent set state error if userObj is undefined
+        if (typeof userObj === "undefined") {
+          await getUserInfo(userID);
+        } else {
+          setEmail(user.email);
+          setAge(userObj.age);
+          setHeight(userObj.height);
+          setWeight(userObj.weight);
+          setGender(userObj.gender);
+          setIsLoggedIn(true);
+          setUID(userID);
+          console.log(
+            name,
+            email,
+            age,
+            height,
+            weight,
+            gender,
+            isLoggedIn,
+            userID
+          );
+        }
       } else {
         setIsLoggedIn(false);
         setName("");
@@ -128,15 +136,8 @@ export default function App() {
     };
   }, [uid, name, email, age, height, weight, gender, isLoggedIn]);
 
-  // to write user data to real time database on firebase
+  // to write user data to real time database on firebase on signup
   const writeData = (userID, userObj) => {
-    setUID(userID);
-    setName(userObj.cuName);
-    setEmail(userObj.cuEmail);
-    setHeight(userObj.cuHeight);
-    setWeight(userObj.cuWeight);
-    setGender(userObj.cuGender);
-    setAge(userObj.cuAge);
     console.log(userObj);
     const userListRef = ref(database, DB_USER_KEY + userID);
     const newUserRef = push(userListRef);
@@ -193,7 +194,10 @@ export default function App() {
       .catch((error) => {
         // J: min requirement for pw length?
         // alert(`Username is taken, please try another one!`)
-        console.log(`Username is taken, please try another one!`);
+        console.log(
+          `Username is taken, please try another one! Error: `,
+          error
+        );
       });
   };
 
@@ -207,9 +211,12 @@ export default function App() {
     try {
       const user = await signInWithEmailAndPassword(auth, email, password);
       //alert(`Welcome back, ${email}`);
+      const userID = user.user.uid;
       console.log(user.user.displayName);
       const displayName = user.user.displayName;
+      setUID(userID);
       setName(displayName);
+      setEmail(email);
       navigate("/");
     } catch (error) {
       //alert('Invalid email or password. Please try again!');
