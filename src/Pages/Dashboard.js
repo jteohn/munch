@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import BMICalculator from "../Components/BMICalculator";
 import CalorieRequirement from "../Components/CalorieRequirement";
 import ApiTest1 from "../Components/ApiTest1";
+import ApiTest2 from "../Components/ApiTest2";
 import { UserContext } from "../App";
 import { useMediaQuery } from "@mui/material";
 
@@ -61,6 +62,7 @@ export default function Dashboard() {
 
       {/* For testing purposes: */}
       <ApiTest1 />
+      <ApiTest2 />
     </div>
   );
 }
