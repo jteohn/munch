@@ -24,7 +24,6 @@ export const UserContext = React.createContext(null);
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  // const [currUser, setCurrUser] = useState({});
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password] = useState("");
@@ -34,6 +33,7 @@ export default function App() {
   const [age, setAge] = useState("");
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [uid, setUID] = useState("");
+  const [isLogin, setIsLogin] = useState(null);
 
   // for context use
   const currUser = {
@@ -92,33 +92,40 @@ export default function App() {
       if (user) {
         const userID = user.uid;
         console.log(user);
-        const userObj = await getUserInfo(userID);
-        console.log(userObj);
-        setName(user.displayName);
-        // added this to check if userObj is undefined, to prevent set state error if userObj is undefined
-        if (typeof userObj === "undefined") {
-          await getUserInfo(userID);
-        } else {
-          setEmail(user.email);
-          setAge(userObj.age);
-          setHeight(userObj.height);
-          setWeight(userObj.weight);
-          setGender(userObj.gender);
-          setIsLoggedIn(true);
-          setUID(userID);
-          console.log(
-            name,
-            email,
-            age,
-            height,
-            weight,
-            gender,
-            isLoggedIn,
-            userID
-          );
+        setUID(userID);
+        if (isLogin === true) {
+          const userObj = await getUserInfo(user.uid);
+          if (
+            typeof userObj === "undefined" &&
+            !userObj.email &&
+            !userObj.age &&
+            !userObj.weight &&
+            !userObj.gender &&
+            !userObj.name
+          ) {
+            await getUserInfo(user.uid);
+          } else {
+            // if (
+            //   userObj.email &&
+            //   userObj.age &&
+            //   userObj.height &&
+            //   userObj.weight &&
+            //   userObj.gender
+            // ) {
+            setName(userObj.name);
+            setEmail(userObj.email);
+            setAge(userObj.age);
+            setHeight(userObj.height);
+            setWeight(userObj.weight);
+            setGender(userObj.gender);
+            setIsLoggedIn(true);
+            console.log(name, email, height, weight, age, uid, gender);
+          }
         }
+        // }
       } else {
         setIsLoggedIn(false);
+        setIsLogin(false);
         setName("");
       }
       setIsPageLoading(false);
@@ -126,7 +133,7 @@ export default function App() {
     return () => {
       unsubscribe();
     };
-  }, [uid, name, email, age, height, weight, gender, isLoggedIn]);
+  });
 
   // to write user data to real time database on firebase on signup
   const writeData = (userID, userObj) => {
@@ -157,11 +164,20 @@ export default function App() {
       cuAge: age,
     };
 
+    setEmail(email);
+    setAge(age);
+    setHeight(height);
+    setWeight(weight);
+    setGender(gender);
+    setName(name);
+
     createUserWithEmailAndPassword(auth, email, password)
       .then(() => {
         const user = auth.currentUser;
         const userID = user.uid;
-
+        setIsLogin(false);
+        setIsLoggedIn(true);
+        setUID(userID);
         // update display name
         updateProfile(user, { displayName: name })
           .then(() => {
@@ -202,12 +218,9 @@ export default function App() {
     try {
       const user = await signInWithEmailAndPassword(auth, email, password);
       //alert(`Welcome back, ${email}`);
-      const userID = user.user.uid;
       console.log(user.user.displayName);
-      const displayName = user.user.displayName;
-      setUID(userID);
-      setName(displayName);
-      setEmail(email);
+      setIsLoggedIn(true);
+      setIsLogin(true);
       navigate("/");
     } catch (error) {
       //alert('Invalid email or password. Please try again!');
@@ -221,6 +234,7 @@ export default function App() {
       .then(() => {
         setIsLoggedIn(false);
         setName("");
+        setIsLogin(null);
         console.log(`Successfully logout from Munch!`);
       })
       .catch((error) => {
