@@ -8,7 +8,7 @@ import { useMediaQuery } from "@mui/material";
 // now the important moment of truth! did you pass?
 
 export default function Dashboard() {
-  const user = useContext(UserContext);
+  const currUser = useContext(UserContext);
 
   const isLargeScreen = useMediaQuery("(min-width: 910px)");
   const split2columns = (
@@ -55,7 +55,7 @@ export default function Dashboard() {
           alignItems: "center",
         }}
       >
-        <h2 style={{ marginBottom: "auto" }}>Hello {user.name}, </h2>
+        <h2 style={{ marginBottom: "auto" }}>Hello {currUser.name}, </h2>
         <p style={{ margin: "auto" }}>Welcome to your dashboard!</p>
       </div>
       <br />
