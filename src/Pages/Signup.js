@@ -16,7 +16,17 @@ export default function Signup(props) {
   const { handleSignup } = props;
 
   const handleSubmit = () => {
-    handleSignup(name, email, password, height, weight, gender, age);
+    const userObj = {
+      name: name,
+      email: email,
+      password: password,
+      height: height,
+      weight: weight,
+      gender: gender,
+      age: age,
+    };
+    console.log(userObj);
+    handleSignup(userObj);
   };
 
   const isLargeScreen = useMediaQuery("(min-width: 960px)");
@@ -154,7 +164,7 @@ export default function Signup(props) {
               }}
             >
               Already a user?{" "}
-              <a href="/login" className="login-signup-footermsg">
+              <a href="/login" className="footermsg">
                 Sign in
               </a>
             </p>
@@ -294,7 +304,7 @@ export default function Signup(props) {
           </div>
           <p style={{ color: "#42403F", fontSize: "0.8rem" }}>
             Already a user?{" "}
-            <a href="/login" className="login-signup-footermsg">
+            <a href="/login" className="footermsg">
               Sign in
             </a>
           </p>
@@ -303,5 +313,3 @@ export default function Signup(props) {
     </>
   );
 }
-
-// test account --> email: testJ@test.com, pw: 12345678
