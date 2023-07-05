@@ -16,7 +16,17 @@ export default function Signup(props) {
   const { handleSignup } = props;
 
   const handleSubmit = () => {
-    handleSignup(name, email, password, height, weight, gender, age);
+    const userObj = {
+      name: name,
+      email: email,
+      password: password,
+      height: height,
+      weight: weight,
+      gender: gender,
+      age: age,
+    };
+    console.log(userObj);
+    handleSignup(userObj);
   };
 
   const isLargeScreen = useMediaQuery("(min-width: 960px)");

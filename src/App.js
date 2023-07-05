@@ -26,7 +26,7 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [password] = useState("");
+  const [password, setPassword] = useState("");
   const [height, setHeight] = useState("");
   const [weight, setWeight] = useState("");
   const [gender, setGender] = useState(null);
@@ -63,19 +63,19 @@ export default function App() {
       if (snapshot.exists()) {
         const userData = snapshot.val();
         const objKey = Object.keys(userData);
-        const curname = userData[`${objKey[0]}`].name;
-        const curage = userData[`${objKey[0]}`].age;
-        const curemail = userData[`${objKey[0]}`].email;
-        const curheight = userData[`${objKey[0]}`].height;
-        const curweight = userData[`${objKey[0]}`].weight;
-        const curgender = userData[`${objKey[0]}`].gender;
+        const name = userData[`${objKey[0]}`].name;
+        const age = userData[`${objKey[0]}`].age;
+        const email = userData[`${objKey[0]}`].email;
+        const height = userData[`${objKey[0]}`].height;
+        const weight = userData[`${objKey[0]}`].weight;
+        const gender = userData[`${objKey[0]}`].gender;
         const userObj = {
-          name: curname,
-          age: curage,
-          email: curemail,
-          height: curheight,
-          weight: curweight,
-          gender: curgender,
+          name: name,
+          age: age,
+          email: email,
+          height: height,
+          weight: weight,
+          gender: gender,
         };
         console.log(userObj);
         return userObj;
@@ -91,8 +91,7 @@ export default function App() {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         const userID = user.uid;
-        console.log(user);
-        setUID(userID);
+        console.log(user.uid);
         if (isLogin === true) {
           const userObj = await getUserInfo(user.uid);
           if (
@@ -105,35 +104,23 @@ export default function App() {
           ) {
             await getUserInfo(user.uid);
           } else {
-            // if (
-            //   userObj.email &&
-            //   userObj.age &&
-            //   userObj.height &&
-            //   userObj.weight &&
-            //   userObj.gender
-            // ) {
-            setName(userObj.name);
-            setEmail(userObj.email);
-            setAge(userObj.age);
-            setHeight(userObj.height);
-            setWeight(userObj.weight);
-            setGender(userObj.gender);
+            setUID(userID);
+            setStates(userObj);
             setIsLoggedIn(true);
-            console.log(name, email, height, weight, age, uid, gender);
           }
         }
         // }
       } else {
-        setIsLoggedIn(false);
-        setIsLogin(false);
-        setName("");
+        // setIsLoggedIn(false);
+        // setIsLogin(false);
+        // setName("");
       }
       setIsPageLoading(false);
     });
     return () => {
       unsubscribe();
     };
-  });
+  }, [uid, name, age, gender, email, height, weight, isLogin]);
 
   // to write user data to real time database on firebase on signup
   const writeData = (userID, userObj) => {
@@ -142,36 +129,32 @@ export default function App() {
     const newUserRef = push(userListRef);
     set(newUserRef, {
       userID: userID,
-      name: userObj.cuName,
+      name: userObj.name,
       dateSignedUp: new Date().toLocaleString(),
-      email: userObj.cuEmail,
-      height: userObj.cuHeight,
-      weight: userObj.cuWeight,
-      gender: userObj.cuGender,
-      age: userObj.cuAge,
+      email: userObj.email,
+      height: userObj.height,
+      weight: userObj.weight,
+      gender: userObj.gender,
+      age: userObj.age,
     });
   };
 
-  const handleSignup = (name, email, password, height, weight, gender, age) => {
+  // to set states of user fields
+  const setStates = (userObj) => {
+    setEmail(userObj.email);
+    setAge(userObj.age);
+    setHeight(userObj.height);
+    setWeight(userObj.weight);
+    setGender(userObj.gender);
+    setName(userObj.name);
+  };
+
+  const handleSignup = (userObj) => {
     // J: verified. user info will be passed from signup.js to handleSignup function & stored in firebase auth.
-    const userObj = {
-      cuName: name,
-      cuEmail: email,
-      cuHeight: height,
-      cuWeight: weight,
-      cuGender: gender,
-      cuPassword: password,
-      cuAge: age,
-    };
 
-    setEmail(email);
-    setAge(age);
-    setHeight(height);
-    setWeight(weight);
-    setGender(gender);
-    setName(name);
-
-    createUserWithEmailAndPassword(auth, email, password)
+    setStates(userObj);
+    console.log(userObj);
+    createUserWithEmailAndPassword(auth, userObj.email, userObj.password)
       .then(() => {
         const user = auth.currentUser;
         const userID = user.uid;
@@ -179,7 +162,7 @@ export default function App() {
         setIsLoggedIn(true);
         setUID(userID);
         // update display name
-        updateProfile(user, { displayName: name })
+        updateProfile(user, { displayName: userObj.name })
           .then(() => {
             console.log(`Display name has been updated successfully!`);
             console.log(userObj);
@@ -192,7 +175,7 @@ export default function App() {
 
         // alert(`Hello, ${name}! Welcome to munch, we are excited to have you here!`)
         console.log(
-          `Hello ${name}, ! Welcome to munch, we are excited to have you here!`
+          `Hello ${userObj.name}, ! Welcome to munch, we are excited to have you here!`
         );
 
         // J: testing to see if re-routing works!
@@ -235,6 +218,14 @@ export default function App() {
         setIsLoggedIn(false);
         setName("");
         setIsLogin(null);
+        setEmail("");
+        setWeight("");
+        setHeight("");
+        setGender("");
+        setAge("");
+        setPassword("");
+        setIsPageLoading(true);
+        setUID("");
         console.log(`Successfully logout from Munch!`);
       })
       .catch((error) => {
@@ -251,7 +242,7 @@ export default function App() {
         <MunchRoutes
           handleSignup={handleSignup}
           handleLogin={handleLogin}
-          currUser={currUser}
+          setStates={setStates}
         />
       </UserContext.Provider>
     </div>
