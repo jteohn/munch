@@ -92,8 +92,9 @@ export default function App() {
       if (user) {
         const userID = user.uid;
         console.log(user.uid);
+        // to ensure data is only called when user logs in, not when user signs up
         if (isLogin === true) {
-          const userObj = await getUserInfo(user.uid);
+          let userObj = await getUserInfo(user.uid);
           if (
             typeof userObj === "undefined" &&
             !userObj.email &&
@@ -102,77 +103,75 @@ export default function App() {
             !userObj.gender &&
             !userObj.name
           ) {
-            await getUserInfo(user.uid);
+            await getUserInfo(user.uid); // waits for database if not all fields of userObj are formed
           } else {
             setUID(userID);
-            setStates(userObj);
+            setStates(userObj); // set states after values are retrieved from database for login
             setIsLoggedIn(true);
           }
         }
-        // }
-      } else {
-        // setIsLoggedIn(false);
-        // setIsLogin(false);
-        // setName("");
       }
       setIsPageLoading(false);
     });
   }, [uid, name, age, gender, email, height, weight, isLogin]);
 
   // to write user data to real time database on firebase on signup
-  const writeData = (userID, userObj) => {
-    console.log(userObj);
+  const writeData = (userID) => {
     const userListRef = ref(database, DB_USER_KEY + userID);
     const newUserRef = push(userListRef);
     set(newUserRef, {
       userID: userID,
-      name: userObj.name,
+      name: name,
       dateSignedUp: new Date().toLocaleString(),
-      email: userObj.email,
-      height: userObj.height,
-      weight: userObj.weight,
-      gender: userObj.gender,
-      age: userObj.age,
+      email: email,
+      height: height,
+      weight: weight,
+      gender: gender,
+      age: age,
     });
   };
 
-  // to set states of user fields
+  // to set states of user fields, can be called from child by passing in function in route.js at that route element'
+  // set as Promise to ensure fields are set before child calls other functions.
   const setStates = (userObj) => {
-    setEmail(userObj.email);
-    setAge(userObj.age);
-    setHeight(userObj.height);
-    setWeight(userObj.weight);
-    setGender(userObj.gender);
-    setName(userObj.name);
+    return new Promise((resolve) => {
+      setEmail(userObj.email);
+      setAge(userObj.age);
+      setHeight(userObj.height);
+      setWeight(userObj.weight);
+      setGender(userObj.gender);
+      setName(userObj.name);
+      if (userObj.password) {
+        setPassword(userObj.password);
+      }
+      resolve();
+    });
   };
 
-  const handleSignup = (userObj) => {
+  const handleSignup = () => {
     // J: verified. user info will be passed from signup.js to handleSignup function & stored in firebase auth.
-
-    setStates(userObj);
-    console.log(userObj);
-    createUserWithEmailAndPassword(auth, userObj.email, userObj.password)
+    setIsLogin(false); // to prevent useEffect onAuthStateChange activating getinfo from database for signup
+    console.log(name, email, height, weight, gender, name);
+    createUserWithEmailAndPassword(auth, email, password)
       .then(() => {
         const user = auth.currentUser;
         const userID = user.uid;
-        setIsLogin(false);
         setIsLoggedIn(true);
         setUID(userID);
         // update display name
-        updateProfile(user, { displayName: userObj.name })
+        updateProfile(user, { displayName: name })
           .then(() => {
             console.log(`Display name has been updated successfully!`);
-            console.log(userObj);
             //update Database with user info
-            writeData(userID, userObj);
+            writeData(userID, currUser);
           })
           .catch((error) => {
-            console.log(`Error updating display name.`, error);
+            console.log(`Error : `, error);
           });
 
         // alert(`Hello, ${name}! Welcome to munch, we are excited to have you here!`)
         console.log(
-          `Hello ${userObj.name}, ! Welcome to munch, we are excited to have you here!`
+          `Hello ${name}, ! Welcome to munch, we are excited to have you here!`
         );
 
         // J: testing to see if re-routing works!
@@ -181,10 +180,7 @@ export default function App() {
       .catch((error) => {
         // J: min requirement for pw length?
         // alert(`Username is taken, please try another one!`)
-        console.log(
-          `Username is taken, please try another one! Error: `,
-          error
-        );
+        console.log(`Error: `, error);
       });
   };
 
