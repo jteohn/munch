@@ -24,7 +24,7 @@ export default function MunchRoutes(props) {
     const isAuthenticated = user.isLoggedIn;
     return isAuthenticated ? children : <Navigate to={redirectTo} />;
   }
-
+  // remember to pass setStates as props.setStates to the element you wish to pass this parent function to
   return (
     <>
       {user.isPageLoading ? (
@@ -36,7 +36,12 @@ export default function MunchRoutes(props) {
           <Route path="/landing" element={<Landing />} />
           <Route
             path="/signup"
-            element={<Signup handleSignup={props.handleSignup} />}
+            element={
+              <Signup
+                handleSignup={props.handleSignup}
+                setStates={props.setStates}
+              />
+            }
           />
           <Route
             path="/login"

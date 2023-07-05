@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import signup from "../assets/signup.png";
 import signupbg from "../assets/signupbg.jpg";
 
@@ -14,8 +14,10 @@ export default function Signup(props) {
   const [gender, setGender] = useState(null);
   const [age, setAge] = useState("");
   const { handleSignup } = props;
+  const { setStates } = props;
+  const [isStateSetDone, setIsStateSetDone] = useState(false); // to track if state in parent is tracked
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const userObj = {
       name: name,
       email: email,
@@ -26,8 +28,17 @@ export default function Signup(props) {
       age: age,
     };
     console.log(userObj);
-    handleSignup(userObj);
+    //implement these next two lines of code to ensure state is set before calling signup function
+    await setStates(userObj);
+    setIsStateSetDone(true);
   };
+
+  // implemented to ensure all states are set in parent before calling handle Signup in parent
+  useEffect(() => {
+    if (isStateSetDone) {
+      handleSignup();
+    }
+  }, [isStateSetDone, handleSignup]);
 
   const isLargeScreen = useMediaQuery("(min-width: 960px)");
   const addRightSideBar = (
