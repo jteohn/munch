@@ -88,7 +88,7 @@ export default function App() {
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    onAuthStateChanged(auth, async (user) => {
       if (user) {
         const userID = user.uid;
         console.log(user.uid);
@@ -117,9 +117,6 @@ export default function App() {
       }
       setIsPageLoading(false);
     });
-    return () => {
-      unsubscribe();
-    };
   }, [uid, name, age, gender, email, height, weight, isLogin]);
 
   // to write user data to real time database on firebase on signup

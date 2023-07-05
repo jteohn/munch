@@ -19,9 +19,6 @@ import ErrorPage from "../Pages/ErrorPage";
 export default function MunchRoutes(props) {
   const user = useContext(UserContext);
 
-  // Connie: We can create a context to pass global variables around like isLoggedIn, userName, uid
-  // J: added all except uid! not too sure what's that!
-
   // J: Added RequireAuth implementation to check if isLoggedIn is true, otherwise, redirect user to Landing page.
   function RequireAuth({ children, redirectTo }) {
     const isAuthenticated = user.isLoggedIn;
@@ -69,36 +66,3 @@ export default function MunchRoutes(props) {
     </>
   );
 }
-
-// J: Previous code, in case we need for ref?
-// <Route
-//         path="/"
-//         element={
-//           <RequireAuth redirectTo="/landing">
-//             <Home />
-//           </RequireAuth>
-//         }
-//       />
-
-//       {/* Should we rename as /users/pagename for these or? Which ones should we do as nested routes? */}
-//       {/* J: hmm, do yall think the following routes should be nested under Home page so that only logged in users can access them? */}
-//       <Route
-//         path="/profile"
-//         element={
-//           <Profile
-//             name={name}
-//             height={height}
-//             weight={weight}
-//             gender={gender}
-//             age={age}
-//           />
-//         }
-//       />
-//       <Route path="/dashboard" element={<Dashboard />} />
-//       <Route path="/mealplan" element={<MealPlan />} />
-//       <Route path="/recipe" element={<Recipe />} />
-//       <Route path="/about" element={<About />} />
-//       <Route path="/contact" element={<Contact />} />
-//       <Route path="/posts" element={<Posts />} />
-//       <Route path="*" element={<ErrorPage />} />
-//     </Routes>
