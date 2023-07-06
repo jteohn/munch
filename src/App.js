@@ -23,6 +23,7 @@ import Navbar from "./Components/Navbar";
 export const UserContext = React.createContext(null);
 
 export default function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -88,11 +89,8 @@ export default function App() {
     onAuthStateChanged(auth, (user) => {
       //firebase authentication
       if (user) {
-        console.log(`onAuthStateChanged user`, user);
         const userID = user.uid;
         console.log(user.uid);
-        setIsLoggedIn(true);
-
         // to ensure data is only called when user logs in, not when user signs up
         // if (isLogin === true ) {
         setUID(userID);
@@ -175,7 +173,7 @@ export default function App() {
       .then(() => {
         const user = auth.currentUser;
         const userID = user.uid;
-        // update 6 jul: setIsLoggedIn(true);
+        setIsLoggedIn(true);
         setUID(userID);
         // update display name
         updateProfile(user, { displayName: name })
@@ -203,6 +201,7 @@ export default function App() {
       });
   };
 
+  // J: verified. existing user can now sign in + redirected to home page upon signing in.
   const handleLogin = async (email, password) => {
     if (!email || !password) {
       //alert(`Please enter your email and password!`);
