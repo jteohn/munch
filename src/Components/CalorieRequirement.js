@@ -9,7 +9,7 @@ export default function CalorieRequirement() {
   const [gender, setGender] = useState(user.gender);
   const [BMR, setBMR] = useState(0);
 
-  // Formula used to compute calories
+  // Formula to compute calories
   const calculateCalories = (gender, weight, height, age) => {
     let basalMetabolicRate = 0;
 
@@ -31,7 +31,7 @@ export default function CalorieRequirement() {
     return basalMetabolicRate;
   };
 
-  // Trigger an update to dashboard based on user info provided during sign up.
+  // Calculate based on user info provided during sign up.
   useEffect(() => {
     setWeight(user.weight);
     setHeight(user.height);
@@ -45,7 +45,7 @@ export default function CalorieRequirement() {
     setBMR(basalMetabolicRate);
   }, [gender, weight, height, age]);
 
-  // Trigger an update to dashboard based on the updated inputs.
+  // Trigger calculation to be updated based on the new inputs.
   useEffect(() => {
     updateCalories();
   }, [updateCalories]);
@@ -120,7 +120,7 @@ export default function CalorieRequirement() {
 
         <p className="smallFont" style={{ padding: "1rem 1rem" }}>
           Based on the information you have provided, for a{" "}
-          <span className="bold">{age}-year old</span>,{" "}
+          <span className="bold">{age}y/o</span>,{" "}
           <span className="bold">{gender}</span>, weighing{" "}
           <span className="bold">{weight}kg</span>, your daily recommended
           calorie intake is <span className="bold">{Math.floor(BMR)}kcal</span>.
