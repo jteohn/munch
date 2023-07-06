@@ -5,8 +5,13 @@
   flex-direction: column;
 }
 
-.height {
-  height: 40px;
+.font {
+  font-family: "Convergence", "Arial";
+}
+
+.rowHeight {
+  height: 50px;
+  font-weight: 600;
 }
 
 .container {
@@ -59,10 +64,35 @@
   color: #fff;
 }
 
-.profile-inputs {
-  background-color: #efe9e0;
-  border: 0.5px solid #cacaca;
-  padding: 0.3rem;
+.updateProfile {
+  background-color: #ded6ca;
+  border: 0.5px solid #999898;
+  padding: 0.5rem;
   border-radius: 8px;
   width: 10rem;
+  font-size: 1rem;
+  color: #42403f;
+}
+
+.large {
+  padding: 0.8rem;
+  border-radius: 8px;
+  width: 10rem;
+  margin: 0.5rem 1rem;
+}
+
+.saveButton {
+  padding: 0.8rem;
+  width: 6rem;
+  border-radius: 30px;
+  border: none;
+  background-color: #373737;
+  color: #fff;
+  font-size: 1rem;
+  letter-spacing: 0.2rem;
+}
+
+.saveButton:hover {
+  transition: 0.8s;
+  background-color: #b6ac9c;
 }

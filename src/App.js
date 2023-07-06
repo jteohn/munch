@@ -23,7 +23,6 @@ import Navbar from "./Components/Navbar";
 export const UserContext = React.createContext(null);
 
 export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -34,6 +33,7 @@ export default function App() {
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [uid, setUID] = useState("");
   const [isLogin, setIsLogin] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // for context use
   const currUser = {
@@ -89,9 +89,13 @@ export default function App() {
 
   useEffect(() => {
     onAuthStateChanged(auth, async (user) => {
+      console.log(`onAuthStateChanged triggered`);
       if (user) {
+        console.log(`onAuthStateChanged user`, user);
         const userID = user.uid;
         console.log(user.uid);
+        setIsLoggedIn(true);
+
         // to ensure data is only called when user logs in, not when user signs up
         if (isLogin === true) {
           let userObj = await getUserInfo(user.uid);
@@ -104,6 +108,7 @@ export default function App() {
             !userObj.name
           ) {
             await getUserInfo(user.uid); // waits for database if not all fields of userObj are formed
+            // jae to check if userInfo loaded?`)
           } else {
             setUID(userID);
             setStates(userObj); // set states after values are retrieved from database for login
@@ -150,13 +155,14 @@ export default function App() {
 
   const handleSignup = () => {
     // J: verified. user info will be passed from signup.js to handleSignup function & stored in firebase auth.
-    setIsLogin(false); // to prevent useEffect onAuthStateChange activating getinfo from database for signup
+    // update 6 jul: setIsLogin(false); to prevent useEffect onAuthStateChange activating getinfo from database for signup
     console.log(name, email, height, weight, gender, name);
+    // onAuthStateChanged is triggered here
     createUserWithEmailAndPassword(auth, email, password)
       .then(() => {
         const user = auth.currentUser;
         const userID = user.uid;
-        setIsLoggedIn(true);
+        // update 6 jul: setIsLoggedIn(true);
         setUID(userID);
         // update display name
         updateProfile(user, { displayName: name })
@@ -184,7 +190,6 @@ export default function App() {
       });
   };
 
-  // J: verified. existing user can now sign in + redirected to home page upon signing in.
   const handleLogin = async (email, password) => {
     if (!email || !password) {
       //alert(`Please enter your email and password!`);
