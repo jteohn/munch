@@ -2,33 +2,25 @@ import React, { useCallback, useEffect, useState, useContext } from "react";
 import { UserContext } from "../App";
 
 export default function CalorieRequirement() {
-  const currUser = useContext(UserContext);
-
-  // A: temporary hardcoded formula
-  // J: pending to pass in user object + set user object (to allow editing)
-  const [gender, setGender] = useState(currUser.gender);
-  const [weight, setWeight] = useState(currUser.weight);
-  const [height, setHeight] = useState(currUser.height);
-  const [age, setAge] = useState(currUser.age);
+  const user = useContext(UserContext);
+  const [weight, setWeight] = useState(user.weight);
+  const [height, setHeight] = useState(user.height);
+  const [age, setAge] = useState(user.age);
+  const [gender, setGender] = useState(user.gender);
   const [BMR, setBMR] = useState(0);
 
-  // call useCallback so that values will only be recomputed if any of its dependencies change.
-  // for more info: https://infinitypaul.medium.com/reactjs-useeffect-usecallback-simplified-91e69fb0e7a3
-
-  const calculateCalories = useCallback(() => {
+  // Formula used to compute calories
+  const calculateCalories = (gender, weight, height, age) => {
     let basalMetabolicRate = 0;
-    // note: Jaelyn to include gender.toLowerCase() after the signup issue is resolved
-    // let updateGender = gender.toLowerCase();
-    let updateGender = gender;
 
-    if (updateGender === "male") {
+    if (gender === "male") {
       basalMetabolicRate = (
         88.362 +
         13.397 * weight +
         4.799 * height -
         5.677 * age
       ).toFixed(2);
-    } else if (updateGender === "female") {
+    } else if (gender === "female") {
       basalMetabolicRate = (
         447.593 +
         9.247 * weight +
@@ -36,12 +28,27 @@ export default function CalorieRequirement() {
         4.33 * age
       ).toFixed(2);
     }
+    return basalMetabolicRate;
+  };
+
+  // Trigger an update to dashboard based on user info provided during sign up.
+  useEffect(() => {
+    setWeight(user.weight);
+    setHeight(user.height);
+    setAge(user.age);
+    setGender(user.gender);
+  }, [user]);
+
+  // useCallback will call for calculateCalories when any of its dependencies change.
+  const updateCalories = useCallback(() => {
+    const basalMetabolicRate = calculateCalories(gender, weight, height, age);
     setBMR(basalMetabolicRate);
   }, [gender, weight, height, age]);
 
+  // Trigger an update to dashboard based on the updated inputs.
   useEffect(() => {
-    calculateCalories();
-  }, [calculateCalories]);
+    updateCalories();
+  }, [updateCalories]);
 
   // const updateUserValues = (prop, value) => {
   //   if (prop === "gender") {
@@ -67,7 +74,7 @@ export default function CalorieRequirement() {
             <input
               className="prefilled-inputs"
               type="text"
-              value={height}
+              defaultValue={user.height}
               onChange={(e) => setHeight(e.target.value)}
             />
           </div>
@@ -77,7 +84,7 @@ export default function CalorieRequirement() {
             <input
               className="prefilled-inputs"
               type="text"
-              value={weight}
+              defaultValue={user.weight}
               onChange={(e) => setWeight(e.target.value)}
             />
           </div>
@@ -90,7 +97,7 @@ export default function CalorieRequirement() {
             <input
               className="prefilled-inputs"
               type="text"
-              value={age}
+              defaultValue={user.age}
               onChange={(e) => setAge(e.target.value)}
             />
           </div>
@@ -100,8 +107,8 @@ export default function CalorieRequirement() {
             <input
               className="prefilled-inputs"
               type="text"
-              value={gender}
-              onChange={(e) => setGender(e.target.value)}
+              defaultValue={user.gender}
+              onChange={(e) => setGender(e.target.value.toLowerCase())}
             />
           </div>
         </div>
@@ -122,52 +129,3 @@ export default function CalorieRequirement() {
     </div>
   );
 }
-
-// Previous code for reference:
-
-//Men: BMR = 88.362 + (13.397 x weight in kg) + (4.799 x height in cm) – (5.677 x age in years)
-//Women: BMR = 447.593 + (9.247 x weight in kg) + (3.098 x height in cm) – (4.330 x age in years)
-
-// working formulae
-// const gender = props.gender;
-// let basalMetabolicRate = 0;
-// const age = props.age
-// const weight = props.weight
-// const height = props.height
-// if (gender === "male") {
-//   basalMetabolicRate =
-//     (88.362 + 13.397 * weight + 4.799 * height - 5.677 * age).toFixed(2);
-// } else {
-//   basalMetabolicRate =
-//     (447.593 + 9.247 * weight + 3.098 * height - 4.33 * age).toFixed(2);
-// }
-
-// temporary hardcoded formula
-//   let gender = "male";
-//   let weight = 75;
-//   let height = 170;
-//   let age = 25;
-//   let basalMetabolicRate = 0;
-//   if (gender === "male") {
-//     basalMetabolicRate = (
-//       88.362 +
-//       13.397 * weight +
-//       4.799 * height -
-//       5.677 * age
-//     ).toFixed(2);
-//   } else {
-//     basalMetabolicRate = (
-//       447.593 +
-//       9.247 * weight +
-//       3.098 * height -
-//       4.33 * age
-//     ).toFixed(2);
-//   }
-
-//   return (
-//     <div>
-//       For a {age} year old {gender} weighing at {weight}kg, you require{" "}
-//       {basalMetabolicRate} calories per day to keep up with your metabolism.
-//     </div>
-//   );
-// }
