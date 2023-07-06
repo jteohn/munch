@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { auth } from "./firebase";
-import { push, ref, set, get } from "firebase/database";
+import { push, ref, set, get, onValue } from "firebase/database";
 import { database } from "./firebase";
 import {
   // createUserWithEmailAndPassword,
@@ -31,9 +31,10 @@ export default function App() {
   const [weight, setWeight] = useState("");
   const [gender, setGender] = useState(null);
   const [age, setAge] = useState("");
-  const [isPageLoading, setIsPageLoading] = useState(true);
+  const [dateSignedUp, setDateSignedUp] = useState("");
+  // const [isPageLoading, setIsPageLoading] = useState(true);
   const [uid, setUID] = useState("");
-  const [isLogin, setIsLogin] = useState(null);
+  // const [isLogin, setIsLogin] = useState(null);
 
   // for context use
   const currUser = {
@@ -45,7 +46,7 @@ export default function App() {
     weight: weight,
     gender: gender,
     age: age,
-    isPageLoading: isPageLoading,
+    // isPageLoading: isPageLoading,
     uid: uid,
   };
 
@@ -54,66 +55,80 @@ export default function App() {
 
   const navigate = useNavigate();
 
-  // getting user info from database upon login
-  const getUserInfo = async (userID) => {
-    const userListRef = ref(database, `${DB_USER_KEY}/${userID}`);
-
-    try {
-      const snapshot = await get(userListRef);
-      if (snapshot.exists()) {
-        const userData = snapshot.val();
-        const objKey = Object.keys(userData);
-        const name = userData[`${objKey[0]}`].name;
-        const age = userData[`${objKey[0]}`].age;
-        const email = userData[`${objKey[0]}`].email;
-        const height = userData[`${objKey[0]}`].height;
-        const weight = userData[`${objKey[0]}`].weight;
-        const gender = userData[`${objKey[0]}`].gender;
-        const userObj = {
-          name: name,
-          age: age,
-          email: email,
-          height: height,
-          weight: weight,
-          gender: gender,
-        };
-        console.log(userObj);
-        return userObj;
-      } else {
-        console.log("User not found");
-      }
-    } catch (error) {
-      console.log("Error retrieving user info : ", error);
-    }
-  };
+  // getting user info from database upon login e
+  // const getUserInfo = async (userID) => {
+  //   const userRef = ref(database, `${DB_USER_KEY}/${userID}`);
+  //   // const userRef = get(userListRef);
+  //   //when new userinfo is added to database
+  //   onValue(userRef, (snapshot) => {
+  //     const userData = snapshot.val();
+  //     console.log(userData);
+  //     // const objKey = Object.keys(userData);
+  //     // const name = userData[`${objKey[0]}`].name;
+  //     // const age = userData[`${objKey[0]}`].age;
+  //     // const email = userData[`${objKey[0]}`].email;
+  //     // const height = userData[`${objKey[0]}`].height;
+  //     // const weight = userData[`${objKey[0]}`].weight;
+  //     // const gender = userData[`${objKey[0]}`].gender;
+  //     // const userObj = {
+  //     //   name: name,
+  //     //   age: age,
+  //     //   email: email,
+  //     //   height: height,
+  //     //   weight: weight,
+  //     //   gender: gender,
+  //     // };
+  //     // console.log(userObj);
+  //     // return userObj;
+  //   });
+  //   // } catch (error) {
+  //   //   console.log("Error retrieving user info : ", error);
+  // };
 
   useEffect(() => {
-    onAuthStateChanged(auth, async (user) => {
+    onAuthStateChanged(auth, (user) => {
+      //firebase authentication
       if (user) {
         const userID = user.uid;
         console.log(user.uid);
         // to ensure data is only called when user logs in, not when user signs up
-        if (isLogin === true) {
-          let userObj = await getUserInfo(user.uid);
-          if (
-            typeof userObj === "undefined" &&
-            !userObj.email &&
-            !userObj.age &&
-            !userObj.weight &&
-            !userObj.gender &&
-            !userObj.name
-          ) {
-            await getUserInfo(user.uid); // waits for database if not all fields of userObj are formed
-          } else {
-            setUID(userID);
-            setStates(userObj); // set states after values are retrieved from database for login
-            setIsLoggedIn(true);
+        // if (isLogin === true ) {
+        setUID(userID);
+        setIsLoggedIn(true);
+        const userRef = ref(database, `${DB_USER_KEY}/${userID}`);
+        onValue(userRef, async (snapshot) => {
+          let userData = await snapshot.val();
+          console.log(userData);
+          if (userData) {
+            const objKey = Object.keys(userData);
+            console.log(objKey);
+            userData = userData[objKey[0]];
+            console.log(userData);
+            setStates(userData); // set states after values are retrieved from database for login
           }
-        }
+        });
+        // setIsPageLoading(false);
+        // let userObj = await getUserInfo(user.uid); // firebase database
+        // if (
+        //   typeof userObj === "undefined" &&
+        //   !userObj.email &&
+        //   !userObj.age &&
+        //   !userObj.weight &&
+        //   !userObj.gender &&
+        //   !userObj.name
+        // ) {
+        //   await getUserInfo(user.uid); // waits for database if not all fields of userObj are formed
+        // } else {
+
+        // }
+        //   }
+        // }
+      } else {
+        console.log("user is signed out!");
+        handleLogout("");
       }
-      setIsPageLoading(false);
     });
-  }, [uid, name, age, gender, email, height, weight, isLogin]);
+  }, [uid, isLoggedIn]);
 
   // to write user data to real time database on firebase on signup
   const writeData = (userID) => {
@@ -141,6 +156,8 @@ export default function App() {
       setWeight(userObj.weight);
       setGender(userObj.gender);
       setName(userObj.name);
+      setDateSignedUp(userObj.dateSignedUp);
+      setUID(userObj.userID);
       if (userObj.password) {
         setPassword(userObj.password);
       }
@@ -150,9 +167,9 @@ export default function App() {
 
   const handleSignup = () => {
     // J: verified. user info will be passed from signup.js to handleSignup function & stored in firebase auth.
-    setIsLogin(false); // to prevent useEffect onAuthStateChange activating getinfo from database for signup
+    // setIsLogin(false);  to prevent useEffect onAuthStateChange activating getinfo from database for signup
     console.log(name, email, height, weight, gender, name);
-    createUserWithEmailAndPassword(auth, email, password)
+    createUserWithEmailAndPassword(auth, email, password) // onauthstage triggered
       .then(() => {
         const user = auth.currentUser;
         const userID = user.uid;
@@ -196,7 +213,7 @@ export default function App() {
       //alert(`Welcome back, ${email}`);
       console.log(user.user.displayName);
       setIsLoggedIn(true);
-      setIsLogin(true);
+      // setIsLogin(true);
       navigate("/");
     } catch (error) {
       //alert('Invalid email or password. Please try again!');
@@ -210,14 +227,13 @@ export default function App() {
       .then(() => {
         setIsLoggedIn(false);
         setName("");
-        setIsLogin(null);
+        // setIsLogin(null);
         setEmail("");
         setWeight("");
         setHeight("");
         setGender("");
         setAge("");
         setPassword("");
-        setIsPageLoading(true);
         setUID("");
         console.log(`Successfully logout from Munch!`);
       })

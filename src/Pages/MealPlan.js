@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Calendar from "../Components/Calendar";
 import axios from "axios";
 
 // now... do you have the discipline to follow through?
@@ -61,6 +62,8 @@ export default function MealPlan() {
           ))
         : null}
       <button onClick={handleReset}>Reset Foods</button>
+      <br />
+      <Calendar />
     </div>
   );
 }
