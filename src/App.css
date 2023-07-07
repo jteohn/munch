@@ -137,6 +137,11 @@
   color: red;
 }
 
+/*For Calendar*/
+.fc-event-start {
+  overflow: hidden;
+}
+
 /* padding: 1rem 2rem 0 2rem; */
 
 /* .App-header {

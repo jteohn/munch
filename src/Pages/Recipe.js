@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { database } from "../firebase";
+// import { database } from "../firebase";
 export default function Recipe() {
   const [recipeSearchQuery, setRecipeSearchQuery] = useState("");
   const [mealTypeQuery, setMealTypeQuery] = useState("Breakfast");
   const [displayData, setDisplayData] = useState(null);
 
-  const DB_RECIPE_KEY = "recipeInfo/";
+  // const DB_RECIPE_KEY = "recipeInfo/";
 
   const handleSearch = (e) => {
     e.preventDefault();
