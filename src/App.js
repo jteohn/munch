@@ -89,12 +89,12 @@ export default function App() {
         // to ensure data is only called when user logs in, not when user signs up
         // if (isLogin === true ) {
         setUID(userID);
-        setIsLoggedIn(true);
         const userRef = ref(database, `${DB_USER_KEY}/${userID}`);
         onValue(userRef, async (snapshot) => {
           let userData = await snapshot.val();
           // if user data exists in RTDB
           if (userData) {
+            setIsLoggedIn(true);
             setStates(userData);
             console.log(`updated setStates:`, userData);
           }
