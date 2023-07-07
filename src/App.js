@@ -1,21 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { auth } from "./firebase";
-import { push, ref, set, get, onValue } from "firebase/database";
+import { ref, set, onValue } from "firebase/database";
 import { database } from "./firebase";
 import {
-  // createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   updateProfile,
-  // updateProfile,
 } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 // import "./App.css";
-
-// I'm guessing main functions can all be put here. ie login logout etc
-// Jaelyn: ok! i will add them here!
 
 import MunchRoutes from "./Components/Routes";
 import Navbar from "./Components/Navbar";
@@ -31,8 +26,8 @@ export default function App() {
   const [weight, setWeight] = useState("");
   const [gender, setGender] = useState(null);
   const [age, setAge] = useState("");
+  const [avatar, setAvatar] = useState("");
   const [dateSignedUp, setDateSignedUp] = useState("");
-  // const [isPageLoading, setIsPageLoading] = useState(true);
   const [uid, setUID] = useState("");
   // const [isLogin, setIsLogin] = useState(null);
 
@@ -46,7 +41,7 @@ export default function App() {
     weight: weight,
     gender: gender,
     age: age,
-    // isPageLoading: isPageLoading,
+    avatar: avatar,
     uid: uid,
   };
 
@@ -90,7 +85,7 @@ export default function App() {
       //firebase authentication
       if (user) {
         const userID = user.uid;
-        console.log(user.uid);
+        console.log(`user.uid:`, user.uid);
         // to ensure data is only called when user logs in, not when user signs up
         // if (isLogin === true ) {
         setUID(userID);
@@ -98,13 +93,10 @@ export default function App() {
         const userRef = ref(database, `${DB_USER_KEY}/${userID}`);
         onValue(userRef, async (snapshot) => {
           let userData = await snapshot.val();
-          console.log(userData);
+          // if user data exists in RTDB
           if (userData) {
-            const objKey = Object.keys(userData);
-            console.log(objKey);
-            userData = userData[objKey[0]];
-            console.log(userData);
-            setStates(userData); // set states after values are retrieved from database for login
+            setStates(userData);
+            console.log(`updated setStates:`, userData);
           }
         });
         // setIsPageLoading(false);
@@ -133,8 +125,7 @@ export default function App() {
   // to write user data to real time database on firebase on signup
   const writeData = (userID) => {
     const userListRef = ref(database, DB_USER_KEY + userID);
-    const newUserRef = push(userListRef);
-    set(newUserRef, {
+    set(userListRef, {
       userID: userID,
       name: name,
       dateSignedUp: new Date().toLocaleString(),
@@ -148,28 +139,27 @@ export default function App() {
 
   // to set states of user fields, can be called from child by passing in function in route.js at that route element'
   // set as Promise to ensure fields are set before child calls other functions.
-  const setStates = (userObj) => {
+  const setStates = (user) => {
     return new Promise((resolve) => {
-      setEmail(userObj.email);
-      setAge(userObj.age);
-      setHeight(userObj.height);
-      setWeight(userObj.weight);
-      setGender(userObj.gender);
-      setName(userObj.name);
-      setDateSignedUp(userObj.dateSignedUp);
-      setUID(userObj.userID);
-      if (userObj.password) {
-        setPassword(userObj.password);
+      setEmail(user.email);
+      setAge(user.age);
+      setHeight(user.height);
+      setWeight(user.weight);
+      setGender(user.gender);
+      setName(user.name);
+      setDateSignedUp(user.dateSignedUp);
+      setUID(user.userID);
+      setAvatar(user.avatar);
+      if (user.password) {
+        setPassword(user.password);
       }
       resolve();
     });
   };
 
   const handleSignup = () => {
-    // J: verified. user info will be passed from signup.js to handleSignup function & stored in firebase auth.
-    // setIsLogin(false);  to prevent useEffect onAuthStateChange activating getinfo from database for signup
     console.log(name, email, height, weight, gender, name);
-    createUserWithEmailAndPassword(auth, email, password) // onauthstage triggered
+    createUserWithEmailAndPassword(auth, email, password)
       .then(() => {
         const user = auth.currentUser;
         const userID = user.uid;
@@ -178,30 +168,30 @@ export default function App() {
         // update display name
         updateProfile(user, { displayName: name })
           .then(() => {
-            console.log(`Display name has been updated successfully!`);
-            //update Database with user info
+            console.log(`Display name has been updated successfully!`, name);
+            // update RTDB with user info, currUser is our UserContext
             writeData(userID, currUser);
           })
           .catch((error) => {
-            console.log(`Error : `, error);
+            console.log(`Error: unable to update display name:`, error);
           });
 
         // alert(`Hello, ${name}! Welcome to munch, we are excited to have you here!`)
         console.log(
           `Hello ${name}, ! Welcome to munch, we are excited to have you here!`
         );
-
-        // J: testing to see if re-routing works!
         navigate("/dashboard");
       })
       .catch((error) => {
         // J: min requirement for pw length?
         // alert(`Username is taken, please try another one!`)
-        console.log(`Error: `, error);
+        console.log(
+          `Unable to sign up! Looks like your email address has already been used.`,
+          error
+        );
       });
   };
 
-  // J: verified. existing user can now sign in + redirected to home page upon signing in.
   const handleLogin = async (email, password) => {
     if (!email || !password) {
       //alert(`Please enter your email and password!`);
@@ -221,13 +211,11 @@ export default function App() {
     }
   };
 
-  // J: tested & verified. logout function is working.
   const handleLogout = () => {
     signOut(auth)
       .then(() => {
         setIsLoggedIn(false);
         setName("");
-        // setIsLogin(null);
         setEmail("");
         setWeight("");
         setHeight("");

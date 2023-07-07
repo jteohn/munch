@@ -1,40 +1,52 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { UserContext } from "../App";
+
+// For Info: BMI Calculator uses the formula of a person’s weight in kilograms divided by the square of the person’s height in metres (kg/m2).
 
 export default function BMICalculator() {
   const user = useContext(UserContext);
-
-  //BMI Calculator uses the formula of a person’s weight in kilograms divided by the square of the person’s height in metres (kg/m2).
-
-  // Function to convert centimetres to metres if signup was done in centimetres
-  const convertCentimetresToMetres = (centimetres) => centimetres / 100;
-
-  //Calculation of BMI (hardcoded temporarily)
   const [weight, setWeight] = useState(user.weight);
   const [height, setHeight] = useState(user.height);
+  const [BMI, setBMI] = useState(0);
 
-  // const bmi = props.weight / convertCentimetresToMetres(props.height) ** 2;
-  const bmi = (weight / convertCentimetresToMetres(height) ** 2).toFixed(2);
-  //26.3
+  // Function to convert cm to metres if signup was done in centimetres
+  const convertCentimetresToMetres = (centimetres) => centimetres / 100;
 
-  //Measuring Nutritional Status off the calculated BMI
+  // Calculate BMI based on user info provided during sign up.
+  useEffect(() => {
+    // Formula to compute BMI
+    const calculatedBMI = (
+      weight /
+      convertCentimetresToMetres(height) ** 2
+    ).toFixed(2);
+    setBMI(calculatedBMI);
+  }, [weight, height]);
+
+  // Trigger BMI calculation to be updated based on the new inputs.
+  useEffect(() => {
+    setWeight(user.weight);
+    setHeight(user.height);
+  }, [user]);
+
+  // Measuring Nutritional Status off the calculated BMI
   const nutritionalStatus = () => {
     switch (true) {
-      case bmi < 18.5:
+      case BMI < 18.5:
         return "underweight";
-      case bmi >= 18.5 && bmi <= 24.9:
+      case BMI >= 18.5 && BMI <= 24.9:
         return "normal weight";
-      case bmi >= 25.0 && bmi <= 29.9:
+      case BMI >= 25.0 && BMI <= 29.9:
         return "pre-obesity";
-      case bmi >= 30.0 && bmi <= 34.9:
+      case BMI >= 30.0 && BMI <= 34.9:
         return "obesity class I";
-      case bmi >= 35.0 && bmi <= 39.9:
+      case BMI >= 35.0 && BMI <= 39.9:
         return "obesity class II";
       default:
         return "obesity class III";
     }
   };
 
+  // Rendering different font colours
   const renderDifferentColors = () => {
     if (
       nutritionalStatus() === "underweight" ||
@@ -56,13 +68,6 @@ export default function BMICalculator() {
     <div>
       <div style={{ textAlign: "center" }}>
         <h3>BMI Calculator</h3>
-        <p
-          className="smallFont"
-          style={{ marginBottom: 20, padding: "0 1rem" }}
-        >
-          Use this tool to calculate your Body Mass Index (BMI) now to
-          understand your risk level for obesity-related diseases.
-        </p>
         <div className="cal-calculatorDisplay">
           <div style={{ marginBottom: 10 }}>
             <label>Height (in cm)</label>
@@ -70,7 +75,7 @@ export default function BMICalculator() {
             <input
               className="prefilled-inputs"
               type="text"
-              value={height}
+              defaultValue={user.height}
               onChange={(e) => setHeight(e.target.value)}
             />
           </div>
@@ -80,7 +85,7 @@ export default function BMICalculator() {
             <input
               className="prefilled-inputs"
               type="text"
-              value={weight}
+              defaultValue={user.weight}
               onChange={(e) => setWeight(e.target.value)}
             />
           </div>
@@ -88,7 +93,7 @@ export default function BMICalculator() {
       </div>
 
       <div style={{ textAlign: "center" }}>
-        <h4>Your calculated BMI is: {bmi}</h4>
+        <h4>Your calculated BMI is: {BMI}</h4>
 
         <p className="smallFont">
           Based on your BMI, your nutritional status falls under the category of
@@ -101,10 +106,10 @@ export default function BMICalculator() {
               fontSize: "1rem",
             }}
           >
-            {nutritionalStatus(bmi)}
+            {nutritionalStatus(BMI)}
           </span>
         </p>
-        {bmi >= 18.5 && bmi <= 24.9 ? null : (
+        {BMI >= 18.5 && BMI <= 24.9 ? null : (
           <p className="smallFont" style={{ fontWeight: 600 }}>
             Your BMI is currently out of the Healthy range.
           </p>
