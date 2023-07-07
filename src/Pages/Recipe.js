@@ -1,12 +1,23 @@
 import React, { useState } from "react";
 import axios from "axios";
-// import { database } from "../firebase";
+import { Card } from "react-bootstrap";
+import { Modal } from "react-responsive-modal";
+import { Button } from "react-bootstrap";
+import "react-responsive-modal/styles.css";
+import "bootstrap/dist/css/bootstrap.min.css";
 export default function Recipe() {
   const [recipeSearchQuery, setRecipeSearchQuery] = useState("");
   const [mealTypeQuery, setMealTypeQuery] = useState("Breakfast");
-  const [displayData, setDisplayData] = useState(null);
+  const [modalStatus, setModalStatus] = useState(false);
+  const [recipeResults, setRecipeResults] = useState(null);
+  const [selectedRecipeIndex, setSelectedRecipeIndex] = useState(null);
 
-  // const DB_RECIPE_KEY = "recipeInfo/";
+  const openModal = (index) => {
+    console.log("setModalStatus set to true");
+    setSelectedRecipeIndex(index);
+    setModalStatus(true);
+  };
+  const closeModal = () => setModalStatus(false);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -18,38 +29,9 @@ export default function Recipe() {
       )
       .then((result) => {
         setRecipeSearchQuery("");
+        console.log(result.data.hits);
         const savedRecipes = result.data.hits;
-        console.log(savedRecipes);
-        setDisplayData(
-          savedRecipes.map((result, indexed) => {
-            return (
-              <div key={indexed}>
-                <div>Recipe {indexed + 1}</div>
-                <div>
-                  Source: {result.recipe.source}. <br />
-                  URL:
-                  <a href={result.recipe.url} target="_blank" rel="noreferrer">
-                    {result.recipe.url}
-                  </a>
-                </div>
-                <img src={result.recipe.images.REGULAR.url} alt="" />
-                <div>Calories: {result.recipe.calories.toFixed(0)} kcal</div>
-                <div>Ingredients:</div>
-                <ul>
-                  {result.recipe.ingredientLines.map((ingredient, index) => (
-                    <li key={index + 1}>{ingredient}</li>
-                  ))}
-                </ul>
-                {result.recipe.totalTime !== 0 ? (
-                  <div>Preparation Time: {result.recipe.totalTime} mins</div>
-                ) : (
-                  <div>Preparation time is not Specified.</div>
-                )}
-                <br />
-              </div>
-            );
-          })
-        );
+        setRecipeResults(savedRecipes);
       })
       .catch((error) => {
         console.log(`error: ${error}`);
@@ -58,7 +40,6 @@ export default function Recipe() {
   const changeMealType = (e) => {
     setMealTypeQuery(e.target.value);
   };
-
   return (
     <div>
       <h1>Recipes!</h1>
@@ -83,7 +64,52 @@ export default function Recipe() {
         />
         <input type="submit" value="submit" onClick={handleSearch} />
       </div>
-      <div>{displayData === null ? "No Search Active!" : displayData}</div>
+      <div>
+        {recipeResults === null
+          ? "No Search Active!"
+          : recipeResults.map((result, indexed) => {
+              return (
+                <div key={indexed}>
+                  <Card>
+                    <Card.Img
+                      variant="top"
+                      src={result.recipe.images.THUMBNAIL.url}
+                      alt=""
+                      style={{ height: "100px", width: "100px" }}
+                    />
+                    <Card.Title>
+                      <a href={result.recipe.url}>Recipe {indexed + 1}</a>
+                    </Card.Title>
+                    <Card.Text>
+                      <div>Calories: {result.recipe.calories.toFixed(0)}</div>
+                      <Button
+                        variant="primary"
+                        onClick={() => openModal(indexed)}
+                      >
+                        Ingredient List
+                      </Button>
+                      {modalStatus &&
+                        recipeResults &&
+                        recipeResults[selectedRecipeIndex] && (
+                          <Modal open={modalStatus} onClose={closeModal} center>
+                            <h2>Ingredients:</h2>
+                            <ul>
+                              {recipeResults[
+                                selectedRecipeIndex
+                              ].recipe.ingredientLines.map(
+                                (ingredient, index) => (
+                                  <li key={index + 1}>{ingredient}</li>
+                                )
+                              )}
+                            </ul>
+                          </Modal>
+                        )}
+                    </Card.Text>
+                  </Card>
+                </div>
+              );
+            })}
+      </div>
     </div>
   );
 }
