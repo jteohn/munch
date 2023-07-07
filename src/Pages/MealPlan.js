@@ -63,7 +63,7 @@ export default function MealPlan() {
         : null}
       <button onClick={handleReset}>Reset Foods</button>
       <br />
-      {/* <Calendar /> */}
+      <Calendar />
     </div>
   );
 }
