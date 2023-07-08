@@ -150,6 +150,16 @@
   color: black !important;
 }
 
+.popup-content {
+  border-radius: 1em;
+  padding: 10px !important;
+  background: #f8f8f8 !important;
+}
+
+.text-center {
+  text-align: center;
+}
+
 /* padding: 1rem 2rem 0 2rem; */
 
 /* .App-header {

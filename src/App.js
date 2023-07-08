@@ -29,7 +29,6 @@ export default function App() {
   const [avatar, setAvatar] = useState("");
   const [dateSignedUp, setDateSignedUp] = useState("");
   const [uid, setUID] = useState("");
-  // const [isLogin, setIsLogin] = useState(null);
 
   // for context use
   const currUser = {
@@ -99,22 +98,6 @@ export default function App() {
             console.log(`updated setStates:`, userData);
           }
         });
-        // setIsPageLoading(false);
-        // let userObj = await getUserInfo(user.uid); // firebase database
-        // if (
-        //   typeof userObj === "undefined" &&
-        //   !userObj.email &&
-        //   !userObj.age &&
-        //   !userObj.weight &&
-        //   !userObj.gender &&
-        //   !userObj.name
-        // ) {
-        //   await getUserInfo(user.uid); // waits for database if not all fields of userObj are formed
-        // } else {
-
-        // }
-        //   }
-        // }
       } else {
         console.log("user is signed out!");
         handleLogout("");
