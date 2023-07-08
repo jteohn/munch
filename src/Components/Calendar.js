@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useContext } from "react";
-import { ref, set, get } from "firebase/database";
+import { ref, set, get, onValue, update } from "firebase/database";
 import { auth } from "../firebase";
 import { database } from "../firebase";
 import { UserContext } from "../App";
-import { onAuthStateChanged } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 import Fullcalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -12,6 +12,7 @@ import "reactjs-popup/dist/index.css";
 
 export default function Calendar() {
   const user = useContext(UserContext);
+  const navigate = useNavigate();
 
   // setDatabase reference
   const DB_CALENDAR_KEY = "userCalendar/";
@@ -30,20 +31,10 @@ export default function Calendar() {
   const [count, setCount] = useState(1);
   const [currentEventID, setCurrentEventID] = useState(0);
   const [mode, setMode] = useState("");
+  const [dbSnapshot, setDbSnapshot] = useState([{}]);
+  const [firstTime, setFirstTime] = useState(true);
 
-  const [events, setEvents] = useState([
-    {
-      id: 0,
-      start: "2023-07-14T12:00:00",
-      title: "Breakfast ",
-      extendedProps: {
-        Food: " Chicken lasagne",
-        recipeURL: "www.chickenlasagne.com",
-        calories: "3000",
-        start: "2023-07-14T12:00:00",
-      },
-    },
-  ]);
+  const [events, setEvents] = useState([]);
 
   // to render each event in calendar
   const renderEventContent = (eventInfo) => {
@@ -99,7 +90,6 @@ export default function Calendar() {
     setCurrentEventID(event.publicId);
     setEventInfo(event);
     console.log("Selected event...");
-    console.log("Events Info : ", eventInfo);
     console.log(info.event._def);
     const title = event.title;
     const extendedProps = event.extendedProps;
@@ -111,6 +101,10 @@ export default function Calendar() {
     setRecipeURL(extendedProps.recipeURL);
   };
 
+  useEffect(() => {
+    console.log(eventInfo);
+  }, [eventInfo]);
+
   // to double check start time is set
   useEffect(() => {
     console.log("Start is : ", start);
@@ -121,55 +115,76 @@ export default function Calendar() {
     console.log(currentEventID);
   }, [currentEventID]);
 
-  // // to check state for events has been added, ensure event added, save to database when edited
-  // useEffect(() => {
-  //   console.log(events);
-  //   console.log("In use effects Events");
-  //   saveCalendar();
-  // }, [events]);
+  // to double check currentEventID is set correctly
+  useEffect(() => {
+    console.log("Count is updated : ", count);
+  }, [count]);
 
-  // // to write to database, called when events change
-  // const saveCalendar = () => {
-  //   console.log("Data is overwritten!");
-  //   console.log(events);
-  //   const userCalendarRef = ref(database, DB_CALENDAR_KEY + user.uid);
-  //   set(userCalendarRef, {
-  //     userID: user.uid,
-  //     events: events,
-  //   });
-  // };
-
-  // when page loads
+  // when page loads runs once to get snapshot
   useEffect(() => {
     const fetchData = async () => {
-      console.log("Data is being fetched! ");
-      const user = auth.currentUser;
-      if (user) {
-        const userID = user.uid;
-        const userRef = ref(database, `${DB_CALENDAR_KEY}/${userID}`);
+      const currUser = auth.currentUser;
+      if (currUser) {
+        const userRef = ref(database, DB_CALENDAR_KEY + user.uid);
         const snapshot = await get(userRef);
+        setDbSnapshot(snapshot);
         const userData = snapshot.val();
+        console.log("Data is being fetched! ");
         if (userData && Array.isArray(userData.events)) {
-          setEvents((prevEvents) => [...prevEvents, ...userData.events]);
+          if (firstTime) {
+            setEvents(userData.events);
+            setFirstTime(false);
+            console.log(events);
+          } else {
+            setEvents((prevEvents) => [...prevEvents, ...userData.events]);
+          }
+        } else {
+          console.log("User has no calendar on database!");
         }
       } else {
-        console.log("User has no calendar on Database!");
+        console.log("User is not logged in!");
+        navigate("/");
       }
     };
 
     fetchData();
   }, []);
 
+  // to check state for events has been added, ensure event added, save to database when edited
+  useEffect(() => {
+    console.log(events);
+    setCount(events.length);
+    console.log("In use effects Events updated");
+    const userCalendarRef = ref(database, DB_CALENDAR_KEY + user.uid);
+    console.log(userCalendarRef);
+    const checkSnapshot = async () => {
+      const snapshot = await get(userCalendarRef);
+      if (!snapshot.exists()) {
+        set(userCalendarRef, { events: [] });
+      }
+      if (!firstTime) {
+        update(userCalendarRef, { events: events });
+      }
+    };
+    checkSnapshot();
+
+    //listen for changes in db
+    onValue(userCalendarRef, async (snapshot) => {
+      const snapshott = snapshot.val;
+      if (snapshott) {
+        setDbSnapshot(snapshott);
+      } else {
+        console.log("Db not updated!");
+        setDbSnapshot(null);
+      }
+    });
+    // saveCalendar();
+  }, [events, firstTime, user.uid]);
+
   // to enable user to close pop ups without saving by clicking anywhere on document
   const handleClosePopupWithoutSubmit = () => {
     setOpen(false);
     resetFields();
-  };
-
-  // function to increase Count
-  const increaseCount = () => {
-    setCount((prevCount) => prevCount + 1);
-    console.log(count);
   };
 
   // handle all submit buttons for pop up
@@ -196,10 +211,11 @@ export default function Calendar() {
       console.log(eventsCopy[currentEventID]);
       console.log(eventsCopy);
       setEvents(eventsCopy);
-      console.log(events);
     } else if (mode === "newdate" || mode === "newmeal") {
       let start = "";
-      increaseCount();
+      if (mode === "newmeal") {
+        setStart(`${startStr}T00:00:00`);
+      }
       console.log(count);
       if (mealType && foodName) {
         console.log("Saving meal Before setEvents!");
@@ -235,11 +251,6 @@ export default function Calendar() {
       console.log("Saving meal after setEvents");
       console.log(events);
     }
-    const userCalendarRef = ref(database, DB_CALENDAR_KEY + user.uid);
-    set(userCalendarRef, {
-      userID: user.uid,
-      events: events,
-    });
     resetFields();
   };
 
@@ -306,10 +317,10 @@ export default function Calendar() {
                         className="profile-inputs"
                         type="text"
                         placeholder="yyyy-mm-dd"
-                        value={start}
+                        value={startStr}
                         onChange={(e) => {
-                          setStart(e.target.value);
-                          console.log(start);
+                          setStartStr(e.target.value);
+                          console.log(startStr);
                         }}
                       />
                     </td>
