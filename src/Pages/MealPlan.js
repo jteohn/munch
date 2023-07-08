@@ -1,7 +1,22 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Calendar from "../Components/Calendar";
-import { Box, Grid, Modal, Typography } from "@mui/material";
+import {
+  Box,
+  Card,
+  Grid,
+  Modal,
+  Paper,
+  Table,
+  TableCell,
+  TableContainer,
+  TableFooter,
+  TableHead,
+  TableRow,
+  Tooltip,
+} from "@mui/material";
+import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
+import Swal from "sweetalert2";
 import "../MealPlan.css";
 
 // now... do you have the discipline to follow through?
@@ -41,11 +56,6 @@ export default function MealPlan() {
       });
   };
 
-  // open modal to allow user to input the name
-  // const handleInputChange = (e) => {
-  //   setFoodName(e.target.value);
-  // };
-
   const handleReset = (e) => {
     setTotalResults([]);
   };
@@ -71,6 +81,16 @@ export default function MealPlan() {
       0
     );
 
+    if (!mealType || !foodName) {
+      Swal.fire({
+        position: "top-end",
+        icon: "error",
+        title: "Oops!",
+        text: "Please enter both the meal type and food name!",
+      });
+      return;
+    }
+
     const newMealPlan = {
       typeOfMeal: mealType,
       nameOfFood: foodName,
@@ -78,13 +98,29 @@ export default function MealPlan() {
     };
 
     setAddMeal([...addMeal, newMealPlan]);
+
+    Swal.fire({
+      position: "top-end",
+      icon: "success",
+      title: "Saved!",
+      text: "You can now add it to your calendar.",
+    });
+
     console.log(`new meal plan:`, newMealPlan);
     setMealType("");
     setFoodName("");
     setTotalResults([]);
   };
 
-  // ===== FOR RENDERING MODAL ===== ///
+  const handleDeleteRow = (index) => {
+    setDisplayData((prevData) => {
+      const newData = [...prevData];
+      newData.splice(index, 1);
+      return newData;
+    });
+  };
+
+  // ===== FOR RENDERING MODAL ===== //
   const handleOpenModal = () => {
     setOpenEditModal(true);
   };
@@ -92,153 +128,149 @@ export default function MealPlan() {
   const handleCloseModal = () => {
     setOpenEditModal(false);
   };
+  // ===== END ===== //
 
-  // ===== END ===== ///
+  // ===== FOR RENDERING TABLE IN MODAL ===== //
+  const displayTable = (
+    <TableContainer
+      component={Paper}
+      sx={{ maxWidth: 500, borderRadius: "20px" }}
+    >
+      <Table sx={{ maxWidth: 500 }} size="small" aria-label="a dense table">
+        <TableHead>
+          <TableRow>
+            <TableCell sx={{ width: "30%" }}>
+              <strong>Serving (100g)</strong>
+            </TableCell>
+            <TableCell sx={{ textAlign: "center" }}>
+              <strong>Calories (kcal)</strong>
+            </TableCell>
+            <TableCell></TableCell>
+          </TableRow>
+        </TableHead>
+        <TableFooter>
+          {displayData && displayData.length > 0
+            ? displayData.map((data, index) => (
+                <TableRow key={index + 1}>
+                  <TableCell>{data.name}</TableCell>
+                  <TableCell sx={{ textAlign: "center" }}>
+                    {data.calories}
+                  </TableCell>
+                  <TableCell align="right">
+                    <Tooltip title="Delete">
+                      <RemoveCircleIcon
+                        sx={{
+                          color: "#DED6CA",
+                        }}
+                        onClick={() => handleDeleteRow(index)}
+                      />
+                    </Tooltip>
+                  </TableCell>
+                </TableRow>
+              ))
+            : null}
+          <TableCell colSpan={3} align="right">
+            <button className="button" onClick={handleReset}>
+              Reset All
+            </button>
+          </TableCell>
+        </TableFooter>
+      </Table>
+    </TableContainer>
+  );
+  // ===== END ===== //
 
   return (
     <div>
-      {/* <h1>Meal Plan</h1> */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-        }}
-      >
-        <div
-          style={{
-            padding: "1rem",
-            backgroundColor: "#efe9e0c8",
-            color: "#42403F",
-            margin: "2rem 2rem 0 2rem",
-            borderRadius: "25px",
-            width: "80%",
-          }}
-        >
-          <div>
-            Start planning your meal by searching up the ingredients!{" "}
-            <button onClick={handleOpenModal}>Search</button>
-            <Modal id="modal" open={openEditModal} onClose={handleCloseModal}>
-              <Box className="modalBox">
-                <p>Search</p>
-                <Grid container spacing={2}>
-                  <Grid
-                    item
-                    xs={12}
-                    md={6}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <input
-                      type="text"
-                      placeholder="search"
-                      value={ingredientSearchQuery}
-                      onChange={(e) => setIngredientSearchQuery(e.target.value)}
-                    />
-                    <button onClick={handleSearch}>Add Item</button>
-                  </Grid>
-
-                  <Grid item xs={12} md={6}>
-                    {displayData && displayData.length > 0
-                      ? displayData.map((data, index) => (
-                          <div key={index + 1}>
-                            <ul>
-                              <li style={{ marginTop: "auto" }}>
-                                {data.servingSize}g of {data.name}:{" "}
-                                {data.calories}kcal
-                              </li>
-                            </ul>
-                          </div>
-                        ))
-                      : null}
-                  </Grid>
-                </Grid>
-
-                <Grid
-                  item
-                  xs={12}
-                  md={4}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <br />
-                  <input
-                    type="text"
-                    value={foodName}
-                    placeholder="Let's give it a name!"
-                    onChange={(e) => setFoodName(e.target.value)}
-                  />
-                </Grid>
-              </Box>
-            </Modal>
+      <div className="flexCenter">
+        <Card id="card">
+          <div style={{ textAlign: "center" }}>
+            Start planning your meal by searching up the ingredients! <br />
+            <button className="track-button" onClick={handleOpenModal}>
+              Track Calorie Consumption
+            </button>
           </div>
-        </div>
+        </Card>
+        <Modal
+          id="modal-container"
+          open={openEditModal}
+          onClose={handleCloseModal}
+        >
+          <Box className="modal-box">
+            <h3 className="font">Track Your Calorie Consumption</h3>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={12} className="flexCenter">
+                <input
+                  className="search"
+                  type="text"
+                  placeholder="e.g. chicken"
+                  value={ingredientSearchQuery}
+                  onChange={(e) => setIngredientSearchQuery(e.target.value)}
+                />
+                <button className="search-button" onClick={handleSearch}>
+                  search
+                </button>
+              </Grid>
+            </Grid>
+            <br />
+            {displayData && displayData.length > 0 && displayTable}
+            <br />
+            <Grid item xs={12} md={4} className="flexCenter">
+              <TableContainer
+                component={Paper}
+                sx={{ maxWidth: 500, borderRadius: "20px" }}
+              >
+                <Table
+                  sx={{ maxWidth: 500 }}
+                  size="small"
+                  aria-label="a dense table"
+                >
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{ width: "40%" }}>
+                        <label>Food Name</label>
+                        <input
+                          className="meal-input"
+                          type="text"
+                          value={foodName}
+                          placeholder="e.g. salad"
+                          onChange={(e) => setFoodName(e.target.value)}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <label>Meal Type</label>{" "}
+                        <select
+                          value={mealType}
+                          onChange={(e) => setMealType(e.target.value)}
+                        >
+                          <option disabled value=""></option>
+                          <option value="breakfast">Breakfast</option>
+                          <option value="lunch">Lunch</option>
+                          <option value="dinner">Dinner</option>
+                        </select>
+                      </TableCell>
+                      <TableCell>
+                        <button
+                          className="button desktop"
+                          onClick={handleAddCalories}
+                        >
+                          Save
+                        </button>
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                </Table>
+                <button className="button mobile" onClick={handleAddCalories}>
+                  Save
+                </button>
+              </TableContainer>
+            </Grid>
+          </Box>
+        </Modal>
       </div>
-
+      <br />
       <Calendar addMeal={addMeal} />
-
-      <br />
-      <div>
-        <div>Start planning your meal by searching up the ingredients!</div>
-        <input
-          type="text"
-          placeholder="search"
-          value={ingredientSearchQuery}
-          onChange={(e) => setIngredientSearchQuery(e.target.value)}
-        />
-        <button onClick={handleSearch}>Add Item</button>
-      </div>
-      {displayData && displayData.length > 0
-        ? displayData.map((data, index) => (
-            <div key={index + 1}>
-              <ul>
-                <li>
-                  {data.servingSize}g of {data.name}: {data.calories}kcal
-                </li>
-              </ul>
-            </div>
-          ))
-        : null}
-
-      <br />
-      <input
-        type="text"
-        value={foodName}
-        placeholder="Let's give it a name!"
-        onChange={(e) => setFoodName(e.target.value)}
-      />
-
-      <label>Select Meal Time</label>
-      <select value={mealType} onChange={(e) => setMealType(e.target.value)}>
-        <option disabled value=""></option>
-        <option value="breakfast">Breakfast</option>
-        <option value="lunch">Lunch</option>
-        <option value="dinner">Dinner</option>
-      </select>
-
-      <button onClick={handleAddCalories}>Add Meal</button>
-      <button onClick={handleReset}>Reset Foods</button>
-      <br />
       <br />
     </div>
   );
 }
-
-// if ingredient cannot be found (aka return undefined) alert user to key in another ingredient or similar ingredient
-
-// {displayData
-//   ? displayData.map((data, index) => (
-//       <div key={index + 1}>
-//         <ul>
-//           <li>
-//             {data.servingSize}g of {data.name}: {data.calories}kcal
-//           </li>
-//         </ul>
-//       </div>
-//     ))
-//   : null}

@@ -11,7 +11,7 @@ import { useMediaQuery } from "@mui/material";
 export default function Dashboard() {
   const user = useContext(UserContext);
 
-  const isLargeScreen = useMediaQuery("(min-width: 910px)");
+  const isLargeScreen = useMediaQuery("(min-width: 1000px)");
   const split2columns = (
     <div style={{ display: "flex", justifyContent: "center" }}>
       <div
@@ -30,7 +30,7 @@ export default function Dashboard() {
               marginTop: "0.1rem",
             }}
           >
-            <div>
+            <div style={{ width: "60%" }}>
               <BMICalculator />
             </div>
             <hr
@@ -56,7 +56,7 @@ export default function Dashboard() {
           alignItems: "center",
         }}
       >
-        <h2 style={{ marginBottom: "auto" }}>Hello {user.name}, </h2>
+        <h2 style={{ marginBottom: "auto" }}>Hello, {user.name}! </h2>
         <p style={{ margin: "auto" }}>Welcome to your dashboard!</p>
       </div>
       <br />

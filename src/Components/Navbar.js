@@ -19,7 +19,7 @@ import RestaurantIcon from "@mui/icons-material/Restaurant";
 // NOTE: those commented out are needed for login status, I disabled the feature for user menu to set to login status for now.
 
 export default function Navbar({ handleLogout, avatarURL, isLoggedIn }) {
-  const [pages] = useState(["About", "Posts", "MealPlan", "Recipe", "Contact"]); //am thinking logo when clicked can go back to main welcome page?
+  const [pages] = useState(["About", "MealPlan", "Recipe", "Post", "Contact"]); //am thinking logo when clicked can go back to main welcome page?
   const [settings] = useState(["Profile", "Dashboard", "Logout"]);
   const [settingsNotUser] = useState(["Login", "Sign Up"]);
   const [anchorElUser, setAnchorElUser] = useState(null);
@@ -63,7 +63,7 @@ export default function Navbar({ handleLogout, avatarURL, isLoggedIn }) {
 
   return (
     <div>
-      <AppBar position="static" style={{ background: `#FBF7F1` }}>
+      <AppBar position="static" style={{ background: "#FBF7F1" }}>
         <Container maxWidth="xl">
           <Toolbar disableGutters>
             <RestaurantIcon
@@ -158,9 +158,10 @@ export default function Navbar({ handleLogout, avatarURL, isLoggedIn }) {
                     key={page}
                     sx={{
                       my: 1,
-                      color: "#42403F",
-                      fontFamily: "Cairo",
+                      color: "#42403fa7",
+                      fontFamily: "Convergence",
                       fontWeight: "500",
+                      fontSize: "0.8rem",
                       display: "block",
                       cursor: "pointer",
                       borderRadius: "10px",
@@ -179,7 +180,7 @@ export default function Navbar({ handleLogout, avatarURL, isLoggedIn }) {
             <Box sx={{ flexGrow: 0 }}>
               <Tooltip title="Open settings">
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar alt="user" src={avatarURL} />
+                  <Avatar alt="user" src={user.avatar} />
                 </IconButton>
               </Tooltip>
               <Menu

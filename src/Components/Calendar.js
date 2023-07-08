@@ -3,7 +3,6 @@ import { ref, set, get } from "firebase/database";
 import { auth } from "../firebase";
 import { database } from "../firebase";
 import { UserContext } from "../App";
-import { onAuthStateChanged } from "firebase/auth";
 import Fullcalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -12,16 +11,15 @@ import "reactjs-popup/dist/index.css";
 // import { useMediaQuery } from "@mui/material";
 
 export default function Calendar(props) {
-  // Receive props from MealPlan.js
-  const { addMeal } = props;
-  const [savedMealData, setSavedMealData] = useState(addMeal);
-  const [selectedMeal, setSelectedMeal] = useState(null);
-
-export default function Calendar() {
   const user = useContext(UserContext);
 
   // setDatabase reference
   const DB_CALENDAR_KEY = "userCalendar/";
+
+  // Receive props from MealPlan.js
+  const { addMeal } = props;
+  const [savedMealData, setSavedMealData] = useState(addMeal);
+  const [selectedMeal, setSelectedMeal] = useState(null);
 
   // initialize popup values
   const [open, setOpen] = useState(false);
@@ -62,34 +60,6 @@ export default function Calendar() {
     );
   };
 
-  // to check state for events has been added, ensure event added
-  useEffect(() => {
-    console.log(events);
-  }, [events]);
-
-  // when date is clicked and meal form is saved
-  // const onSaveSubmit = () => {
-  //   setOpen(false);
-  //   if (mealType && foodName) {
-  //     console.log("Saving meal Before setEvents!");
-  //     console.log(events);
-  //     setEvents((prevEvents) => [
-  //       ...prevEvents,
-  //       {
-  //         start,
-  //         title: mealType,
-  //         extendedProps: {
-  //           Food: foodName,
-  //           recipeURL: recipeURL,
-  //           calories: calories,
-  //         },
-  //       },
-  //     ]);
-  //   }
-  //   console.log("Saving meal after setEvents");
-  //   console.log(events);
-  // };
-
   // to reset input fields after event is saved
   const resetFields = () => {
     setMealType("");
@@ -99,7 +69,7 @@ export default function Calendar() {
     setStart("");
     setStartStr("");
     setMode("");
-    console.log("Fields are reset, open is : ", open);
+    console.log("Fields are reset, open is: ", open);
   };
 
   // when user clicks on "Add Meal" button
@@ -120,22 +90,22 @@ export default function Calendar() {
     setStartStr(dateStr);
     setMode("newdate");
     setStart(date);
-    console.log("Date ", date);
+    console.log("User selected date:", date);
     console.log("All info is : ", info);
   };
 
   // when user clicks on event
   const eventsHandler = (info) => {
     setMode("editevent");
-    console.log(info);
+    console.log(`info:`, info);
     setOpen(true);
     const event = info.event._def;
     console.log(event.publicId);
-    setCurrentEventID(event.publicId);
+    setCurrentEventID(`event.publicID:`, event.publicId);
     setEventInfo(event);
     console.log("Selected event...");
-    console.log("Events Info : ", eventInfo);
-    console.log(info.event._def);
+    console.log("Events Info:", eventInfo);
+    console.log(`info.event_def:`, info.event._def);
     const title = event.title;
     const extendedProps = event.extendedProps;
     console.log(title, extendedProps);
@@ -174,7 +144,7 @@ export default function Calendar() {
   //   });
   // };
 
-  // when page loads
+  // when page loads -- Connie is still working on DB
   useEffect(() => {
     const fetchData = async () => {
       console.log("Data is being fetched! ");
@@ -296,7 +266,7 @@ export default function Calendar() {
 
   const handleSelectMeal = (meal) => {
     setSelectedMeal(meal);
-    console.log("selected Meal:", meal);
+    console.log("selected meal:", meal);
   };
 
   const renderPopulatedFields = (
@@ -356,8 +326,12 @@ export default function Calendar() {
         plugins={[dayGridPlugin, interactionPlugin]}
         initialView="dayGridMonth"
         headerToolbar={{
-          start: "title",
-          center: "dayGridMonth dayGridWeek new",
+          start: "dayGridMonth dayGridWeek",
+          center: "title",
+          end: "new",
+        }}
+        footerToolbar={{
+          // start: "dayGridMonth dayGridWeek",
           end: "today prev next",
         }}
         nowIndicator={true}

@@ -1,4 +1,19 @@
-#modal {
+.swal2-container {
+  z-index: 9999 !important;
+}
+
+#card {
+  display: flex;
+  justify-content: center;
+  padding: 0.5rem;
+  background-color: #efe9e0c8;
+  color: #42403f;
+  margin: 2rem 2rem 0 2rem;
+  border-radius: 25px;
+  width: 80%;
+}
+
+#modal-container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -7,14 +22,93 @@
   padding: 2px;
 }
 
-.modalBox {
+.modal-box {
   display: flex;
   justify-content: flex-start;
   align-items: center;
   flex-direction: column;
   width: 50rem;
   height: 30rem;
-  padding: 2rem;
+  padding: 1rem;
   background-color: #efe9e0;
   border-radius: 20px;
+}
+
+.search {
+  border: none;
+  width: 50%;
+  padding: 0.3rem;
+  border-radius: 5px;
+  background-color: #ffffff84;
+}
+
+.search-button {
+  border: none;
+  padding: 0.3rem;
+  border-radius: 5px;
+  width: 4rem;
+  background-color: #555555;
+  color: #fff;
+}
+
+.track-button {
+  border: outset;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  background-color: #cbefde;
+  margin-top: 0.5rem;
+  cursor: pointer;
+}
+
+.meal-input {
+  border: inset;
+  padding: 0.3rem;
+  border-radius: 5px;
+  background-color: #ffffff;
+}
+
+.button {
+  border: none;
+  padding: 0.4rem;
+  width: 5.5rem;
+  margin: 0.3rem;
+  border-radius: 30px;
+  cursor: pointer;
+}
+
+.button:hover {
+  transition: 0.5s;
+  background-color: #000;
+  color: #fff;
+}
+
+.desktop:hover,
+.mobile:hover,
+.track-button:hover {
+  transition: 0.5s;
+  background-color: #409872;
+  color: #fff;
+}
+
+@media (max-width: 600px) {
+  .desktop {
+    display: none;
+  }
+  .mobile {
+    display: block;
+    margin-left: 1.5rem;
+    background-color: #c6ead9;
+    width: 4.5rem;
+  }
+}
+
+@media (min-width: 600px) {
+  .mobile {
+    display: none;
+  }
+  .desktop {
+    display: block;
+    background-color: #c6ead9;
+    width: 4.5rem;
+  }
 }

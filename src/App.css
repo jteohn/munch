@@ -19,6 +19,7 @@
   font-weight: 600;
   letter-spacing: 0.05rem;
   color: #8ea4b8;
+  text-align: center;
 }
 
 .labels {
@@ -158,6 +159,25 @@
 
 .text-center {
   text-align: center;
+}
+
+@media (max-width: 960px) {
+  .mobileView {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .welcome-image {
+    height: 180px;
+  }
+}
+
+@media (min-width: 960px) {
+  .desktopView {
+    gap: 80px;
+  }
+  .welcome-image {
+    height: 220px;
+  }
 }
 
 /* padding: 1rem 2rem 0 2rem; */
