@@ -5,8 +5,14 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import Popup from "reactjs-popup";
 import "reactjs-popup/dist/index.css";
+// import { useMediaQuery } from "@mui/material";
 
-export default function Calendar() {
+export default function Calendar(props) {
+  // Receive props from MealPlan.js
+  const { addMeal } = props;
+  const [savedMealData, setSavedMealData] = useState(addMeal);
+  const [selectedMeal, setSelectedMeal] = useState(null);
+
   // initialize popup values
   const [open, setOpen] = useState(false);
   const [openEvent, setOpenEvent] = useState(false);
@@ -20,7 +26,7 @@ export default function Calendar() {
   const [eventInfo, setEventInfo] = useState({});
   const [mode, setMode] = useState("");
 
-  //initialize form inputs for eventClick
+  // initialize form inputs for eventClick
   const [mealTypeEvent, setMealTypeEvent] = useState("");
   const [caloriesEvent, setCaloriesEvent] = useState("");
   const [foodNameEvent, setFoodNameEvent] = useState("");
@@ -77,7 +83,7 @@ export default function Calendar() {
   //   console.log(events);
   // };
 
-  // to reset input fields after event is saved
+  // to reset input fields after Add Meal Form is saved
   const resetFields = () => {
     setMealType("");
     setCalories("");
@@ -87,23 +93,23 @@ export default function Calendar() {
     console.log("Fields are reset, open is : ", open);
   };
 
-  //when user clicks on add a meal
+  // when user clicks on "Add Meal" button
   const chooseDateHandler = () => {
     setMode("newmeal");
     setStart("");
     setOpen(true);
-    console.log("Adding a new meal... : ", mode);
+    console.log("Adding a new meal...", mode);
   };
 
-  //when user clicks on date
+  // when user clicks on any dates on the calendar
   const dateClickHandler = (info) => {
     setOpen(true);
     console.log("Selecting Date...");
     const date = info.start;
     setMode("newdate");
     setStart(date);
-    console.log("Date is : ", date);
-    console.log("All info is : ", info);
+    console.log("User selected date:", date);
+    // console.log("All info is:", info);
   };
 
   // when user clicks on event
@@ -125,12 +131,13 @@ export default function Calendar() {
     console.log(foodNameEvent);
   };
 
+  // when user did not save/submit the Add Meal Form
   const handleClosePopupWithoutSubmit = () => {
     setOpen(false);
     resetFields();
   };
 
-  // // when event is edited and saved
+  // when event is edited and saved
   // const onSaveSubmitEvent = (info) => {
   //   // info.jsEvent.preventDefault();
   //   console.log("Saving meal after setEvents");
@@ -178,33 +185,113 @@ export default function Calendar() {
     }
   };
 
+  // ===== BELOW SECTION IS FOR RENDERING OUT POPULATED FIELD BASED ON WHAT USER HAS ADDED FROM CALORIENINJA ===== //
+
+  // Update mealData state whenever there're changes to addMeal props.
+  useEffect(() => {
+    setSavedMealData(addMeal);
+  }, [addMeal]);
+
+  // Update setMealType and setCalories if user has already added their meal data using calorieNinja and they'd like to store the data in calendar.
+  useEffect(() => {
+    if (selectedMeal) {
+      setMealType(selectedMeal.typeOfMeal);
+      setFoodName(selectedMeal.nameOfFood);
+      setCalories(selectedMeal.totalCalories);
+    }
+  }, [selectedMeal]);
+
+  const handleSelectMeal = (meal) => {
+    setSelectedMeal(meal);
+    console.log("selected Meal:", meal);
+  };
+
+  const renderPopulatedFields = (
+    <div>
+      <h3>Pick from your saved list:</h3>
+      <ul>
+        {addMeal.map((meal, index) => {
+          return (
+            <li key={index} onClick={() => handleSelectMeal(meal)}>
+              {meal.nameOfFood}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+  // ===== END OF SECTION ===== //
+
+  // const isMobileScreen = useMediaQuery("(max-width: 700px)");
+  // const mobileView = (
+  //   <div>
+  //     <Fullcalendar
+  //       plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+  //       initialView="listWeek"
+  //       headerToolbar={{
+  //         start: "",
+  //         center: "title",
+  //         end: "today new",
+  //       }}
+  //       footerToolbar={{
+  //         start: "dayGridMonth timeGridWeek",
+  //         end: "prev next",
+  //       }}
+  //       nowIndicator={true}
+  //       selectable={true}
+  //       events={events}
+  //       height={"90vh"}
+  //       //      eventBackgroundColor="#efe9e0" : to set background color. default color is blue for all day event. Only works for all day event.
+  //       customButtons={{
+  //         new: {
+  //           text: "Add Meal",
+  //           click: () => chooseDateHandler(),
+  //         },
+  //       }}
+  //       select={(info) => dateClickHandler(info)}
+  //       eventClick={(info) => eventsHandler(info)}
+  //       eventContent={renderEventContent}
+  //     />
+  //   </div>
+  // );
   //   //style={{ display: "flex", justifyContent: "center" }}
 
   return (
-    <div style={{ justifyContent: "center" }}>
-      <Fullcalendar
-        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-        initialView="dayGridMonth"
-        headerToolbar={{
-          start: "title",
-          center: "dayGridMonth timeGridWeek new",
-          end: "today prev next",
-        }}
-        nowIndicator={true}
-        selectable={true}
-        events={events}
-        height={"90vh"}
-        //      eventBackgroundColor="#efe9e0" : to set background color. default color is blue for all day event. Only works for all day event.
-        customButtons={{
-          new: {
-            text: "Add Meal",
-            click: () => chooseDateHandler(),
-          },
-        }}
-        select={(info) => dateClickHandler(info)}
-        eventClick={(info) => eventsHandler(info)}
-        eventContent={renderEventContent}
-      />
+    <div
+      style={{
+        justifyContent: "center",
+        padding: "2rem",
+      }}
+    >
+      <div>
+        <Fullcalendar
+          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+          initialView="dayGridMonth"
+          headerToolbar={{
+            start: "",
+            center: "title",
+            end: "today new",
+          }}
+          footerToolbar={{
+            start: "dayGridMonth timeGridWeek",
+            end: "prev next",
+          }}
+          nowIndicator={true}
+          selectable={true}
+          events={events}
+          height={"90vh"}
+          //      eventBackgroundColor="#efe9e0" : to set background color. default color is blue for all day event. Only works for all day event.
+          customButtons={{
+            new: {
+              text: "Add Meal",
+              click: () => chooseDateHandler(),
+            },
+          }}
+          select={(info) => dateClickHandler(info)}
+          eventClick={(info) => eventsHandler(info)}
+          eventContent={renderEventContent}
+        />
+      </div>
 
       {/* dynamic popup for date click / current event click / add meal button click */}
       <Popup
@@ -214,7 +301,10 @@ export default function Calendar() {
       >
         <div className="modal">
           {mode === "newdate" ? (
-            <p>Fill up this form to insert a food into your meal plan.</p>
+            <p>
+              Fill up this form to insert a food into your meal plan or choose
+              from your saved list!
+            </p>
           ) : mode === "editevent" ? (
             <p>
               You have set this meal earlier. <br />
@@ -223,6 +313,23 @@ export default function Calendar() {
           ) : (
             <p>Fill up the form and save it to add a meal to your plan!</p>
           )}
+          <br />
+
+          {/* JAELYN EDITED */}
+          {renderPopulatedFields}
+          {/* <div>
+            <h3>Pick from your saved list:</h3>
+            <ul>
+              {addMeal.map((meal, index) => {
+                return (
+                  <li key={index} onClick={() => handleSelectMeal(meal)}>
+                    {meal.nameOfFood}
+                  </li>
+                );
+              })}
+            </ul>
+          </div> */}
+
           <br />
           <div>
             <table
@@ -243,7 +350,7 @@ export default function Calendar() {
                         value={start}
                         onChange={(e) => {
                           setStart(e.target.value);
-                          console.log(start);
+                          // console.log(start);
                         }}
                       />
                     </td>
@@ -260,7 +367,7 @@ export default function Calendar() {
                       value={mealType}
                       onChange={(e) => {
                         setMealType(e.target.value);
-                        console.log(mealType);
+                        // console.log(mealType);
                       }}
                     />
                   </td>
@@ -275,7 +382,7 @@ export default function Calendar() {
                       value={foodName}
                       onChange={(e) => {
                         setFoodName(e.target.value);
-                        console.log(foodName);
+                        // console.log(foodName);
                       }}
                     />
                   </td>
@@ -326,3 +433,14 @@ export default function Calendar() {
     </div>
   );
 }
+
+// console.log(`addMeal props:`, savedMealData);
+
+// Update setMealType and setCalories if user has already added their meal data using calorieNinja and they'd like to store the data in calendar.
+// useEffect(() => {
+//   if (savedMealData.length > 0) {
+//     const populateMeal = savedMealData[savedMealData.length - 1];
+//     setMealType(populateMeal.nameOfFood);
+//     setCalories(populateMeal.totalCalories);
+//   }
+// }, [savedMealData]);
