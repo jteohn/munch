@@ -8,7 +8,6 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import Popup from "reactjs-popup";
 import "reactjs-popup/dist/index.css";
-// import { useMediaQuery } from "@mui/material";
 
 export default function Calendar(props) {
   const user = useContext(UserContext);
@@ -249,7 +248,6 @@ export default function Calendar(props) {
   };
 
   // ===== BELOW SECTION IS FOR RENDERING OUT POPULATED FIELD BASED ON WHAT USER HAS ADDED FROM CALORIENINJA ===== //
-
   // Update mealData state whenever there're changes to addMeal props.
   useEffect(() => {
     setSavedMealData(addMeal);
@@ -284,40 +282,6 @@ export default function Calendar(props) {
     </div>
   );
   // ===== END OF SECTION ===== //
-
-  // const isMobileScreen = useMediaQuery("(max-width: 700px)");
-  // const mobileView = (
-  //   <div>
-  //     <Fullcalendar
-  //       plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-  //       initialView="listWeek"
-  //       headerToolbar={{
-  //         start: "",
-  //         center: "title",
-  //         end: "today new",
-  //       }}
-  //       footerToolbar={{
-  //         start: "dayGridMonth timeGridWeek",
-  //         end: "prev next",
-  //       }}
-  //       nowIndicator={true}
-  //       selectable={true}
-  //       events={events}
-  //       height={"90vh"}
-  //       //      eventBackgroundColor="#efe9e0" : to set background color. default color is blue for all day event. Only works for all day event.
-  //       customButtons={{
-  //         new: {
-  //           text: "Add Meal",
-  //           click: () => chooseDateHandler(),
-  //         },
-  //       }}
-  //       select={(info) => dateClickHandler(info)}
-  //       eventClick={(info) => eventsHandler(info)}
-  //       eventContent={renderEventContent}
-  //     />
-  //   </div>
-  // );
-  //   //style={{ display: "flex", justifyContent: "center" }}
 
   return (
     <div style={{ justifyContent: "center" }}>
@@ -372,20 +336,8 @@ export default function Calendar(props) {
           )}
           <br />
 
-          {/* JAELYN EDITED */}
+          {/* WIP J TO CONTINUE AFTER CONNIE IS DONE W CALENDAR */}
           {renderPopulatedFields}
-          {/* <div>
-            <h3>Pick from your saved list:</h3>
-            <ul>
-              {addMeal.map((meal, index) => {
-                return (
-                  <li key={index} onClick={() => handleSelectMeal(meal)}>
-                    {meal.nameOfFood}
-                  </li>
-                );
-              })}
-            </ul>
-          </div> */}
 
           <br />
           <div>
@@ -490,14 +442,3 @@ export default function Calendar(props) {
     </div>
   );
 }
-
-// console.log(`addMeal props:`, savedMealData);
-
-// Update setMealType and setCalories if user has already added their meal data using calorieNinja and they'd like to store the data in calendar.
-// useEffect(() => {
-//   if (savedMealData.length > 0) {
-//     const populateMeal = savedMealData[savedMealData.length - 1];
-//     setMealType(populateMeal.nameOfFood);
-//     setCalories(populateMeal.totalCalories);
-//   }
-// }, [savedMealData]);
