@@ -1,9 +1,4 @@
 import React, { useEffect, useState, useContext } from "react";
-import { ref, set, get } from "firebase/database";
-import { auth } from "../firebase";
-import { database } from "../firebase";
-import { UserContext } from "../App";
-import { onAuthStateChanged } from "firebase/auth";
 import Fullcalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -44,7 +39,6 @@ export default function Calendar() {
       },
     },
   ]);
-
   // to render each event in calendar
   const renderEventContent = (eventInfo) => {
     return (
