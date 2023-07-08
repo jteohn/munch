@@ -1,7 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import { ref, set, get } from "firebase/database";
+import { auth } from "../firebase";
+import { database } from "../firebase";
+import { UserContext } from "../App";
+import { onAuthStateChanged } from "firebase/auth";
 import Fullcalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
-import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import Popup from "reactjs-popup";
 import "reactjs-popup/dist/index.css";
@@ -13,9 +17,14 @@ export default function Calendar(props) {
   const [savedMealData, setSavedMealData] = useState(addMeal);
   const [selectedMeal, setSelectedMeal] = useState(null);
 
+export default function Calendar() {
+  const user = useContext(UserContext);
+
+  // setDatabase reference
+  const DB_CALENDAR_KEY = "userCalendar/";
+
   // initialize popup values
   const [open, setOpen] = useState(false);
-  const [openEvent, setOpenEvent] = useState(false);
 
   // initialize form inputs for dateClick
   const [mealType, setMealType] = useState("");
@@ -23,24 +32,22 @@ export default function Calendar(props) {
   const [foodName, setFoodName] = useState("");
   const [recipeURL, setRecipeURL] = useState("");
   const [start, setStart] = useState("");
+  const [startStr, setStartStr] = useState("");
   const [eventInfo, setEventInfo] = useState({});
+  const [count, setCount] = useState(1);
+  const [currentEventID, setCurrentEventID] = useState(0);
   const [mode, setMode] = useState("");
-
-  // initialize form inputs for eventClick
-  const [mealTypeEvent, setMealTypeEvent] = useState("");
-  const [caloriesEvent, setCaloriesEvent] = useState("");
-  const [foodNameEvent, setFoodNameEvent] = useState("");
-  const [recipeURLEvent, setRecipeURLEvent] = useState("");
-  const [popupInfo, setPopupInfo] = useState("");
 
   const [events, setEvents] = useState([
     {
+      id: 0,
       start: "2023-07-14T12:00:00",
       title: "Breakfast ",
       extendedProps: {
         Food: " Chicken lasagne",
         recipeURL: "www.chickenlasagne.com",
         calories: "3000",
+        start: "2023-07-14T12:00:00",
       },
     },
   ]);
@@ -83,12 +90,14 @@ export default function Calendar(props) {
   //   console.log(events);
   // };
 
-  // to reset input fields after Add Meal Form is saved
+  // to reset input fields after event is saved
   const resetFields = () => {
     setMealType("");
     setCalories("");
     setFoodName("");
     setRecipeURL("");
+    setStart("");
+    setStartStr("");
     setMode("");
     console.log("Fields are reset, open is : ", open);
   };
@@ -105,84 +114,168 @@ export default function Calendar(props) {
   const dateClickHandler = (info) => {
     setOpen(true);
     console.log("Selecting Date...");
-    const date = info.start;
+    let date = info.start;
+    const dateStr = info.startStr;
+    date = `${dateStr}T00:00:00`;
+    setStartStr(dateStr);
     setMode("newdate");
     setStart(date);
-    console.log("User selected date:", date);
-    // console.log("All info is:", info);
+    console.log("Date ", date);
+    console.log("All info is : ", info);
   };
 
   // when user clicks on event
   const eventsHandler = (info) => {
     setMode("editevent");
+    console.log(info);
     setOpen(true);
     const event = info.event._def;
+    console.log(event.publicId);
+    setCurrentEventID(event.publicId);
     setEventInfo(event);
     console.log("Selected event...");
     console.log("Events Info : ", eventInfo);
     console.log(info.event._def);
-    const title = info.event._def.title;
-    const extendedProps = info.event._def.extendedProps;
+    const title = event.title;
+    const extendedProps = event.extendedProps;
     console.log(title, extendedProps);
+    setStart(extendedProps.start);
     setMealType(title);
     setCalories(extendedProps.calories);
     setFoodName(extendedProps.Food);
     setRecipeURL(extendedProps.recipeURL);
-    console.log(foodNameEvent);
   };
 
-  // when user did not save/submit the Add Meal Form
+  // to double check start time is set
+  useEffect(() => {
+    console.log("Start is : ", start);
+  }, [start]);
+
+  // to double check currentEventID is set correctly
+  useEffect(() => {
+    console.log(currentEventID);
+  }, [currentEventID]);
+
+  // // to check state for events has been added, ensure event added, save to database when edited
+  // useEffect(() => {
+  //   console.log(events);
+  //   console.log("In use effects Events");
+  //   saveCalendar();
+  // }, [events]);
+
+  // // to write to database, called when events change
+  // const saveCalendar = () => {
+  //   console.log("Data is overwritten!");
+  //   console.log(events);
+  //   const userCalendarRef = ref(database, DB_CALENDAR_KEY + user.uid);
+  //   set(userCalendarRef, {
+  //     userID: user.uid,
+  //     events: events,
+  //   });
+  // };
+
+  // when page loads
+  useEffect(() => {
+    const fetchData = async () => {
+      console.log("Data is being fetched! ");
+      const user = auth.currentUser;
+      if (user) {
+        const userID = user.uid;
+        const userRef = ref(database, `${DB_CALENDAR_KEY}/${userID}`);
+        const snapshot = await get(userRef);
+        const userData = snapshot.val();
+        if (userData && Array.isArray(userData.events)) {
+          setEvents((prevEvents) => [...prevEvents, ...userData.events]);
+        }
+      } else {
+        console.log("User has no calendar on Database!");
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // to enable user to close pop ups without saving by clicking anywhere on document
   const handleClosePopupWithoutSubmit = () => {
     setOpen(false);
     resetFields();
   };
 
-  // when event is edited and saved
-  // const onSaveSubmitEvent = (info) => {
-  //   // info.jsEvent.preventDefault();
-  //   console.log("Saving meal after setEvents");
-  //   console.log(info);
-  //   // if (info.event.url) {
-  //   //   window.open(info.event.url);
-  //   // }
-  // };
+  // function to increase Count
+  const increaseCount = () => {
+    setCount((prevCount) => prevCount + 1);
+    console.log(count);
+  };
 
   // handle all submit buttons for pop up
   const handlePopupSubmit = () => {
-    console.log("Popup submitted: ", popupInfo);
     setOpen(false);
     if (mode === "editevent") {
       console.log("Selected existing event...");
-      // console.log("Events Info : ", eventInfo);
-      // const title = eventInfo.title;
-      // const extendedProps = eventInfo.extendedProps;
-      // console.log(title, extendedProps);
-      // setMealType(title);
-      // setCalories(extendedProps.calories);
-      // setFoodName(extendedProps.Food);
-      // setRecipeURL(extendedProps.recipeURL);
-      console.log(foodNameEvent);
+      console.log(start);
+      console.log("Yay! ", events[currentEventID]);
+      const eventsCopy = [...events];
+      const currentEvent = {
+        id: currentEventID,
+        extendedProps: {
+          Food: foodName,
+          recipeURL: recipeURL,
+          calories: calories,
+          start: start,
+        },
+        title: mealType,
+        start: start,
+      };
+      console.log(currentEvent);
+      eventsCopy[currentEventID] = currentEvent;
+      console.log(eventsCopy[currentEventID]);
+      console.log(eventsCopy);
+      setEvents(eventsCopy);
+      console.log(events);
     } else if (mode === "newdate" || mode === "newmeal") {
+      let start = "";
+      increaseCount();
+      console.log(count);
       if (mealType && foodName) {
         console.log("Saving meal Before setEvents!");
         console.log(events);
+        if (mealType === "Breakfast") {
+          start = `${startStr}T06:00:00`;
+          console.log(start);
+          setStart(start);
+        } else if (mealType === "Lunch") {
+          start = `${startStr}T12:00:00`;
+          console.log(start);
+          setStart(start);
+        } else if (mealType === "Dinner") {
+          start = `${startStr}T18:00:00`;
+          console.log(start);
+          setStart(start);
+        }
         setEvents((prevEvents) => [
           ...prevEvents,
           {
+            id: count,
             start,
             title: mealType,
             extendedProps: {
               Food: foodName,
               recipeURL: recipeURL,
               calories: calories,
+              start: start,
             },
           },
         ]);
       }
       console.log("Saving meal after setEvents");
       console.log(events);
-      resetFields();
     }
+    const userCalendarRef = ref(database, DB_CALENDAR_KEY + user.uid);
+    set(userCalendarRef, {
+      userID: user.uid,
+      events: events,
+    });
+    resetFields();
   };
 
   // ===== BELOW SECTION IS FOR RENDERING OUT POPULATED FIELD BASED ON WHAT USER HAS ADDED FROM CALORIENINJA ===== //
@@ -257,41 +350,31 @@ export default function Calendar(props) {
   //   //style={{ display: "flex", justifyContent: "center" }}
 
   return (
-    <div
-      style={{
-        justifyContent: "center",
-        padding: "2rem",
-      }}
-    >
-      <div>
-        <Fullcalendar
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          initialView="dayGridMonth"
-          headerToolbar={{
-            start: "",
-            center: "title",
-            end: "today new",
-          }}
-          footerToolbar={{
-            start: "dayGridMonth timeGridWeek",
-            end: "prev next",
-          }}
-          nowIndicator={true}
-          selectable={true}
-          events={events}
-          height={"90vh"}
-          //      eventBackgroundColor="#efe9e0" : to set background color. default color is blue for all day event. Only works for all day event.
-          customButtons={{
-            new: {
-              text: "Add Meal",
-              click: () => chooseDateHandler(),
-            },
-          }}
-          select={(info) => dateClickHandler(info)}
-          eventClick={(info) => eventsHandler(info)}
-          eventContent={renderEventContent}
-        />
-      </div>
+    <div style={{ justifyContent: "center" }}>
+      <Fullcalendar
+        id="calender"
+        plugins={[dayGridPlugin, interactionPlugin]}
+        initialView="dayGridMonth"
+        headerToolbar={{
+          start: "title",
+          center: "dayGridMonth dayGridWeek new",
+          end: "today prev next",
+        }}
+        nowIndicator={true}
+        selectable={true}
+        events={events}
+        height={"90vh"}
+        //      eventBackgroundColor="#efe9e0" : to set background color. default color is blue for all day event. Only works for all day event.
+        customButtons={{
+          new: {
+            text: "Add Meal",
+            click: () => chooseDateHandler(),
+          },
+        }}
+        select={(info) => dateClickHandler(info)}
+        eventClick={(info) => eventsHandler(info)}
+        eventContent={renderEventContent}
+      />
 
       {/* dynamic popup for date click / current event click / add meal button click */}
       <Popup
@@ -299,7 +382,7 @@ export default function Calendar(props) {
         closeOnDocumentClick
         onClose={handleClosePopupWithoutSubmit}
       >
-        <div className="modal">
+        <div className="modal text-center">
           {mode === "newdate" ? (
             <p>
               Fill up this form to insert a food into your meal plan or choose
