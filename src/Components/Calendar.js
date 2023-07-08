@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import Fullcalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -38,7 +38,6 @@ export default function Calendar() {
       },
     },
   ]);
-
   // to render each event in calendar
   const renderEventContent = (eventInfo) => {
     return (

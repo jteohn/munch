@@ -1,37 +1,71 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { Card, CardContent, CardMedia, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { Modal } from "react-responsive-modal";
 import "react-responsive-modal/styles.css";
-import "bootstrap/dist/css/bootstrap.min.css";
+
 export default function Recipe() {
   const [recipeSearchQuery, setRecipeSearchQuery] = useState("");
   const [mealTypeQuery, setMealTypeQuery] = useState("Breakfast");
   const [modalStatus, setModalStatus] = useState(false);
-  const [recipeResults, setRecipeResults] = useState(null);
-  const [selectedRecipeIndex, setSelectedRecipeIndex] = useState(null);
+  const [recipeResults, setRecipeResults] = useState([]);
+  const [selectedRecipeIndex, setSelectedRecipeIndex] = useState(0);
+  const [selectedSaveOption, setSelectedSaveOption] = useState({});
+  const [searchDone, setSearchDone] = useState(false);
 
+  let dataToPass = selectedSaveOption;
+
+  const testSavedOption = (e) => {
+    e.preventDefault();
+    console.log(selectedSaveOption);
+  };
+  //these 2 for context use
+  const saveOption = (index) => {
+    setSelectedRecipeIndex(index);
+  };
+
+  useEffect(() => {
+    if (searchDone) {
+      console.log(`selectedRecipeIndex: ${selectedRecipeIndex}`);
+      setSelectedSaveOption({
+        url: recipeResults[selectedRecipeIndex].recipe.url,
+        calories: recipeResults[selectedRecipeIndex].recipe.calories.toFixed(0),
+      });
+    } else {
+      return;
+    }
+  }, [recipeResults, selectedRecipeIndex]);
+
+  useEffect(() => {
+    console.log(selectedSaveOption);
+  }, [selectedSaveOption]);
+  // these 2 for modal open n close
   const openModal = (index) => {
-    console.log("setModalStatus set to true");
     setSelectedRecipeIndex(index);
     setModalStatus(true);
   };
   const closeModal = () => setModalStatus(false);
-
+  // handles the search function, shows recipe n stuff, does the fetch n all
   const handleSearch = (e) => {
     e.preventDefault();
     console.log(`mealTypeQuery: ${mealTypeQuery}`);
     console.log(`recipeSearchQuery: ${recipeSearchQuery}`);
+    if (recipeSearchQuery === "" || recipeSearchQuery === undefined) {
+      alert("You cannot search for nothingness!");
+      setRecipeSearchQuery("");
+      return;
+    }
     axios
       .get(
         `https://api.edamam.com/api/recipes/v2?type=public&q=${recipeSearchQuery}&app_id=${process.env.REACT_APP_EDAMAM_RECIPE_ID}&app_key=${process.env.REACT_APP_EDAMAM_RECIPE_KEY}&diet=balanced&mealType=${mealTypeQuery}&dishType=Main%20course&dishType=Salad&dishType=Soup&dishType=Starter&imageSize=REGULAR&field=uri&field=image&field=images&field=source&field=url&field=ingredientLines&field=calories&field=totalWeight&field=totalTime&field=mealType&field=totalNutrients&field=totalDaily`
       )
       .then((result) => {
         setRecipeSearchQuery("");
-        console.log(result.data.hits);
         const savedRecipes = result.data.hits;
+        console.log(result.data.hits);
         setRecipeResults(savedRecipes);
+        setSearchDone(true);
       })
       .catch((error) => {
         console.log(`error: ${error}`);
@@ -44,6 +78,7 @@ export default function Recipe() {
     <div>
       <h1>Recipes!</h1>
       <div>
+        <button onClick={testSavedOption}>test</button>
         <form>
           <label>Select Meal Time</label>
         </form>
@@ -69,7 +104,13 @@ export default function Recipe() {
           : recipeResults.map((result, indexed) => {
               return (
                 <div key={indexed}>
-                  <Card sx={{ minWidth: 275 }}>
+                  <Card
+                    sx={{
+                      minWidth: 275,
+                      maxWidth: 300,
+                      bgcolor: "text.secondary",
+                    }}
+                  >
                     <CardMedia
                       sx={{ height: "150px", width: "150px" }}
                       image={result.recipe.images.THUMBNAIL.url}
@@ -107,40 +148,11 @@ export default function Recipe() {
                           </Modal>
                         )}
                     </CardContent>
+                    <Button size="small" onClick={() => saveOption(indexed)}>
+                      Save Recipe!
+                    </Button>
                   </Card>
-                  {/* <Card>
-                    <Card.Img
-                      variant="top"
-                      src={result.recipe.images.THUMBNAIL.url}
-                      alt=""
-                      style={{ height: "100px", width: "100px" }}
-                    />
-                    <Card.Title>
-                      <a href={result.recipe.url}>Recipe {indexed + 1}</a>
-                    </Card.Title>
-                    <Card.Text>
-                      <div>Calories: {result.recipe.calories.toFixed(0)}</div>
-                      <button onClick={() => openModal(indexed)}>
-                        Ingredient List
-                      </button>
-                      {modalStatus &&
-                        recipeResults &&
-                        recipeResults[selectedRecipeIndex] && (
-                          <Modal open={modalStatus} onClose={closeModal} center>
-                            <h2>Ingredients:</h2>
-                            <ul>
-                              {recipeResults[
-                                selectedRecipeIndex
-                              ].recipe.ingredientLines.map(
-                                (ingredient, index) => (
-                                  <li key={index + 1}>{ingredient}</li>
-                                )
-                              )}
-                            </ul>
-                          </Modal>
-                        )}
-                    </Card.Text>
-                  </Card> */}
+                  <br />
                 </div>
               );
             })}
