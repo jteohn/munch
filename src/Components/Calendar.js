@@ -125,19 +125,18 @@ export default function Calendar() {
     const fetchData = async () => {
       const currUser = auth.currentUser;
       if (currUser) {
-        const userRef = ref(database, DB_CALENDAR_KEY + user.uid);
+        console.log("Curr User is : ", currUser);
+        const userRef = ref(database, DB_CALENDAR_KEY + currUser.uid);
         const snapshot = await get(userRef);
+        console.log(snapshot);
         setDbSnapshot(snapshot);
         const userData = snapshot.val();
         console.log("Data is being fetched! ");
         if (userData && Array.isArray(userData.events)) {
-          if (firstTime) {
-            setEvents(userData.events);
-            setFirstTime(false);
-            console.log(events);
-          } else {
-            setEvents((prevEvents) => [...prevEvents, ...userData.events]);
-          }
+          console.log(userData.events);
+          setEvents(userData.events);
+          setFirstTime(false);
+          console.log(events);
         } else {
           console.log("User has no calendar on database!");
         }
@@ -157,29 +156,29 @@ export default function Calendar() {
     console.log("In use effects Events updated");
     const userCalendarRef = ref(database, DB_CALENDAR_KEY + user.uid);
     console.log(userCalendarRef);
-    const checkSnapshot = async () => {
-      const snapshot = await get(userCalendarRef);
-      if (!snapshot.exists()) {
-        set(userCalendarRef, { events: [] });
-      }
-      if (!firstTime) {
-        update(userCalendarRef, { events: events });
-      }
-    };
-    checkSnapshot();
+    if (dbSnapshot && !firstTime) {
+      update(userCalendarRef, {
+        events: events,
+      });
+    } else if (!firstTime) {
+      set(userCalendarRef, {
+        events: events,
+      });
+    }
 
-    //listen for changes in db
-    onValue(userCalendarRef, async (snapshot) => {
-      const snapshott = snapshot.val;
-      if (snapshott) {
-        setDbSnapshot(snapshott);
-      } else {
-        console.log("Db not updated!");
-        setDbSnapshot(null);
-      }
-    });
     // saveCalendar();
-  }, [events, firstTime, user.uid]);
+  }, [events]);
+
+  const userCalendarRef = ref(database, DB_CALENDAR_KEY + user.uid);
+  onValue(userCalendarRef, async (snapshot) => {
+    const snapshott = snapshot.val();
+    console.log(snapshott);
+    if (snapshott) {
+      setDbSnapshot(snapshott);
+    } else {
+      console.log("Db not updated!");
+    }
+  });
 
   // to enable user to close pop ups without saving by clicking anywhere on document
   const handleClosePopupWithoutSubmit = () => {
