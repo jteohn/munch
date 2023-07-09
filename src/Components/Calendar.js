@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { ref, set, get, onValue, update } from "firebase/database";
+import { ref, set, get, onValue, update, child } from "firebase/database";
 import { auth } from "../firebase";
 import { database } from "../firebase";
 import { UserContext } from "../App";
@@ -116,69 +116,92 @@ export default function Calendar() {
   }, [currentEventID]);
 
   // to double check currentEventID is set correctly
-  useEffect(() => {
-    console.log("Count is updated : ", count);
-  }, [count]);
+  // useEffect(() => {
+  //   console.log("Count is updated : ", count);
+  // }, [count]);
 
-  // when page loads runs once to get snapshot
-  useEffect(() => {
-    const fetchData = async () => {
-      const currUser = auth.currentUser;
-      if (currUser) {
-        console.log("Curr User is : ", currUser);
-        const userRef = ref(database, DB_CALENDAR_KEY + currUser.uid);
-        const snapshot = await get(userRef);
-        console.log(snapshot);
-        setDbSnapshot(snapshot);
-        const userData = snapshot.val();
-        console.log("Data is being fetched! ");
-        if (userData && Array.isArray(userData.events)) {
-          console.log(userData.events);
-          setEvents(userData.events);
-          setFirstTime(false);
-          console.log(events);
-        } else {
-          console.log("User has no calendar on database!");
-        }
-      } else {
-        console.log("User is not logged in!");
-        navigate("/");
-      }
+  // // when page loads runs once to get snapshot
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     const currUser = auth.currentUser;
+  //     if (currUser) {
+  //       console.log("Curr User is : ", currUser);
+  //       const userRef = ref(database, DB_CALENDAR_KEY + currUser.uid);
+  //       const snapshot = await get(userRef);
+  //       console.log(snapshot);
+  //       setDbSnapshot(snapshot);
+  //       const userData = snapshot.val();
+  //       console.log("Data is being fetched! ");
+  //       if (userData && Array.isArray(userData.events)) {
+  //         console.log(userData.events);
+  //         setEvents(userData.events);
+  //         setFirstTime(false);
+  //         console.log(events);
+  //       } else {
+  //         console.log("User has no calendar on database!");
+  //       }
+  //     } else {
+  //       console.log("User is not logged in!");
+  //       navigate("/");
+  //     }
+  //   };
+
+  //   fetchData();
+  // }, []);
+
+  // // to check state for events has been added, ensure event added, save to database when edited
+  // useEffect(() => {
+  //   console.log(events);
+  //   setCount(events.length);
+  //   console.log("In use effects Events updated");
+  //   const userCalendarRef = ref(database, DB_CALENDAR_KEY + user.uid);
+  //   console.log(userCalendarRef);
+  //   if (dbSnapshot && !firstTime) {
+  //     update(userCalendarRef, {
+  //       events: events,
+  //     });
+  //   } else if (!firstTime) {
+  //     set(userCalendarRef, {
+  //       events: events,
+  //     });
+  //   }
+
+  //   // saveCalendar();
+  // }, [events]);
+
+  // const userCalendarRef = ref(database, DB_CALENDAR_KEY + user.uid);
+  // onValue(userCalendarRef, async (snapshot) => {
+  //   const snapshott = snapshot.val();
+  //   console.log(snapshott);
+  //   if (snapshott) {
+  //     setDbSnapshot(snapshott);
+  //   } else {
+  //     console.log("Db not updated!");
+  //   }
+  // });
+
+  // ===== UPDATE CODE TO PUSH EVENTS TO DATABASE ===== //
+  const writeData = (events) => {
+    const userRef = ref(database, DB_CALENDAR_KEY + user.uid);
+
+    const newEvent = {
+      eventFood: foodName,
+      eventCalories: calories,
     };
 
-    fetchData();
-  }, []);
+    // add the thingy below because when user clicks "Add Meal" the dates do not have hyphens, however, when the user adds a meal from the calendar itself it is hyphenated!
+    const formattedDate = startStr.replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3");
+    const dateRef = child(userRef, formattedDate);
+    const mealTypeRef = child(dateRef, mealType);
 
-  // to check state for events has been added, ensure event added, save to database when edited
-  useEffect(() => {
-    console.log(events);
-    setCount(events.length);
-    console.log("In use effects Events updated");
-    const userCalendarRef = ref(database, DB_CALENDAR_KEY + user.uid);
-    console.log(userCalendarRef);
-    if (dbSnapshot && !firstTime) {
-      update(userCalendarRef, {
-        events: events,
+    set(mealTypeRef, newEvent)
+      .then(() => {
+        console.log(`event added to database`);
+      })
+      .catch((error) => {
+        console.log("Error, unable to add event to database");
       });
-    } else if (!firstTime) {
-      set(userCalendarRef, {
-        events: events,
-      });
-    }
-
-    // saveCalendar();
-  }, [events]);
-
-  const userCalendarRef = ref(database, DB_CALENDAR_KEY + user.uid);
-  onValue(userCalendarRef, async (snapshot) => {
-    const snapshott = snapshot.val();
-    console.log(snapshott);
-    if (snapshott) {
-      setDbSnapshot(snapshott);
-    } else {
-      console.log("Db not updated!");
-    }
-  });
+  };
 
   // to enable user to close pop ups without saving by clicking anywhere on document
   const handleClosePopupWithoutSubmit = () => {
@@ -247,6 +270,7 @@ export default function Calendar() {
           },
         ]);
       }
+      writeData(events);
       console.log("Saving meal after setEvents");
       console.log(events);
     }
@@ -258,7 +282,7 @@ export default function Calendar() {
   return (
     <div style={{ justifyContent: "center" }}>
       <Fullcalendar
-        id="calender"
+        // id="calender"
         plugins={[dayGridPlugin, interactionPlugin]}
         initialView="dayGridMonth"
         headerToolbar={{
@@ -319,7 +343,7 @@ export default function Calendar() {
                         value={startStr}
                         onChange={(e) => {
                           setStartStr(e.target.value);
-                          console.log(startStr);
+                          // console.log(startStr);
                         }}
                       />
                     </td>
@@ -336,7 +360,7 @@ export default function Calendar() {
                       value={mealType}
                       onChange={(e) => {
                         setMealType(e.target.value);
-                        console.log(mealType);
+                        // console.log(mealType);
                       }}
                     />
                   </td>
@@ -351,7 +375,7 @@ export default function Calendar() {
                       value={foodName}
                       onChange={(e) => {
                         setFoodName(e.target.value);
-                        console.log(foodName);
+                        // console.log(foodName);
                       }}
                     />
                   </td>
