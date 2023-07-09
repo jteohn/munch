@@ -71,13 +71,13 @@ export default function Calendar() {
 
   //when user clicks on date
   const dateClickHandler = (info) => {
+    setMode("newdate");
     setOpen(true);
     console.log("Selecting Date...");
     let date = info.start;
     const dateStr = info.startStr;
     date = `${dateStr}T00:00:00`;
     setStartStr(dateStr);
-    setMode("newdate");
     setStart(date);
     console.log("Date ", date);
     console.log("All info is : ", info);
@@ -105,34 +105,52 @@ export default function Calendar() {
   };
 
   useEffect(() => {
-    console.log(eventInfo);
-  }, [eventInfo]);
+    console.log(mealType);
+  }, [mealType]);
 
-  // to double check start time is set
   useEffect(() => {
-    console.log("Start is : ", start);
-  }, [start]);
+    console.log(calories);
+  }, [calories]);
+
+  useEffect(() => {
+    console.log(recipeURL);
+  }, [recipeURL]);
+
+  useEffect(() => {
+    console.log(foodName);
+  }, [foodName]);
+
+  // useEffect(() => {
+  //   console.log(eventInfo);
+  // }, [eventInfo]);
+
+  // // to double check start time is set
+  // useEffect(() => {
+  //   console.log("Start is : ", start);
+  // }, [start]);
+
+  // // to double check currentEventID is set correctly
+  // useEffect(() => {
+  //   console.log(currentEventID);
+  // }, [currentEventID]);
 
   // to double check currentEventID is set correctly
-  useEffect(() => {
-    console.log(currentEventID);
-  }, [currentEventID]);
+  // useEffect(() => {
+  //   console.log("Count is updated : ", count);
+  // }, [count]);
 
-  // to double check currentEventID is set correctly
   useEffect(() => {
-    console.log("Count is updated : ", count);
-  }, [count]);
+    console.log("Mode is ", mode);
+  }, [mode]);
 
   // when page loads runs once to get snapshot
   useEffect(() => {
-    // const fetchData = async () => {
     onAuthStateChanged(auth, (currUser) => {
       console.log("Auth state is changed! ");
       if (currUser) {
         console.log("Curr User is : ", currUser);
         setCount(events.length);
         get(userRef).then((snapshot) => {
-          // const snapshott = snapshot.val();
           console.log(snapshot.val());
           const snapshott = snapshot.val();
           if (snapshot.exists()) {
@@ -159,6 +177,7 @@ export default function Calendar() {
   }, []);
 
   useEffect(() => {
+    console.log(events);
     setCount(events.length);
     if (!firstTime) {
       console.log(events);
@@ -180,27 +199,10 @@ export default function Calendar() {
     }
   }, [events]);
 
-  useEffect(() => {
-    console.log("First time is changed to : ", firstTime);
-  }, [firstTime]);
-
-  // // to check state for events has been added, ensure event added, save to database when edited
   // useEffect(() => {
-  //   console.log(events);
+  //   console.log("First time is changed to : ", firstTime);
+  // }, [firstTime]);
 
-  //   console.log("In use effects Events updated");
-  //   const userCalendarRef = ref(database, DB_CALENDAR_KEY + user.uid);
-  //   console.log(userCalendarRef);
-  //   console.log("First time is : ", firstTime);
-
-  //   getSnapshot();
-  //   // saveCalendar();
-  // }, [events]);
-
-  // const getSnapshot = () => {
-  //   console.log("getSnapshot: ", user.uid);
-  //   const userCalendarRef = ref(database, DB_CALENDAR_KEY + user.uid);
-  // };
   // to enable user to close pop ups without saving by clicking anywhere on document
   const handleClosePopupWithoutSubmit = () => {
     setOpen(false);
@@ -210,6 +212,11 @@ export default function Calendar() {
   // handle all submit buttons for pop up
   const handlePopupSubmit = () => {
     setOpen(false);
+    console.log("Mode is : ", mode);
+    console.log("URL is : ", recipeURL);
+    console.log("Start is : ", recipeURL);
+    console.log("Foodname is : ", foodName);
+    console.log("Calories is : ", calories);
     if (mode === "editevent") {
       console.log("Selected existing event...");
       console.log(start);
@@ -237,7 +244,12 @@ export default function Calendar() {
         setStart(`${startStr}T00:00:00`);
       }
       console.log(count);
-      if (mealType && foodName) {
+      console.log("NM Mode is : ", mode);
+      console.log("NM URL is : ", recipeURL);
+      console.log("NM Start is : ", recipeURL);
+      console.log("NM Foodname is : ", foodName);
+      console.log("NM Calories is : ", calories);
+      if (foodName) {
         console.log("Saving meal Before setEvents!");
         console.log(events);
         if (mealType === "Breakfast") {
@@ -351,7 +363,21 @@ export default function Calendar() {
                 <tr className="height">
                   <td style={{ width: "8rem" }}>Meal Type </td>
                   <td>
-                    <input
+                    <select
+                      value={mealType}
+                      onChange={(e) => {
+                        setMealType(e.target.value);
+                        console.log(e.target.value);
+                      }}
+                    >
+                      <option disabled value="">
+                        Select your option
+                      </option>
+                      <option value={"Breakfast"}>Breakfast</option>
+                      <option value={"Lunch"}>Lunch</option>
+                      <option value={"Dinner"}>Dinner</option>
+                    </select>
+                    {/* <input
                       className="profile-inputs"
                       type="text"
                       value={mealType}
@@ -359,7 +385,7 @@ export default function Calendar() {
                         setMealType(e.target.value);
                         console.log(mealType);
                       }}
-                    />
+                    /> */}
                   </td>
                 </tr>
 
