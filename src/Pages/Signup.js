@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import signup from "../assets/signup.png";
-import signupbg from "../assets/signupbg.jpg";
 import Tooltip from "@mui/material/Tooltip";
-import { useMediaQuery } from "@mui/material";
 import "../App.css";
 
 export default function Signup(props) {
@@ -17,8 +15,6 @@ export default function Signup(props) {
   const { setStates } = props;
   const [isStateSetDone, setIsStateSetDone] = useState(false); // to track if state in parent is tracked
   const [secondPassword, setSecondPassword] = useState("");
-
-  // const [hover, setHover] = useState(false);
 
   const handleSubmit = async () => {
     if (password !== secondPassword) {
