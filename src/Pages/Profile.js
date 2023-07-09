@@ -203,7 +203,7 @@ export default function Profile(props) {
             <td style={{ width: "8rem" }}>Display Name:</td>
             <td>
               <input
-                className="updateProfile"
+                className="update-input"
                 type="text"
                 defaultValue={user.name}
                 onChange={(e) => setEditName(e.target.value)}
@@ -214,7 +214,7 @@ export default function Profile(props) {
             <td>Age</td>
             <td>
               <input
-                className="updateProfile"
+                className="update-input"
                 type="text"
                 defaultValue={user.age}
                 onChange={(e) => setEditAge(e.target.value)}
@@ -226,7 +226,7 @@ export default function Profile(props) {
             <td>Gender</td>
             <td>
               <input
-                className="updateProfile"
+                className="update-input"
                 type="text"
                 defaultValue={user.gender}
                 onChange={(e) => setEditGender(e.target.value)}
@@ -238,7 +238,7 @@ export default function Profile(props) {
             <td>Height (in cm)</td>
             <td>
               <input
-                className="updateProfile"
+                className="update-input"
                 type="text"
                 defaultValue={user.height}
                 onChange={(e) => setEditHeight(e.target.value)}
@@ -250,7 +250,7 @@ export default function Profile(props) {
             <td>Weight (in kg)</td>
             <td>
               <input
-                className="updateProfile"
+                className="update-input"
                 type="text"
                 defaultValue={user.weight}
                 onChange={(e) => setEditWeight(e.target.value)}
@@ -260,7 +260,7 @@ export default function Profile(props) {
         </tbody>
       </table>
       <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
-        <button className="saveButton font" onClick={handleSaveProfile}>
+        <button className="save-button font" onClick={handleSaveProfile}>
           save
         </button>
       </div>
@@ -281,7 +281,7 @@ export default function Profile(props) {
             <td style={{ width: "7.5rem" }}>Display Name:</td>
             <td>
               <input
-                className="updateProfile large"
+                className="update-input wider"
                 style={{ width: "29rem" }}
                 type="text"
                 defaultValue={user.name}
@@ -303,7 +303,7 @@ export default function Profile(props) {
             <td style={{ width: "6rem" }}>Age</td>
             <td>
               <input
-                className="updateProfile large"
+                className="update-input wider"
                 type="text"
                 defaultValue={user.age}
                 onChange={(e) => setEditAge(e.target.value)}
@@ -312,7 +312,7 @@ export default function Profile(props) {
             <td>Gender</td>
             <td>
               <input
-                className="updateProfile large"
+                className="update-input wider"
                 type="text"
                 defaultValue={user.gender}
                 onChange={(e) => setEditGender(e.target.value)}
@@ -324,7 +324,7 @@ export default function Profile(props) {
             <td>Height (in cm)</td>
             <td>
               <input
-                className="updateProfile large"
+                className="update-input wider"
                 type="text"
                 defaultValue={user.height}
                 onChange={(e) => setEditHeight(e.target.value)}
@@ -333,7 +333,7 @@ export default function Profile(props) {
             <td>Weight (in kg)</td>
             <td>
               <input
-                className="updateProfile large"
+                className="update-input wider"
                 type="text"
                 defaultValue={user.weight}
                 onChange={(e) => setEditWeight(e.target.value)}
@@ -343,7 +343,7 @@ export default function Profile(props) {
         </tbody>
       </table>
       <div style={{ textAlign: "center" }}>
-        <button className="saveButton font" onClick={handleSaveProfile}>
+        <button className="save-button font" onClick={handleSaveProfile}>
           save
         </button>
       </div>
