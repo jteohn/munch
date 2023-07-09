@@ -179,7 +179,7 @@ export default function Navbar({ handleLogout, avatarURL, isLoggedIn }) {
             <Box sx={{ flexGrow: 0 }}>
               <Tooltip title="Open settings">
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar alt="user" src={avatarURL} />
+                  <Avatar alt="user" src={user.avatar} />
                 </IconButton>
               </Tooltip>
               <Menu

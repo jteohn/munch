@@ -10,7 +10,6 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-// import "./App.css";
 
 import MunchRoutes from "./Components/Routes";
 import Navbar from "./Components/Navbar";
@@ -49,36 +48,6 @@ export default function App() {
 
   const navigate = useNavigate();
 
-  // getting user info from database upon login e
-  // const getUserInfo = async (userID) => {
-  //   const userRef = ref(database, `${DB_USER_KEY}/${userID}`);
-  //   // const userRef = get(userListRef);
-  //   //when new userinfo is added to database
-  //   onValue(userRef, (snapshot) => {
-  //     const userData = snapshot.val();
-  //     console.log(userData);
-  //     // const objKey = Object.keys(userData);
-  //     // const name = userData[`${objKey[0]}`].name;
-  //     // const age = userData[`${objKey[0]}`].age;
-  //     // const email = userData[`${objKey[0]}`].email;
-  //     // const height = userData[`${objKey[0]}`].height;
-  //     // const weight = userData[`${objKey[0]}`].weight;
-  //     // const gender = userData[`${objKey[0]}`].gender;
-  //     // const userObj = {
-  //     //   name: name,
-  //     //   age: age,
-  //     //   email: email,
-  //     //   height: height,
-  //     //   weight: weight,
-  //     //   gender: gender,
-  //     // };
-  //     // console.log(userObj);
-  //     // return userObj;
-  //   });
-  //   // } catch (error) {
-  //   //   console.log("Error retrieving user info : ", error);
-  // };
-
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       //firebase authentication
@@ -93,6 +62,7 @@ export default function App() {
           let userData = await snapshot.val();
           // if user data exists in RTDB
           if (userData) {
+            git;
             setIsLoggedIn(true);
             setStates(userData);
             console.log(`updated setStates:`, userData);

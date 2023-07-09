@@ -105,6 +105,22 @@ export default function Calendar() {
   };
 
   useEffect(() => {
+    console.log(mealType);
+  }, [mealType]);
+
+  useEffect(() => {
+    console.log(calories);
+  }, [calories]);
+
+  useEffect(() => {
+    console.log(recipeURL);
+  }, [recipeURL]);
+
+  useEffect(() => {
+    console.log(foodName);
+  }, [foodName]);
+
+  useEffect(() => {
     console.log(eventInfo);
   }, [eventInfo]);
 
@@ -184,23 +200,6 @@ export default function Calendar() {
     console.log("First time is changed to : ", firstTime);
   }, [firstTime]);
 
-  // // to check state for events has been added, ensure event added, save to database when edited
-  // useEffect(() => {
-  //   console.log(events);
-
-  //   console.log("In use effects Events updated");
-  //   const userCalendarRef = ref(database, DB_CALENDAR_KEY + user.uid);
-  //   console.log(userCalendarRef);
-  //   console.log("First time is : ", firstTime);
-
-  //   getSnapshot();
-  //   // saveCalendar();
-  // }, [events]);
-
-  // const getSnapshot = () => {
-  //   console.log("getSnapshot: ", user.uid);
-  //   const userCalendarRef = ref(database, DB_CALENDAR_KEY + user.uid);
-  // };
   // to enable user to close pop ups without saving by clicking anywhere on document
   const handleClosePopupWithoutSubmit = () => {
     setOpen(false);
@@ -351,7 +350,18 @@ export default function Calendar() {
                 <tr className="height">
                   <td style={{ width: "8rem" }}>Meal Type </td>
                   <td>
-                    <input
+                    <select
+                      value={mealType}
+                      onChange={(e) => {
+                        setMealType(e.target.value);
+                        console.log(e.target.value);
+                      }}
+                    >
+                      <option value={"Breakfast"}>Breakfast</option>
+                      <option value={"Lunch"}>Lunch</option>
+                      <option value={"Dinner"}>Dinner</option>
+                    </select>
+                    {/* <input
                       className="profile-inputs"
                       type="text"
                       value={mealType}
@@ -359,7 +369,7 @@ export default function Calendar() {
                         setMealType(e.target.value);
                         console.log(mealType);
                       }}
-                    />
+                    /> */}
                   </td>
                 </tr>
 
