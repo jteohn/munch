@@ -1,4 +1,4 @@
-/* FOR STYLING PROFILE PAGE */
+/* ===== CSS FOR PROFILE PAGE ===== */
 .header {
   margin: 1rem 2.5rem 0 2.5rem;
   display: flex;
@@ -8,10 +8,6 @@
 .flexCenter {
   display: flex;
   justify-content: center;
-}
-
-.font {
-  font-family: "Convergence", "Arial";
 }
 
 tr {
@@ -31,12 +27,6 @@ tr {
   overflow: hidden;
 }
 
-.displaytext {
-  align-self: center;
-  text-align: center;
-  margin: 0.8rem;
-}
-
 .inner-container {
   width: 120px;
   height: 120px;
@@ -44,6 +34,36 @@ tr {
   overflow: hidden;
 }
 
+/* ===== TEXT ===== */
+.font {
+  font-family: "Convergence", "Arial";
+}
+
+.displaytext {
+  align-self: center;
+  text-align: center;
+  margin: 0.8rem;
+}
+
+/* ===== INPUT FIELDS ===== */
+.update-input {
+  background-color: #ded6ca;
+  border: 0.5px solid #999898;
+  padding: 0.5rem;
+  border-radius: 8px;
+  width: 10rem;
+  font-size: 1rem;
+  color: #42403f;
+}
+
+.wider {
+  padding: 0.8rem;
+  border-radius: 8px;
+  width: 10rem;
+  margin: 0.5rem 1rem;
+}
+
+/* ===== BUTTONS ===== */
 .update-button {
   padding: 0.3rem 1rem;
   border-top-left-radius: 10px;
@@ -63,33 +83,7 @@ tr {
   color: #42403f;
 }
 
-.delete-button:hover,
-.update-button:hover,
-.saveButton:hover,
-.modalEditButton:hover {
-  background-color: #b6ac9c;
-  color: #fff;
-  transition: 0.8s;
-}
-
-.updateProfile {
-  background-color: #ded6ca;
-  border: 0.5px solid #999898;
-  padding: 0.5rem;
-  border-radius: 8px;
-  width: 10rem;
-  font-size: 1rem;
-  color: #42403f;
-}
-
-.large {
-  padding: 0.8rem;
-  border-radius: 8px;
-  width: 10rem;
-  margin: 0.5rem 1rem;
-}
-
-.saveButton {
+.save-button {
   padding: 0.5rem;
   width: 5rem;
   border-radius: 30px;
@@ -100,6 +94,16 @@ tr {
   letter-spacing: 0.1rem;
 }
 
+.delete-button:hover,
+.update-button:hover,
+.saveButton:hover,
+.modalEditButton:hover {
+  background-color: #b6ac9c;
+  color: #fff;
+  transition: 0.8s;
+}
+
+/* ===== MODAL ===== */
 #modal {
   display: flex;
   justify-content: center;

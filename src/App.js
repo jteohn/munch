@@ -10,6 +10,8 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+// import "./App.css";
 
 import MunchRoutes from "./Components/Routes";
 import Navbar from "./Components/Navbar";
@@ -128,26 +130,40 @@ export default function App() {
             console.log(`Error: unable to update display name:`, error);
           });
 
-        // alert(`Hello, ${name}! Welcome to munch, we are excited to have you here!`)
-        console.log(
-          `Hello ${name}, ! Welcome to munch, we are excited to have you here!`
-        );
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: `Hello, ${name}! Welcome to munch, we are excited to have you here!`,
+          showConfirmButton: false,
+          timer: 5000,
+        });
+        // console.log(
+        //   `Hello ${name}, ! Welcome to munch, we are excited to have you here!`
+        // );
+
         navigate("/dashboard");
       })
       .catch((error) => {
-        // J: min requirement for pw length?
-        // alert(`Username is taken, please try another one!`)
-        console.log(
-          `Unable to sign up! Looks like your email address has already been used.`,
-          error
-        );
+        Swal.fire({
+          icon: "error",
+          title: "Oops!",
+          text: "This email address has already been used!",
+        });
+        // console.log(
+        //   `Unable to sign up! This email address has already been used!`,
+        //   error
+        // );
       });
   };
 
   const handleLogin = async (email, password) => {
     if (!email || !password) {
-      //alert(`Please enter your email and password!`);
-      console.log(`Please enter your email and password!`);
+      Swal.fire({
+        icon: "error",
+        title: "Oops!",
+        text: "Please enter your email and password!",
+      });
+      // console.log(`Please enter your email and password!`);
       return;
     }
     try {
@@ -158,8 +174,12 @@ export default function App() {
       // setIsLogin(true);
       navigate("/");
     } catch (error) {
-      //alert('Invalid email or password. Please try again!');
-      console.log("Invalid email or password. Please try again!");
+      Swal.fire({
+        icon: "error",
+        title: "Oops!",
+        text: "Invalid email or password. Please try again!",
+      });
+      // console.log("Invalid email or password. Please try again!");
     }
   };
 

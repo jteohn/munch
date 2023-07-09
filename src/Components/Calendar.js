@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { ref, set, get, update, child } from "firebase/database";
+import { ref, set, get, update } from "firebase/database";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase";
 import { database } from "../firebase";
@@ -11,13 +11,18 @@ import interactionPlugin from "@fullcalendar/interaction";
 import Popup from "reactjs-popup";
 import "reactjs-popup/dist/index.css";
 
-export default function Calendar() {
+export default function Calendar(props) {
   const user = useContext(UserContext);
   const navigate = useNavigate();
 
   // setDatabase reference
   const DB_CALENDAR_KEY = "userCalendar/";
   const userRef = ref(database, DB_CALENDAR_KEY + user.uid);
+
+  // Receive props from MealPlan.js
+  const { addMeal } = props;
+  const [savedMealData, setSavedMealData] = useState(addMeal);
+  const [selectedMeal, setSelectedMeal] = useState(null);
 
   // initialize popup values
   const [open, setOpen] = useState(false);
@@ -61,15 +66,15 @@ export default function Calendar() {
     console.log("Fields are reset, open is : ", open);
   };
 
-  //when user clicks on add a meal
+  // when user clicks on "Add Meal" button
   const chooseDateHandler = () => {
     setMode("newmeal");
     setStart("");
     setOpen(true);
-    console.log("Adding a new meal... : ", mode);
+    console.log("Adding a new meal...", mode);
   };
 
-  //when user clicks on date
+  // when user clicks on any dates on the calendar
   const dateClickHandler = (info) => {
     setMode("newdate");
     setOpen(true);
@@ -79,18 +84,18 @@ export default function Calendar() {
     date = `${dateStr}T00:00:00`;
     setStartStr(dateStr);
     setStart(date);
-    console.log("Date ", date);
+    console.log("User selected date:", date);
     console.log("All info is : ", info);
   };
 
   // when user clicks on event
   const eventsHandler = (info) => {
     setMode("editevent");
-    console.log(info);
+    console.log(`info:`, info);
     setOpen(true);
     const event = info.event._def;
     console.log(event.publicId);
-    setCurrentEventID(event.publicId);
+    setCurrentEventID(`event.publicID:`, event.publicId);
     setEventInfo(event);
     console.log("Selected event...");
     console.log(info.event._def);
@@ -286,7 +291,41 @@ export default function Calendar() {
     resetFields();
   };
 
-  //   //style={{ display: "flex", justifyContent: "center" }}
+  // ===== BELOW SECTION IS FOR RENDERING OUT POPULATED FIELD BASED ON WHAT USER HAS ADDED FROM CALORIENINJA ===== //
+  // Update mealData state whenever there're changes to addMeal props.
+  useEffect(() => {
+    setSavedMealData(addMeal);
+  }, [addMeal]);
+
+  // Update setMealType and setCalories if user has already added their meal data using calorieNinja and they'd like to store the data in calendar.
+  useEffect(() => {
+    if (selectedMeal) {
+      setMealType(selectedMeal.typeOfMeal);
+      setFoodName(selectedMeal.nameOfFood);
+      setCalories(selectedMeal.totalCalories);
+    }
+  }, [selectedMeal]);
+
+  const handleSelectMeal = (meal) => {
+    setSelectedMeal(meal);
+    console.log("selected meal:", meal);
+  };
+
+  const renderPopulatedFields = (
+    <div>
+      <h3>Pick from your saved list:</h3>
+      <ul>
+        {addMeal.map((meal, index) => {
+          return (
+            <li key={index} onClick={() => handleSelectMeal(meal)}>
+              {meal.nameOfFood}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+  // ===== END OF SECTION ===== //
 
   return (
     <div style={{ justifyContent: "center" }}>
@@ -295,8 +334,12 @@ export default function Calendar() {
         plugins={[dayGridPlugin, interactionPlugin]}
         initialView="dayGridMonth"
         headerToolbar={{
-          start: "title",
-          center: "dayGridMonth dayGridWeek new",
+          start: "dayGridMonth dayGridWeek",
+          center: "title",
+          end: "new",
+        }}
+        footerToolbar={{
+          // start: "dayGridMonth dayGridWeek",
           end: "today prev next",
         }}
         nowIndicator={true}
@@ -323,7 +366,10 @@ export default function Calendar() {
       >
         <div className="modal text-center">
           {mode === "newdate" ? (
-            <p>Fill up this form to insert a food into your meal plan.</p>
+            <p>
+              Fill up this form to insert a food into your meal plan or choose
+              from your saved list!
+            </p>
           ) : mode === "editevent" ? (
             <p>
               You have set this meal earlier. <br />
@@ -332,6 +378,11 @@ export default function Calendar() {
           ) : (
             <p>Fill up the form and save it to add a meal to your plan!</p>
           )}
+          <br />
+
+          {/* WIP J TO CONTINUE AFTER CONNIE IS DONE W CALENDAR */}
+          {renderPopulatedFields}
+
           <br />
           <div>
             <table
@@ -383,7 +434,7 @@ export default function Calendar() {
                       value={mealType}
                       onChange={(e) => {
                         setMealType(e.target.value);
-                        console.log(mealType);
+                        // console.log(mealType);
                       }}
                     /> */}
                   </td>
@@ -398,7 +449,7 @@ export default function Calendar() {
                       value={foodName}
                       onChange={(e) => {
                         setFoodName(e.target.value);
-                        console.log(foodName);
+                        // console.log(foodName);
                       }}
                     />
                   </td>

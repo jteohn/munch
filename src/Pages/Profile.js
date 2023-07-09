@@ -1,8 +1,9 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { UserContext } from "../App";
 import defaultAvatar from "../assets/defaultAvatar.png";
 import "../Profile.css";
 import { Box, Modal, useMediaQuery } from "@mui/material";
+import Swal from "sweetalert2";
 
 import { ref as databaseRef, update } from "firebase/database";
 import {
@@ -13,7 +14,6 @@ import {
 } from "firebase/storage";
 import { database, storage } from "../firebase";
 
-// import { updateEmail, updatePassword } from "firebase/auth";
 // all the private info. Lock it with a lock!
 
 export default function Profile(props) {
@@ -22,18 +22,19 @@ export default function Profile(props) {
 
   const [openEditModal, setOpenEditModal] = useState(false);
   const [editName, setEditName] = useState("");
-  // const [editEmail, setEditEmail] = useState(user.email);
   const [editWeight, setEditWeight] = useState("");
   const [editHeight, setEditHeight] = useState("");
   const [editAge, setEditAge] = useState("");
   const [editGender, setEditGender] = useState("");
-
   const [avatarFile, setAvatarFile] = useState("");
-  const [avatarValue, setAvatarValue] = useState("");
+
+  // Add fileInputRef to clear the file input field after user has uploaded profile picture
+  const fileInputRef = useRef(null);
 
   const DB_USER_KEY = "userInfo/";
   const STORAGE_AVATAR_KEY = "avatar/";
 
+  // ===== MODAL ===== //
   const handleOpenModal = () => {
     setOpenEditModal(true);
   };
@@ -47,7 +48,7 @@ export default function Profile(props) {
     setOpenEditModal(false);
   };
 
-  // Save user updated info
+  // ===== USER UPDATE PERSONAL INFORMATION ===== //
   const handleSaveProfile = () => {
     const userID = user.uid;
     const userRef = databaseRef(database, `${DB_USER_KEY}/${userID}`);
@@ -61,12 +62,17 @@ export default function Profile(props) {
       gender: editGender || user.gender,
     };
 
-    // Update the user data in the database
+    // Update the user data in RTDB
     update(userRef, updatedUser)
       .then(() => {
-        console.log("Profile updated successfully.");
+        Swal.fire({
+          position: "top-center",
+          icon: "success",
+          title: "Success!",
+          text: "Your profile has been updated!",
+        });
 
-        // Update the user object in the state
+        // Update the user object in state (fyi user is from useContext)
         const updatedUserObj = { ...user, ...updatedUser };
         setStates(updatedUserObj);
 
@@ -78,10 +84,9 @@ export default function Profile(props) {
       });
   };
 
-  // User to upload profile picture
+  // ===== USER UPDATE/UPLOAD PROFILE PICTUE ===== //
   const handleAvatar = (e) => {
     setAvatarFile(e.target.files[0]);
-    setAvatarValue(e.target.files);
   };
 
   const handleSubmitAvatar = (e) => {
@@ -95,18 +100,34 @@ export default function Profile(props) {
       );
       uploadBytes(avatarStorageRef, avatarFile).then((snapshot) => {
         getDownloadURL(avatarStorageRef, avatarFile.name).then((url) => {
-          console.log(`getDownloadURL filename:`, avatarFile.name);
-
+          // console.log(`getDownloadURL filename:`, avatarFile.name);
           writeData(url);
-          console.log(`Avatar updated`);
+          // console.log(`Avatar updated`);
           setAvatarFile("");
-          setAvatarValue("");
+          Swal.fire({
+            position: "top-center",
+            icon: "success",
+            title: "Success!",
+            text: "Your profile picture has been updated!",
+          });
+
+          // To clear the file input field.
+          if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+          }
         });
       });
     }
   };
 
-  // store avatar in RTDB
+  // To render the user's avatar picture
+  useEffect(() => {
+    if (user.avatar) {
+      setAvatarFile(user.avatar);
+    }
+  }, [user.avatar]);
+
+  // ===== STORING PROFILE PICTUE IN RTDB ===== //
   const writeData = (url) => {
     const userID = user.uid;
     const userRef = databaseRef(database, `${DB_USER_KEY}/${userID}`);
@@ -125,13 +146,27 @@ export default function Profile(props) {
       });
   };
 
-  useEffect(() => {
-    if (user.avatar) {
-      setAvatarFile(user.avatar);
-    }
-  }, [user.avatar]);
-
+  // ===== USER DELETE PROFILE PICTURE ===== //
   const handleDelete = (url) => {
+    // User to confirm before deleting
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteAvatarImage();
+        Swal.fire("Deleted!", "Your file has been deleted.", "success");
+      }
+    });
+  };
+
+  // ===== DELETE PROFILE PICTURE IN RTDB & STORAGE ===== //
+  const deleteAvatarImage = () => {
     if (user.avatar !== undefined) {
       const currentAvatar = user.avatar;
       const currentAvatarRef = storageRef(storage, currentAvatar);
@@ -140,7 +175,6 @@ export default function Profile(props) {
         .catch((error) => console.log("Error deleting from storage!", error));
     }
 
-    // Delete avatar from RTDB
     const userID = user.uid;
     const deleteFromDB = databaseRef(database, `${DB_USER_KEY}/${userID}`);
     update(deleteFromDB, { avatar: null }).then(() =>
@@ -169,7 +203,7 @@ export default function Profile(props) {
             <td style={{ width: "8rem" }}>Display Name:</td>
             <td>
               <input
-                className="updateProfile"
+                className="update-input"
                 type="text"
                 defaultValue={user.name}
                 onChange={(e) => setEditName(e.target.value)}
@@ -180,7 +214,7 @@ export default function Profile(props) {
             <td>Age</td>
             <td>
               <input
-                className="updateProfile"
+                className="update-input"
                 type="text"
                 defaultValue={user.age}
                 onChange={(e) => setEditAge(e.target.value)}
@@ -192,7 +226,7 @@ export default function Profile(props) {
             <td>Gender</td>
             <td>
               <input
-                className="updateProfile"
+                className="update-input"
                 type="text"
                 defaultValue={user.gender}
                 onChange={(e) => setEditGender(e.target.value)}
@@ -204,7 +238,7 @@ export default function Profile(props) {
             <td>Height (in cm)</td>
             <td>
               <input
-                className="updateProfile"
+                className="update-input"
                 type="text"
                 defaultValue={user.height}
                 onChange={(e) => setEditHeight(e.target.value)}
@@ -216,7 +250,7 @@ export default function Profile(props) {
             <td>Weight (in kg)</td>
             <td>
               <input
-                className="updateProfile"
+                className="update-input"
                 type="text"
                 defaultValue={user.weight}
                 onChange={(e) => setEditWeight(e.target.value)}
@@ -226,7 +260,7 @@ export default function Profile(props) {
         </tbody>
       </table>
       <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
-        <button className="saveButton font" onClick={handleSaveProfile}>
+        <button className="save-button font" onClick={handleSaveProfile}>
           save
         </button>
       </div>
@@ -247,7 +281,7 @@ export default function Profile(props) {
             <td style={{ width: "7.5rem" }}>Display Name:</td>
             <td>
               <input
-                className="updateProfile large"
+                className="update-input wider"
                 style={{ width: "29rem" }}
                 type="text"
                 defaultValue={user.name}
@@ -269,7 +303,7 @@ export default function Profile(props) {
             <td style={{ width: "6rem" }}>Age</td>
             <td>
               <input
-                className="updateProfile large"
+                className="update-input wider"
                 type="text"
                 defaultValue={user.age}
                 onChange={(e) => setEditAge(e.target.value)}
@@ -278,7 +312,7 @@ export default function Profile(props) {
             <td>Gender</td>
             <td>
               <input
-                className="updateProfile large"
+                className="update-input wider"
                 type="text"
                 defaultValue={user.gender}
                 onChange={(e) => setEditGender(e.target.value)}
@@ -290,7 +324,7 @@ export default function Profile(props) {
             <td>Height (in cm)</td>
             <td>
               <input
-                className="updateProfile large"
+                className="update-input wider"
                 type="text"
                 defaultValue={user.height}
                 onChange={(e) => setEditHeight(e.target.value)}
@@ -299,7 +333,7 @@ export default function Profile(props) {
             <td>Weight (in kg)</td>
             <td>
               <input
-                className="updateProfile large"
+                className="update-input wider"
                 type="text"
                 defaultValue={user.weight}
                 onChange={(e) => setEditWeight(e.target.value)}
@@ -309,7 +343,9 @@ export default function Profile(props) {
         </tbody>
       </table>
       <div style={{ textAlign: "center" }}>
-        <button className="saveButton font">save</button>
+        <button className="save-button font" onClick={handleSaveProfile}>
+          save
+        </button>
       </div>
     </div>
   );
@@ -334,7 +370,7 @@ export default function Profile(props) {
         <div className="container">
           <div className="inner-container">
             {user.avatar !== undefined ? (
-              <img src={user.avatar} alt="avatar" width="100%" />
+              <img src={user.avatar} alt="avatar" height="100%" />
             ) : (
               <img src={defaultAvatar} alt="default avatar" width="100%" />
             )}
@@ -349,6 +385,7 @@ export default function Profile(props) {
         </div>
         <div style={{ alignSelf: "center", margin: "0 0 1rem 5rem" }}>
           <input
+            ref={fileInputRef}
             id="fileInput"
             type="file"
             name="avatar"
