@@ -17,11 +17,12 @@ export default function Signup(props) {
   const { setStates } = props;
   const [isStateSetDone, setIsStateSetDone] = useState(false); // to track if state in parent is tracked
   const [secondPassword, setSecondPassword] = useState("");
-  const [hover, setHover] = useState(false);
+
+  // const [hover, setHover] = useState(false);
 
   const handleSubmit = async () => {
     if (password !== secondPassword) {
-      alert("The Passwords are not Identical!");
+      alert("The passwords are not identical!");
       return;
     }
     const hasUppercase = /[A-Z]/.test(password);
@@ -54,12 +55,14 @@ export default function Signup(props) {
       return;
     }
   };
+
   // implemented to ensure all states are set in parent before calling handle Signup in parent
   useEffect(() => {
     if (isStateSetDone) {
       handleSignup();
     }
   }, [isStateSetDone, handleSignup]);
+
   const passwordRequirements = (
     <div>
       Password Requirements: At least
@@ -72,6 +75,7 @@ export default function Signup(props) {
       </ol>
     </div>
   );
+
   const isLargeScreen = useMediaQuery("(min-width: 960px)");
   const addRightSideBar = (
     <div
@@ -324,7 +328,7 @@ export default function Signup(props) {
               name="secondpassword"
               value={secondPassword}
               required
-              placeholder="Repeat your Password"
+              placeholder="Confirm Password"
               onChange={(e) => setSecondPassword(e.target.value)}
             />
             <br />
