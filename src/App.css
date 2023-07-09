@@ -164,6 +164,31 @@
   overflow: visible !important;
 }
 
+@media (max-width: 960px) {
+  .mobileView {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .welcome-image {
+    height: 180px;
+  }
+  .signup-image {
+    height: 140px;
+  }
+}
+
+@media (min-width: 960px) {
+  .desktopView {
+    gap: 80px;
+  }
+  .welcome-image {
+    height: 220px;
+  }
+  .signup-image {
+    height: 200px;
+  }
+}
+
 /* padding: 1rem 2rem 0 2rem; */
 
 /* .App-header {
