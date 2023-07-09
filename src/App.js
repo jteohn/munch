@@ -62,7 +62,6 @@ export default function App() {
           let userData = await snapshot.val();
           // if user data exists in RTDB
           if (userData) {
-            git;
             setIsLoggedIn(true);
             setStates(userData);
             console.log(`updated setStates:`, userData);
@@ -176,6 +175,7 @@ export default function App() {
         setAge("");
         setPassword("");
         setUID("");
+        setAvatar("");
         console.log(`Successfully logout from Munch!`);
       })
       .catch((error) => {

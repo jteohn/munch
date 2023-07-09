@@ -4,8 +4,11 @@ import { Card, CardContent, CardMedia, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { Modal } from "react-responsive-modal";
 import "react-responsive-modal/styles.css";
+import { UserContext } from "../App";
 
 export default function Recipe() {
+  // import context
+
   const [recipeSearchQuery, setRecipeSearchQuery] = useState("");
   const [mealTypeQuery, setMealTypeQuery] = useState("Breakfast");
   const [modalStatus, setModalStatus] = useState(false);
@@ -14,7 +17,7 @@ export default function Recipe() {
   const [selectedSaveOption, setSelectedSaveOption] = useState({});
   const [searchDone, setSearchDone] = useState(false);
 
-  let dataToPass = selectedSaveOption;
+  // let dataToPass = selectedSaveOption;
 
   const testSavedOption = (e) => {
     e.preventDefault();
