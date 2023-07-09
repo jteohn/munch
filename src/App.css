@@ -160,6 +160,10 @@
   text-align: center;
 }
 
+.element.style {
+  overflow: visible !important;
+}
+
 /* padding: 1rem 2rem 0 2rem; */
 
 /* .App-header {
