@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
-import { ref, set, get, onValue, update } from "firebase/database";
+import { ref, set, get, update, child } from "firebase/database";
+import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase";
 import { database } from "../firebase";
 import { UserContext } from "../App";
@@ -16,6 +17,7 @@ export default function Calendar() {
 
   // setDatabase reference
   const DB_CALENDAR_KEY = "userCalendar/";
+  const userRef = ref(database, DB_CALENDAR_KEY + user.uid);
 
   // initialize popup values
   const [open, setOpen] = useState(false);
@@ -31,7 +33,7 @@ export default function Calendar() {
   const [count, setCount] = useState(1);
   const [currentEventID, setCurrentEventID] = useState(0);
   const [mode, setMode] = useState("");
-  const [dbSnapshot, setDbSnapshot] = useState([{}]);
+  const [dbSnapshot, setDbSnapshot] = useState([]);
   const [firstTime, setFirstTime] = useState(true);
 
   const [events, setEvents] = useState([]);
@@ -55,6 +57,7 @@ export default function Calendar() {
     setStart("");
     setStartStr("");
     setMode("");
+    setFirstTime(false);
     console.log("Fields are reset, open is : ", open);
   };
 
@@ -122,64 +125,82 @@ export default function Calendar() {
 
   // when page loads runs once to get snapshot
   useEffect(() => {
-    const fetchData = async () => {
-      const currUser = auth.currentUser;
+    // const fetchData = async () => {
+    onAuthStateChanged(auth, (currUser) => {
+      console.log("Auth state is changed! ");
       if (currUser) {
         console.log("Curr User is : ", currUser);
-        const userRef = ref(database, DB_CALENDAR_KEY + currUser.uid);
-        const snapshot = await get(userRef);
-        console.log(snapshot);
-        setDbSnapshot(snapshot);
-        const userData = snapshot.val();
-        console.log("Data is being fetched! ");
-        if (userData && Array.isArray(userData.events)) {
-          console.log(userData.events);
-          setEvents(userData.events);
-          setFirstTime(false);
-          console.log(events);
-        } else {
-          console.log("User has no calendar on database!");
-        }
+        setCount(events.length);
+        get(userRef).then((snapshot) => {
+          // const snapshott = snapshot.val();
+          console.log(snapshot.val());
+          const snapshott = snapshot.val();
+          if (snapshot.exists()) {
+            setDbSnapshot(snapshott);
+            console.log("Db data is being fetched, snapshot updated! ");
+            if (snapshott && Array.isArray(snapshott.events)) {
+              console.log("Success!!!!!");
+              setEvents(snapshott.events);
+              setFirstTime(false);
+              console.log(events);
+              return;
+            }
+          } else {
+            console.log("User has no calendar on database!");
+            setFirstTime(false);
+            return;
+          }
+        });
       } else {
         console.log("User is not logged in!");
         navigate("/");
       }
-    };
-
-    fetchData();
+    });
   }, []);
 
-  // to check state for events has been added, ensure event added, save to database when edited
   useEffect(() => {
-    console.log(events);
     setCount(events.length);
-    console.log("In use effects Events updated");
-    const userCalendarRef = ref(database, DB_CALENDAR_KEY + user.uid);
-    console.log(userCalendarRef);
-    if (dbSnapshot && !firstTime) {
-      update(userCalendarRef, {
-        events: events,
-      });
-    } else if (!firstTime) {
-      set(userCalendarRef, {
-        events: events,
+    if (!firstTime) {
+      console.log(events);
+      const newEvents = events;
+      get(userRef).then((snapshot) => {
+        // const snapshott = snapshot.val();
+        console.log(snapshot.val());
+        // const snapshott = snapshot.val();
+        if (snapshot.exists()) {
+          console.log("User has calendar, so updating DB! ");
+          update(userRef, { events: newEvents });
+        } else {
+          console.log("User has no calendar, so setting DB!");
+          set(userRef, {
+            events: newEvents,
+          });
+        }
       });
     }
-
-    // saveCalendar();
   }, [events]);
 
-  const userCalendarRef = ref(database, DB_CALENDAR_KEY + user.uid);
-  onValue(userCalendarRef, async (snapshot) => {
-    const snapshott = snapshot.val();
-    console.log(snapshott);
-    if (snapshott) {
-      setDbSnapshot(snapshott);
-    } else {
-      console.log("Db not updated!");
-    }
-  });
+  useEffect(() => {
+    console.log("First time is changed to : ", firstTime);
+  }, [firstTime]);
 
+  // // to check state for events has been added, ensure event added, save to database when edited
+  // useEffect(() => {
+  //   console.log(events);
+
+  //   console.log("In use effects Events updated");
+  //   const userCalendarRef = ref(database, DB_CALENDAR_KEY + user.uid);
+  //   console.log(userCalendarRef);
+  //   console.log("First time is : ", firstTime);
+
+  //   getSnapshot();
+  //   // saveCalendar();
+  // }, [events]);
+
+  // const getSnapshot = () => {
+  //   console.log("getSnapshot: ", user.uid);
+  //   const userCalendarRef = ref(database, DB_CALENDAR_KEY + user.uid);
+  // };
   // to enable user to close pop ups without saving by clicking anywhere on document
   const handleClosePopupWithoutSubmit = () => {
     setOpen(false);
