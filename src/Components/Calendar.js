@@ -95,7 +95,7 @@ export default function Calendar(props) {
     setOpen(true);
     const event = info.event._def;
     console.log(event.publicId);
-    setCurrentEventID(`event.publicID:`, event.publicId);
+    setCurrentEventID(event.publicId);
     setEventInfo(event);
     console.log("Selected event...");
     console.log(info.event._def);
