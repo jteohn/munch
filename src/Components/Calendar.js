@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { ref, set, get, update, remove } from "firebase/database";
+import { ref, set, get, update, onValue } from "firebase/database";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase";
 import { database } from "../firebase";
@@ -20,7 +20,7 @@ import Popup from "reactjs-popup";
 import "reactjs-popup/dist/index.css";
 // import dayjs from "dayjs";
 
-export default function Calendar(props) {
+export default function Calendar() {
   const user = useContext(UserContext);
   const navigate = useNavigate();
 
@@ -31,9 +31,9 @@ export default function Calendar(props) {
   const userRef = ref(database, DB_CALENDAR_KEY + user.uid);
 
   // Receive props from MealPlan.js
-  const { addMeal } = props;
-  const [savedMealData, setSavedMealData] = useState(addMeal);
+  const [savedMealData, setSavedMealData] = useState({});
   const [selectedMeal, setSelectedMeal] = useState(null);
+  const DB_SAVEMEAL_KEY = "userSavedMeal/";
 
   // initialize popup values
   const [open, setOpen] = useState(false);
@@ -380,13 +380,24 @@ export default function Calendar(props) {
     resetFields();
   };
 
-  // ===== BELOW SECTION IS FOR RENDERING OUT POPULATED FIELD BASED ON WHAT USER HAS ADDED FROM CALORIENINJA ===== //
-  // Update mealData state whenever there're changes to addMeal props.
+  // ===== BELOW SECTION IS FOR RENDERING OUT POPULATED FIELD BASED ON WHAT USER HAS ADDED FROM MEALPLAN.JS ===== //
+  // update useEffect to display saved meal(s) in Calendar.js
   useEffect(() => {
-    setSavedMealData(addMeal);
-  }, [addMeal]);
+    const addMealRef = ref(database, DB_SAVEMEAL_KEY + user.uid);
 
-  // Update setMealType and setCalories if user has already added their meal data using calorieNinja and they'd like to store the data in calendar.
+    onValue(addMealRef, (snapshot) => {
+      const data = snapshot.val();
+      console.log(`line 303 data:`, data);
+      if (data !== null) {
+        const addMealArray = Object.values(data);
+        setSavedMealData(addMealArray);
+      } else {
+        setSavedMealData([]);
+      }
+    });
+  }, []);
+
+  // update setMealType, setFoodName, and setCalories with the saved meal(s) data extracted from database.
   useEffect(() => {
     if (selectedMeal) {
       setMealType(selectedMeal.typeOfMeal);
@@ -395,16 +406,18 @@ export default function Calendar(props) {
     }
   }, [selectedMeal]);
 
+  // onClick handler to auto-populate the fields
   const handleSelectMeal = (meal) => {
     setSelectedMeal(meal);
     console.log("selected meal:", meal);
   };
 
+  // rendering it out in calendar.js 'Add Meal' form
   const renderPopulatedFields = (
     <div>
       <h3>Pick from your saved list:</h3>
       <ul>
-        {addMeal.map((meal, index) => {
+        {Object.values(savedMealData).map((meal, index) => {
           return (
             <li key={index} onClick={() => handleSelectMeal(meal)}>
               {meal.nameOfFood}
@@ -566,7 +579,7 @@ export default function Calendar(props) {
                     <input
                       className="profile-inputs"
                       type="text"
-                      value={foodName}
+                      value={foodName || ""}
                       onChange={(e) => {
                         setFoodName(e.target.value);
                         // console.log(foodName);
@@ -581,7 +594,7 @@ export default function Calendar(props) {
                     <input
                       className="profile-inputs"
                       type="text"
-                      value={calories}
+                      value={calories || ""}
                       onChange={(e) => {
                         setCalories(e.target.value);
                       }}
