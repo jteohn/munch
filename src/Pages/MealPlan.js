@@ -32,7 +32,6 @@ export default function MealPlan() {
 
   const [mealType, setMealType] = useState("");
   const [foodName, setFoodName] = useState("");
-  const [addMeal, setAddMeal] = useState([]);
 
   const [isButtonDisabled, setIsButtonDisable] = useState(false);
   const [openEditModal, setOpenEditModal] = useState(false);
@@ -156,7 +155,6 @@ export default function MealPlan() {
     };
 
     writeData(newMealPlan);
-    setAddMeal([...addMeal, newMealPlan]);
 
     Swal.fire({
       position: "center",
@@ -357,8 +355,7 @@ export default function MealPlan() {
         </Modal>
       </div>
       <br />
-      {/* NOTE: PASSING ADDMEAL TO CALENDAR.JS */}
-      <Calendar addMeal={addMeal} />
+      <Calendar />
       <br />
     </div>
   );
