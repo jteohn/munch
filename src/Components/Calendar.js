@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { ref, set, get, update, onValue } from "firebase/database";
+import { ref, set, get, update, remove, onValue } from "firebase/database";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase";
 import { database } from "../firebase";
@@ -8,12 +8,23 @@ import { useNavigate } from "react-router-dom";
 import Fullcalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+// import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+// import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+// import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+// import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+// import { FocusTrap } from "@mui/base";
+
 import Popup from "reactjs-popup";
 import "reactjs-popup/dist/index.css";
+// import dayjs from "dayjs";
 
 export default function Calendar() {
   const user = useContext(UserContext);
   const navigate = useNavigate();
+
+  const [startDate, setStartDate] = useState(new Date());
 
   // setDatabase reference
   const DB_CALENDAR_KEY = "userCalendar/";
@@ -42,6 +53,7 @@ export default function Calendar() {
   const [firstTime, setFirstTime] = useState(true);
 
   const [events, setEvents] = useState([]);
+  const [today] = useState(new Date());
 
   // to render each event in calendar
   const renderEventContent = (eventInfo) => {
@@ -108,6 +120,17 @@ export default function Calendar() {
     setFoodName(extendedProps.Food);
     setRecipeURL(extendedProps.recipeURL);
   };
+
+  // to change start date from mini calendar into format for big calendar
+  useEffect(() => {
+    console.log(startDate);
+    const year = startDate.toLocaleDateString("default", { year: "numeric" });
+    const month = startDate.toLocaleDateString("default", { month: "2-digit" });
+    const day = startDate.toLocaleDateString("default", { day: "2-digit" });
+    const date = [year, month, day].join("-");
+    console.log(date);
+    setStartStr(date);
+  }, [startDate]);
 
   useEffect(() => {
     console.log(mealType);
@@ -184,7 +207,7 @@ export default function Calendar() {
   useEffect(() => {
     console.log(events);
     setCount(events.length);
-    if (!firstTime) {
+    if (!firstTime && mode !== "deleteevent") {
       console.log(events);
       const newEvents = events;
       get(userRef).then((snapshot) => {
@@ -201,6 +224,30 @@ export default function Calendar() {
           });
         }
       });
+    } else if (mode === "deleteevent") {
+      const newEvents = events;
+      set(userRef, {
+        events: newEvents,
+      });
+      // check snapshot after replacing
+      get(userRef).then(
+        (snapshot) => {
+          const snapshott = snapshot.val();
+          console.log("After delete snapshot : ", snapshott);
+          //  if (snapshot.exists()) {
+          //    setDbSnapshot(snapshott);
+          //  console.log("Db data is being deleted... ");
+
+          //  if (snapshott && Array.isArray(snapshott.events)) {
+          //    console.log("Inside delete!!!!!");
+          //    setEvents(snapshott.events);
+          //    setFirstTime(false);
+          //    console.log(events);
+          //    return;
+          //  }
+        }
+        //  }
+      );
     }
   }, [events]);
 
@@ -214,11 +261,54 @@ export default function Calendar() {
     resetFields();
   };
 
+  // when delete event button is clicked on event popup
+  const handleDeleteEvent = () => {
+    console.log("delete event");
+    setOpen(false);
+    setMode("deleteevent");
+    // setCount(events.length);
+    // console.log("Mode is : ", mode);
+    // console.log("Start is : ", recipeURL);
+    // console.log("Foodname is : ", foodName);
+    // console.log("Calories is : ", calories);
+
+    console.log("Deleting existing event...");
+    console.log(start);
+    console.log("To be deleted : ", events[currentEventID]);
+    const eventsCopy = [...events];
+    eventsCopy.splice(currentEventID, 1);
+    let counter = currentEventID;
+    console.log(eventsCopy);
+    while (counter < eventsCopy.length) {
+      console.log("Value of id ", count, " is : ", eventsCopy[counter].id);
+      eventsCopy[counter].id = counter;
+      console.log("After update id : ", eventsCopy[counter].id);
+      counter++;
+    }
+
+    // const currentEvent = {
+    //   id: currentEventID,
+    //   extendedProps: {
+    //     Food: foodName,
+    //     recipeURL: recipeURL,
+    //     calories: calories,
+    //     start: start,
+    //   },
+    //   title: mealType,
+    //   start: start,
+    // };
+
+    // eventsCopy[currentEventID] = currentEvent;
+    // console.log(eventsCopy[currentEventID]);
+    // console.log(eventsCopy);
+    setEvents(eventsCopy);
+  };
+
   // handle all submit buttons for pop up
   const handlePopupSubmit = () => {
     setOpen(false);
+    setCount(events.length);
     console.log("Mode is : ", mode);
-    console.log("URL is : ", recipeURL);
     console.log("Start is : ", recipeURL);
     console.log("Foodname is : ", foodName);
     console.log("Calories is : ", calories);
@@ -250,7 +340,6 @@ export default function Calendar() {
       }
       console.log(count);
       console.log("NM Mode is : ", mode);
-      console.log("NM URL is : ", recipeURL);
       console.log("NM Start is : ", recipeURL);
       console.log("NM Foodname is : ", foodName);
       console.log("NM Calories is : ", calories);
@@ -407,9 +496,40 @@ export default function Calendar() {
               <tbody>
                 {mode === "newmeal" ? (
                   <tr className="height">
-                    <td style={{ width: "8rem" }}>Date </td>
+                    <td style={{ width: "8rem" }}>Date of Meal </td>
                     <td>
-                      <input
+                      {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DemoContainer components={["DatePicker"]}>
+                            <DatePicker
+                              label="Select Date of Meal"
+                              value={startStr}
+                              views={["year", "month", "day"]}
+                              slotProps={{
+                                textField: { helperText: "MM/DD/YYYY" },
+                              }}
+                              disablePast
+                              onChange={(newValue) => {
+                                setStartStr(newValue);
+                                console.log(newValue);
+                                console.log(startStr);
+                              }}
+                            />
+                          </DemoContainer>
+                        </LocalizationProvider> */}
+                      <DatePicker
+                        showIcon
+                        closeOnDocumentClick
+                        minDate={today}
+                        selected={startDate}
+                        dateFormat="yyyy-MM-dd"
+                        setOpen={false}
+                        onChange={(date) => {
+                          setStartDate(date);
+                          console.log(date);
+                        }}
+                        placeholderText="YYYY-MM-DD"
+                      />
+                      {/* <input
                         className="profile-inputs"
                         type="text"
                         placeholder="yyyy-mm-dd"
@@ -418,7 +538,7 @@ export default function Calendar() {
                           setStartStr(e.target.value);
                           console.log(startStr);
                         }}
-                      />
+                      /> */}
                     </td>
                   </tr>
                 ) : (
@@ -499,7 +619,7 @@ export default function Calendar() {
             </table>
           </div>
           <br />
-          <br />
+
           <div style={{ alignSelf: "center" }}>
             <button
               onClick={() => handlePopupSubmit()}
@@ -507,7 +627,14 @@ export default function Calendar() {
             >
               Save Meal
             </button>
+            <button
+              onClick={() => handleDeleteEvent()}
+              className="delete-button"
+            >
+              Delete Meal
+            </button>
           </div>
+          {/* <div style={{ alignSelf: "center" }}></div> */}
         </div>
       </Popup>
     </div>
