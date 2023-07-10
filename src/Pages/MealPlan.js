@@ -16,6 +16,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import Swal from "sweetalert2";
 import "../MealPlan.css";
 
@@ -83,7 +84,7 @@ export default function MealPlan() {
 
     if (!mealType || !foodName) {
       Swal.fire({
-        position: "top-end",
+        position: "center",
         icon: "error",
         title: "Oops!",
         text: "Please enter both the meal type and food name!",
@@ -100,7 +101,7 @@ export default function MealPlan() {
     setAddMeal([...addMeal, newMealPlan]);
 
     Swal.fire({
-      position: "top-end",
+      position: "center",
       icon: "success",
       title: "Saved!",
       text: "You can now add it to your calendar.",
@@ -139,13 +140,25 @@ export default function MealPlan() {
       <Table sx={{ maxWidth: 500 }} size="small" aria-label="a dense table">
         <TableHead>
           <TableRow>
-            <TableCell sx={{ width: "30%" }}>
-              <strong>Serving (100g)</strong>
+            <TableCell sx={{ width: "25%" }}>
+              <strong>Name</strong>
             </TableCell>
-            <TableCell sx={{ textAlign: "center" }}>
+            <TableCell sx={{ width: "30%" }}>
+              <strong>Serving Size</strong>
+            </TableCell>
+            <TableCell>
               <strong>Calories (kcal)</strong>
             </TableCell>
-            <TableCell></TableCell>
+            <TableCell align="right">
+              <Tooltip title="Reset all">
+                <RestartAltIcon
+                  onClick={handleReset}
+                  sx={{
+                    color: "#797675",
+                  }}
+                />
+              </Tooltip>
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableFooter>
@@ -153,9 +166,8 @@ export default function MealPlan() {
             ? displayData.map((data, index) => (
                 <TableRow key={index + 1}>
                   <TableCell>{data.name}</TableCell>
-                  <TableCell sx={{ textAlign: "center" }}>
-                    {data.calories}
-                  </TableCell>
+                  <TableCell>{data.servingSize}</TableCell>
+                  <TableCell>{data.calories}</TableCell>
                   <TableCell align="right">
                     <Tooltip title="Delete">
                       <RemoveCircleIcon
@@ -169,7 +181,7 @@ export default function MealPlan() {
                 </TableRow>
               ))
             : null}
-          <TableCell colSpan={3} align="right">
+          <TableCell colSpan={4} align="right">
             <button className="button" onClick={handleReset}>
               Reset All
             </button>
@@ -203,7 +215,7 @@ export default function MealPlan() {
                 <input
                   className="search"
                   type="text"
-                  placeholder="e.g. chicken"
+                  placeholder="e.g. 100g chicken"
                   value={ingredientSearchQuery}
                   onChange={(e) => setIngredientSearchQuery(e.target.value)}
                 />
