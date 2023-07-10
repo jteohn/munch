@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { ref, set, get, update } from "firebase/database";
+import { ref, set, get, update, remove } from "firebase/database";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase";
 import { database } from "../firebase";
@@ -121,6 +121,7 @@ export default function Calendar(props) {
     setRecipeURL(extendedProps.recipeURL);
   };
 
+  // to change start date from mini calendar into format for big calendar
   useEffect(() => {
     console.log(startDate);
     const year = startDate.toLocaleDateString("default", { year: "numeric" });
@@ -206,7 +207,7 @@ export default function Calendar(props) {
   useEffect(() => {
     console.log(events);
     setCount(events.length);
-    if (!firstTime) {
+    if (!firstTime && mode !== "deleteevent") {
       console.log(events);
       const newEvents = events;
       get(userRef).then((snapshot) => {
@@ -223,6 +224,30 @@ export default function Calendar(props) {
           });
         }
       });
+    } else if (mode === "deleteevent") {
+      const newEvents = events;
+      set(userRef, {
+        events: newEvents,
+      });
+      // check snapshot after replacing
+      get(userRef).then(
+        (snapshot) => {
+          const snapshott = snapshot.val();
+          console.log("After delete snapshot : ", snapshott);
+          //  if (snapshot.exists()) {
+          //    setDbSnapshot(snapshott);
+          //  console.log("Db data is being deleted... ");
+
+          //  if (snapshott && Array.isArray(snapshott.events)) {
+          //    console.log("Inside delete!!!!!");
+          //    setEvents(snapshott.events);
+          //    setFirstTime(false);
+          //    console.log(events);
+          //    return;
+          //  }
+        }
+        //  }
+      );
     }
   }, [events]);
 
@@ -236,9 +261,53 @@ export default function Calendar(props) {
     resetFields();
   };
 
+  // when delete event button is clicked on event popup
+  const handleDeleteEvent = () => {
+    console.log("delete event");
+    setOpen(false);
+    setMode("deleteevent");
+    // setCount(events.length);
+    // console.log("Mode is : ", mode);
+    // console.log("Start is : ", recipeURL);
+    // console.log("Foodname is : ", foodName);
+    // console.log("Calories is : ", calories);
+
+    console.log("Deleting existing event...");
+    console.log(start);
+    console.log("To be deleted : ", events[currentEventID]);
+    const eventsCopy = [...events];
+    eventsCopy.splice(currentEventID, 1);
+    let counter = currentEventID;
+    console.log(eventsCopy);
+    while (counter < eventsCopy.length) {
+      console.log("Value of id ", count, " is : ", eventsCopy[counter].id);
+      eventsCopy[counter].id = counter;
+      console.log("After update id : ", eventsCopy[counter].id);
+      counter++;
+    }
+
+    // const currentEvent = {
+    //   id: currentEventID,
+    //   extendedProps: {
+    //     Food: foodName,
+    //     recipeURL: recipeURL,
+    //     calories: calories,
+    //     start: start,
+    //   },
+    //   title: mealType,
+    //   start: start,
+    // };
+
+    // eventsCopy[currentEventID] = currentEvent;
+    // console.log(eventsCopy[currentEventID]);
+    // console.log(eventsCopy);
+    setEvents(eventsCopy);
+  };
+
   // handle all submit buttons for pop up
   const handlePopupSubmit = () => {
     setOpen(false);
+    setCount(events.length);
     console.log("Mode is : ", mode);
     console.log("Start is : ", recipeURL);
     console.log("Foodname is : ", foodName);
@@ -436,9 +505,11 @@ export default function Calendar(props) {
                         </LocalizationProvider> */}
                       <DatePicker
                         showIcon
+                        closeOnDocumentClick
                         minDate={today}
                         selected={startDate}
                         dateFormat="yyyy-MM-dd"
+                        setOpen={false}
                         onChange={(date) => {
                           setStartDate(date);
                           console.log(date);
@@ -535,7 +606,7 @@ export default function Calendar(props) {
             </table>
           </div>
           <br />
-          <br />
+
           <div style={{ alignSelf: "center" }}>
             <button
               onClick={() => handlePopupSubmit()}
@@ -543,7 +614,14 @@ export default function Calendar(props) {
             >
               Save Meal
             </button>
+            <button
+              onClick={() => handleDeleteEvent()}
+              className="delete-button"
+            >
+              Delete Meal
+            </button>
           </div>
+          {/* <div style={{ alignSelf: "center" }}></div> */}
         </div>
       </Popup>
     </div>
