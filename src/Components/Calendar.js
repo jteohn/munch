@@ -8,12 +8,23 @@ import { useNavigate } from "react-router-dom";
 import Fullcalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+// import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+// import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+// import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+// import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+// import { FocusTrap } from "@mui/base";
+
 import Popup from "reactjs-popup";
 import "reactjs-popup/dist/index.css";
+// import dayjs from "dayjs";
 
 export default function Calendar(props) {
   const user = useContext(UserContext);
   const navigate = useNavigate();
+
+  const [startDate, setStartDate] = useState(new Date());
 
   // setDatabase reference
   const DB_CALENDAR_KEY = "userCalendar/";
@@ -42,6 +53,7 @@ export default function Calendar(props) {
   const [firstTime, setFirstTime] = useState(true);
 
   const [events, setEvents] = useState([]);
+  const [today] = useState(new Date());
 
   // to render each event in calendar
   const renderEventContent = (eventInfo) => {
@@ -95,7 +107,7 @@ export default function Calendar(props) {
     setOpen(true);
     const event = info.event._def;
     console.log(event.publicId);
-    setCurrentEventID(`event.publicID:`, event.publicId);
+    setCurrentEventID(event.publicId);
     setEventInfo(event);
     console.log("Selected event...");
     console.log(info.event._def);
@@ -108,6 +120,16 @@ export default function Calendar(props) {
     setFoodName(extendedProps.Food);
     setRecipeURL(extendedProps.recipeURL);
   };
+
+  useEffect(() => {
+    console.log(startDate);
+    const year = startDate.toLocaleDateString("default", { year: "numeric" });
+    const month = startDate.toLocaleDateString("default", { month: "2-digit" });
+    const day = startDate.toLocaleDateString("default", { day: "2-digit" });
+    const date = [year, month, day].join("-");
+    console.log(date);
+    setStartStr(date);
+  }, [startDate]);
 
   useEffect(() => {
     console.log(mealType);
@@ -218,7 +240,6 @@ export default function Calendar(props) {
   const handlePopupSubmit = () => {
     setOpen(false);
     console.log("Mode is : ", mode);
-    console.log("URL is : ", recipeURL);
     console.log("Start is : ", recipeURL);
     console.log("Foodname is : ", foodName);
     console.log("Calories is : ", calories);
@@ -250,7 +271,6 @@ export default function Calendar(props) {
       }
       console.log(count);
       console.log("NM Mode is : ", mode);
-      console.log("NM URL is : ", recipeURL);
       console.log("NM Start is : ", recipeURL);
       console.log("NM Foodname is : ", foodName);
       console.log("NM Calories is : ", calories);
@@ -394,9 +414,38 @@ export default function Calendar(props) {
               <tbody>
                 {mode === "newmeal" ? (
                   <tr className="height">
-                    <td style={{ width: "8rem" }}>Date </td>
+                    <td style={{ width: "8rem" }}>Date of Meal </td>
                     <td>
-                      <input
+                      {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DemoContainer components={["DatePicker"]}>
+                            <DatePicker
+                              label="Select Date of Meal"
+                              value={startStr}
+                              views={["year", "month", "day"]}
+                              slotProps={{
+                                textField: { helperText: "MM/DD/YYYY" },
+                              }}
+                              disablePast
+                              onChange={(newValue) => {
+                                setStartStr(newValue);
+                                console.log(newValue);
+                                console.log(startStr);
+                              }}
+                            />
+                          </DemoContainer>
+                        </LocalizationProvider> */}
+                      <DatePicker
+                        showIcon
+                        minDate={today}
+                        selected={startDate}
+                        dateFormat="yyyy-MM-dd"
+                        onChange={(date) => {
+                          setStartDate(date);
+                          console.log(date);
+                        }}
+                        placeholderText="YYYY-MM-DD"
+                      />
+                      {/* <input
                         className="profile-inputs"
                         type="text"
                         placeholder="yyyy-mm-dd"
@@ -405,7 +454,7 @@ export default function Calendar(props) {
                           setStartStr(e.target.value);
                           console.log(startStr);
                         }}
-                      />
+                      /> */}
                     </td>
                   </tr>
                 ) : (
