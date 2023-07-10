@@ -16,6 +16,7 @@ import {
   TableCell,
 } from "@mui/material";
 import Button from "@mui/material/Button";
+import Swal from "sweetalert2";
 
 export default function Recipe(props) {
   const [recipeSearchQuery, setRecipeSearchQuery] = useState("");
@@ -97,6 +98,12 @@ export default function Recipe(props) {
       console.log(selectedSaveOption);
       dataFromRecipe(selectedSaveOption);
       console.log("SAVE DONE");
+      Swal.fire({
+        position: "center",
+        icon: "success",
+        title: "Success!",
+        text: "Recipe Exported, You can now import at MEALPLAN!",
+      });
     }
   }, [updateState, selectedSaveOption]);
 
