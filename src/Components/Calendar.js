@@ -72,6 +72,7 @@ export default function Calendar(props) {
     setStart("");
     setOpen(true);
     console.log("Adding a new meal...", mode);
+    setSelectedMeal(addMeal);
   };
 
   // when user clicks on any dates on the calendar
@@ -95,7 +96,7 @@ export default function Calendar(props) {
     setOpen(true);
     const event = info.event._def;
     console.log(event.publicId);
-    setCurrentEventID(`event.publicID:`, event.publicId);
+    setCurrentEventID(event.publicId);
     setEventInfo(event);
     console.log("Selected event...");
     console.log(info.event._def);
@@ -446,7 +447,7 @@ export default function Calendar(props) {
                     <input
                       className="profile-inputs"
                       type="text"
-                      value={foodName}
+                      value={foodName || ""}
                       onChange={(e) => {
                         setFoodName(e.target.value);
                         // console.log(foodName);
@@ -461,7 +462,7 @@ export default function Calendar(props) {
                     <input
                       className="profile-inputs"
                       type="text"
-                      value={calories}
+                      value={calories || ""}
                       onChange={(e) => {
                         setCalories(e.target.value);
                       }}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import Calendar from "../Components/Calendar";
 import {
@@ -19,6 +19,9 @@ import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import Swal from "sweetalert2";
 import "../MealPlan.css";
+import { database } from "../firebase";
+import { push, ref } from "firebase/database";
+import { UserContext } from "../App";
 
 // now... do you have the discipline to follow through?
 
@@ -31,10 +34,17 @@ export default function MealPlan() {
   const [foodName, setFoodName] = useState("");
   const [addMeal, setAddMeal] = useState([]);
 
+  const [isButtonDisabled, setIsButtonDisable] = useState(false);
   const [openEditModal, setOpenEditModal] = useState(false);
 
+  const user = useContext(UserContext);
+  const DB_SAVEMEAL_KEY = "userSavedMeal/";
+
+  // ===== PERFORM SEARCH + EXTRACT INFO FROM API ===== //
   const handleSearch = (e) => {
     e.preventDefault();
+    // added isButtonDisable so that the 'search' button is temporarily disabled while data is being pulled from API
+    setIsButtonDisable(true);
     axios({
       method: "get",
       headers: { "X-Api-Key": process.env.REACT_APP_CALORIENINJA_KEY },
@@ -42,13 +52,17 @@ export default function MealPlan() {
       contentType: "application/json",
     })
       .then((result) => {
-        // Added a condition to check if the ingredient exists in our API.
+        // added a condition to check if the item exists in our API.
         if (result.data.items.length === 0) {
-          alert(
-            "Oops, you caught us! We are still working to include all the ingredients!"
-          );
+          Swal.fire({
+            position: "center",
+            icon: "error",
+            title: "Oops, You caught us!",
+            text: "We are continuously working to expand our database and include more ingredients!",
+          });
         } else {
           setTotalResults((prevResults) => [...prevResults, result.data]);
+          setIsButtonDisable(false);
         }
         setIngredientSearchQuery("");
       })
@@ -57,11 +71,16 @@ export default function MealPlan() {
       });
   };
 
+  useEffect(() => {
+    console.log("Updated totalResults:", totalResults);
+  }, [totalResults]);
+
   const handleReset = (e) => {
     setTotalResults([]);
   };
 
-  // Displays results from totalResults array & update the displayData state with the transformed data.
+  // ===== TO CONVERT THE EXTRACTED API DATA ===== //
+  // display results from totalResults array & update the displayData state with the transformed data.
   useEffect(() => {
     // data stores the object (aka transformed data) from totalResults
     const data = totalResults.map((result) => {
@@ -73,15 +92,43 @@ export default function MealPlan() {
     });
     // data is then passed to displayData & update state
     setDisplayData(data);
+    setIsButtonDisable(false);
   }, [totalResults]);
-  // dependency array - useEfect is called whenever totalResults changes.
 
-  const handleAddCalories = () => {
-    const addCalories = displayData.reduce(
-      (sum, result) => sum + result.calories,
-      0
-    );
+  // ===== FUNCTION TO SUM UP CALORIES ===== //
+  const calculateTotalCalories = (data) => {
+    if (displayData && displayData.length > 0) {
+      const calculateCalories = displayData.reduce(
+        (sum, result) => sum + result.calories,
+        0
+      );
+      return calculateCalories.toFixed(2);
+    } else {
+      return 0;
+    }
+  };
 
+  // ===== TO STORE SAVED MEAL IN DATABASE ===== //
+  const writeData = (newMealPlan) => {
+    const { typeOfMeal, nameOfFood, totalCalories } = newMealPlan;
+
+    const addMealRef = ref(database, DB_SAVEMEAL_KEY + user.uid);
+
+    push(addMealRef, {
+      typeOfMeal,
+      nameOfFood,
+      totalCalories,
+    })
+      .then(() => {
+        console.log(`Saved meal has been added to database`);
+      })
+      .catch((error) => {
+        console.log(`Error. Unable to add saved meal to database`);
+      });
+  };
+
+  // ===== FUNCTION TO HANDLE MISSING INPUT(S) FROM USER WHEN SAVING MEAL ===== //
+  const inputValidation = () => {
     if (!mealType || !foodName) {
       Swal.fire({
         position: "center",
@@ -89,15 +136,26 @@ export default function MealPlan() {
         title: "Oops!",
         text: "Please enter both the meal type and food name!",
       });
+      return false;
+    }
+    return true;
+  };
+
+  // ===== FUNCTION TO PASS SAVE MEAL DATA TO CALENDAR ===== //
+  const handleAddCalories = () => {
+    const addCalories = calculateTotalCalories(displayData);
+
+    if (!inputValidation()) {
       return;
     }
 
     const newMealPlan = {
       typeOfMeal: mealType,
       nameOfFood: foodName,
-      totalCalories: addCalories.toFixed(2),
+      totalCalories: addCalories,
     };
 
+    writeData(newMealPlan);
     setAddMeal([...addMeal, newMealPlan]);
 
     Swal.fire({
@@ -107,17 +165,24 @@ export default function MealPlan() {
       text: "You can now add it to your calendar.",
     });
 
-    console.log(`new meal plan:`, newMealPlan);
+    // console.log(`new meal plan:`, newMealPlan);
     setMealType("");
     setFoodName("");
     setTotalResults([]);
   };
 
+  // ===== DELETE HANDLER FOR USER TO REMOVE AN ITEM FROM THEIR LIST ===== //
   const handleDeleteRow = (index) => {
     setDisplayData((prevData) => {
       const newData = [...prevData];
       newData.splice(index, 1);
       return newData;
+    });
+
+    setTotalResults((prevResults) => {
+      const newResults = [...prevResults];
+      newResults.splice(index, 1);
+      return newResults;
     });
   };
 
@@ -129,7 +194,6 @@ export default function MealPlan() {
   const handleCloseModal = () => {
     setOpenEditModal(false);
   };
-  // ===== END ===== //
 
   // ===== FOR RENDERING TABLE IN MODAL ===== //
   const displayTable = (
@@ -141,7 +205,7 @@ export default function MealPlan() {
         <TableHead>
           <TableRow>
             <TableCell sx={{ width: "25%" }}>
-              <strong>Name</strong>
+              <strong>Item</strong>
             </TableCell>
             <TableCell sx={{ width: "30%" }}>
               <strong>Serving Size</strong>
@@ -181,11 +245,16 @@ export default function MealPlan() {
                 </TableRow>
               ))
             : null}
-          <TableCell colSpan={4} align="right">
-            <button className="button" onClick={handleReset}>
-              Reset All
-            </button>
-          </TableCell>
+          <TableRow>
+            <TableCell colSpan={2}>
+              <div>
+                <strong>Total Calories</strong>
+              </div>
+            </TableCell>
+            <TableCell>
+              <strong>{calculateTotalCalories()}</strong>
+            </TableCell>
+          </TableRow>
         </TableFooter>
       </Table>
     </TableContainer>
@@ -219,12 +288,19 @@ export default function MealPlan() {
                   value={ingredientSearchQuery}
                   onChange={(e) => setIngredientSearchQuery(e.target.value)}
                 />
-                <button className="search-button" onClick={handleSearch}>
+                <button
+                  className="search-button"
+                  onClick={handleSearch}
+                  disabled={isButtonDisabled}
+                >
                   search
                 </button>
+                {console.log(`isButtonDisabled`, isButtonDisabled)}
               </Grid>
             </Grid>
             <br />
+
+            {/* NOTE: THIS SECTION IS FOR RENDERING 'ADD MEAL' FORM */}
             {displayData && displayData.length > 0 && displayTable}
             <br />
             <Grid item xs={12} md={4} className="flexCenter">
@@ -256,9 +332,9 @@ export default function MealPlan() {
                           onChange={(e) => setMealType(e.target.value)}
                         >
                           <option disabled value=""></option>
-                          <option value="breakfast">Breakfast</option>
-                          <option value="lunch">Lunch</option>
-                          <option value="dinner">Dinner</option>
+                          <option value="Breakfast">Breakfast</option>
+                          <option value="Lunch">Lunch</option>
+                          <option value="Dinner">Dinner</option>
                         </select>
                       </TableCell>
                       <TableCell>
@@ -281,6 +357,7 @@ export default function MealPlan() {
         </Modal>
       </div>
       <br />
+      {/* NOTE: PASSING ADDMEAL TO CALENDAR.JS */}
       <Calendar addMeal={addMeal} />
       <br />
     </div>
