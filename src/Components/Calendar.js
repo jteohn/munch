@@ -511,10 +511,8 @@ export default function Calendar() {
             <p>Fill up the form and save it to add a meal to your plan!</p>
           )}
           <br />
-
           {/* WIP J TO CONTINUE AFTER CONNIE IS DONE W CALENDAR */}
           {renderPopulatedFields}
-
           <br />
           <div>
             <p alignSelf="left">* required</p>
@@ -640,7 +638,6 @@ export default function Calendar() {
             </table>
           </div>
           <br />
-
           <div style={{ alignSelf: "center" }}>
             <button
               onClick={() => handlePopupSubmit()}
@@ -655,8 +652,7 @@ export default function Calendar() {
               Delete Meal
             </button>
           </div>
-
-          {/* <div style={{ alignSelf: "center" }}></div> */}
+          git {/* <div style={{ alignSelf: "center" }}></div> */}
         </div>
       </Popup>
     </div>
