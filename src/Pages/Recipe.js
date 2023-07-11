@@ -103,7 +103,6 @@ export default function Recipe(props) {
         icon: "success",
         title: "Success!",
         text: "Recipe Exported, You can now import at MEALPLAN!",
-        footer: '<a href="/mealplan">Bring me there!</a>',
       });
     }
   }, [updateState, selectedSaveOption]);
