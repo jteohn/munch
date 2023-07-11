@@ -62,34 +62,6 @@
   width: 100%;
 }
 
-@media (max-width: 960px) {
-  .mobileView {
-    flex-direction: column;
-    gap: 10px;
-  }
-  .welcome-image {
-    height: 180px;
-  }
-  .signup-image {
-    height: 130px;
-  }
-  .header-message {
-    font-size: 1.5rem;
-  }
-}
-
-@media (min-width: 960px) {
-  .desktopView {
-    gap: 80px;
-  }
-  .welcome-image {
-    height: 220px;
-  }
-  .signup-image {
-    height: 200px;
-  }
-}
-
 /* FOR DASHBOARD */
 .dashboard-outercontainer {
   background-color: #ded6ca;
@@ -188,7 +160,7 @@
 }
 
 .fc-event {
-  background-color: #58a8f3 !important;
+  background-color: #dcdcdc !important;
 }
 
 .fc-event-main {
@@ -196,9 +168,10 @@
 }
 
 .popup-content {
-  border-radius: 1em;
-  padding: 10px !important;
-  background: #f8f8f8 !important;
+  background-color: transparent !important;
+  padding: 0 !important;
+  border: none !important;
+  width: 60% !important;
 }
 
 .text-center {
@@ -207,6 +180,63 @@
 
 .element.style {
   overflow: visible !important;
+}
+
+.select-meal {
+  cursor: pointer;
+}
+
+.select-meal:hover {
+  background-color: #f8f8f8;
+}
+
+.date-picker {
+  width: 50%;
+}
+
+#addMealForm-title {
+  font-weight: 600;
+  font-size: 0.8rem;
+  margin-right: 1rem;
+  /* margin-top: 0.8rem; */
+  margin: 0.8rem 0;
+  width: 6.5rem;
+}
+
+#addMealForm-input {
+  margin: auto 0;
+}
+
+/* MEDIA Q */
+@media (max-width: 960px) {
+  .mobileView {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .welcome-image {
+    height: 180px;
+  }
+  .signup-image {
+    height: 130px;
+  }
+  .header-message {
+    font-size: 1.5rem;
+  }
+  /* .small-button {
+    font-size: 0.5rem;
+  } */
+}
+
+@media (min-width: 960px) {
+  .desktopView {
+    gap: 80px;
+  }
+  .welcome-image {
+    height: 220px;
+  }
+  .signup-image {
+    height: 200px;
+  }
 }
 
 /* padding: 1rem 2rem 0 2rem; */

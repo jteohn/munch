@@ -146,7 +146,7 @@ export default function MealPlan() {
     return true;
   };
 
-  // ===== TO IMPORT FROM RECIPE IF USER OPTS FOR IT ===== //
+  // ===== TO IMPORT FROM RECIPE IF USER OPTS FOR IT
   const handleImport = (e) => {
     e.preventDefault();
     if (!recipe) {
@@ -155,7 +155,6 @@ export default function MealPlan() {
         icon: "error",
         title: "Import Failed",
         text: "Have you imported the data from Recipe page yet?",
-        footer: '<a href="/recipe" target="blank">Search Recipe</a>',
       });
       return;
     } else {
@@ -352,7 +351,6 @@ export default function MealPlan() {
                 >
                   search
                 </button>
-                {console.log(`isButtonDisabled`, isButtonDisabled)}
               </Grid>
             </Grid>
             <br />

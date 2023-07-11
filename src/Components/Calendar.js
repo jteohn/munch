@@ -14,6 +14,15 @@ import Swal from "sweetalert2";
 
 import Popup from "reactjs-popup";
 import "reactjs-popup/dist/index.css";
+import {
+  Paper,
+  Table,
+  TableCell,
+  TableContainer,
+  TableFooter,
+  TableHead,
+  TableRow,
+} from "@mui/material";
 // import dayjs from "dayjs";
 
 export default function Calendar() {
@@ -140,25 +149,25 @@ export default function Calendar() {
   //   setStartStr(date);
   // }, [startDate]);
 
-  useEffect(() => {
-    console.log(mealType);
-  }, [mealType]);
+  // useEffect(() => {
+  //   console.log(mealType);
+  // }, [mealType]);
 
-  useEffect(() => {
-    console.log(calories);
-  }, [calories]);
+  // useEffect(() => {
+  //   console.log(calories);
+  // }, [calories]);
 
-  useEffect(() => {
-    console.log(recipeURL);
-  }, [recipeURL]);
+  // useEffect(() => {
+  //   console.log(recipeURL);
+  // }, [recipeURL]);
 
-  useEffect(() => {
-    console.log(foodName);
-  }, [foodName]);
+  // useEffect(() => {
+  //   console.log(foodName);
+  // }, [foodName]);
 
-  useEffect(() => {
-    console.log("Mode is ", mode);
-  }, [mode]);
+  // useEffect(() => {
+  //   console.log("Mode is ", mode);
+  // }, [mode]);
 
   // when page loads runs once to get snapshot
   useEffect(() => {
@@ -256,10 +265,10 @@ export default function Calendar() {
   // to render each event in calendar
   const renderEventContent = (eventInfo) => {
     return (
-      <>
+      <div>
         <b>{eventInfo.event.title} </b>
         <i>{eventInfo.event.extendedProps.Food}</i>
-      </>
+      </div>
     );
   };
 
@@ -378,7 +387,7 @@ export default function Calendar() {
 
     onValue(addMealRef, (snapshot) => {
       const data = snapshot.val();
-      console.log(`line 303 data:`, data);
+      // console.log(`extract saved meals data:`, data);
       if (data !== null) {
         const addMealArray = Object.values(data);
         setSavedMealData(addMealArray);
@@ -404,25 +413,48 @@ export default function Calendar() {
     console.log("selected meal:", meal);
   };
 
-  // rendering it out in calendar.js 'Add Meal' form
-  const renderPopulatedFields = (
-    <div>
-      <h3>Pick from your saved list:</h3>
-      <ul>
-        {Object.values(savedMealData).map((meal, index) => {
-          return (
-            <li key={index} onClick={() => handleSelectMeal(meal)}>
-              {meal.nameOfFood}
-            </li>
-          );
-        })}
-      </ul>
-    </div>
+  // ===== FOR RENDERING TABLE IN MODAL ===== //
+  const displayTable = (
+    <TableContainer
+      component={Paper}
+      sx={{
+        maxWidth: 350,
+        borderRadius: "10px",
+        maxHeight: 100,
+        margin: "0",
+        width: "80%",
+      }}
+    >
+      <Table size="small">
+        <TableHead>
+          <TableRow sx={{ backgroundColor: "#EFE9E0" }}>
+            <TableCell sx={{ width: "20%" }} align="center">
+              <strong>Saved Meal List</strong>
+            </TableCell>
+          </TableRow>
+        </TableHead>
+        <TableFooter>
+          {Object.values(savedMealData).map((meal, index) => {
+            return (
+              <TableRow key={index}>
+                <TableCell
+                  className="select-meal"
+                  align="center"
+                  onClick={() => handleSelectMeal(meal)}
+                >
+                  {meal.nameOfFood}
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableFooter>
+      </Table>
+    </TableContainer>
   );
   // ===== END OF SECTION ===== //
 
   return (
-    <div style={{ justifyContent: "center" }}>
+    <div style={{ justifyContent: "center", padding: "1.5rem" }}>
       <Fullcalendar
         id="calender"
         plugins={[dayGridPlugin, interactionPlugin]}
@@ -441,7 +473,6 @@ export default function Calendar() {
         editable={true}
         events={events}
         height={"90vh"}
-        //      eventBackgroundColor="#efe9e0" : to set background color. default color is blue for all day event. Only works for all day event.
         customButtons={{
           new: {
             text: "Add Meal",
@@ -460,40 +491,53 @@ export default function Calendar() {
         closeOnDocumentClick
         onClose={handleClosePopupWithoutSubmit}
       >
-        <div className="modal text-center">
-          {mode === "newdate" ? (
-            <p>
-              Fill up this form to insert a food into your meal plan or choose
-              from your saved list!
-            </p>
-          ) : mode === "editevent" ? (
-            <p>
-              You have set this meal earlier. <br />
-              Please save the form if you have made any changes
-            </p>
-          ) : (
-            <p>Fill up the form and save it to add a meal to your plan!</p>
-          )}
-          <br />
+        <div id="modal-container" style={{ width: "100%" }}>
+          <div className="modal-box" style={{ backgroundColor: "#fbf7f1" }}>
+            {mode === "newdate" ? (
+              <div>
+                <div className="font displaytext">
+                  Add a meal to your calendar
+                </div>
+                <div className="smallFont displaytext" style={{ margin: 0 }}>
+                  You can choose from your list or fill up the form below:
+                </div>
+              </div>
+            ) : mode === "editevent" ? (
+              <div>
+                <div className="font displaytext">Edit Meal</div>
+                <div className="smallFont displaytext" style={{ margin: 0 }}>
+                  Please save the form if you have made any changes!
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div className="font displaytext">
+                  Add a meal to your calendar
+                </div>
+                <div className="smallFont displaytext" style={{ margin: 0 }}>
+                  You can choose from your list or fill up the form below:
+                </div>
+              </div>
+            )}
+            <br />
 
-          {/* WIP J TO CONTINUE AFTER CONNIE IS DONE W CALENDAR */}
-          {renderPopulatedFields}
+            {displayTable}
 
-          <br />
-          <div>
-            <p alignSelf="left">* required</p>
-            <table
-              style={{
-                fontSize: "0.9rem",
-                margin: "auto",
-              }}
-            >
-              <tbody>
-                {mode === "newmeal" ? (
-                  <tr className="height">
-                    <td style={{ width: "8rem" }}>Date of Meal *</td>
-                    <td>
+            <br />
+            {/* BODY */}
+            <div className="flexCenter">
+              <div>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "column",
+                  }}
+                >
+                  <div id="addMealForm-title">Date of Meal *</div>
+                  {mode === "newmeal" ? (
+                    <div id="addMealForm-input">
                       <DatePicker
+                        className="date-picker"
                         showIcon
                         closeOnDocumentClick
                         minDate={today}
@@ -504,20 +548,29 @@ export default function Calendar() {
                           setStartDate(date);
                           console.log(date);
                         }}
+                        onBlur={(date) => {
+                          setStartDate(date);
+                          console.log(date);
+                        }}
                         placeholderText="YYYY-MM-DD"
                       />
-                    </td>
-                  </tr>
-                ) : (
-                  ""
-                )}
-                <tr className="height">
-                  <td style={{ width: "8rem" }}>Meal Type *</td>
-                  <td>
+                    </div>
+                  ) : (
+                    "-"
+                  )}
+                </div>
+
+                <div style={{ display: "flex", justifyContent: "column" }}>
+                  <div id="addMealForm-title">Meal Type *</div>
+                  <div id="addMealForm-input">
                     <select
                       required
                       value={mealType}
                       onChange={(e) => {
+                        setMealType(e.target.value);
+                        console.log(e.target.value);
+                      }}
+                      onBlur={(e) => {
                         setMealType(e.target.value);
                         console.log(e.target.value);
                       }}
@@ -529,15 +582,15 @@ export default function Calendar() {
                       <option value={"Lunch"}>Lunch</option>
                       <option value={"Dinner"}>Dinner</option>
                     </select>
-                  </td>
-                </tr>
+                  </div>
+                </div>
 
-                <tr className="height">
-                  <td>Food Name * </td>
-                  <td>
+                <div style={{ display: "flex", justifyContent: "column" }}>
+                  <div id="addMealForm-title">Food Name *</div>
+                  <div id="addMealForm-input">
                     <input
                       required
-                      placeholder="Name of food"
+                      placeholder="e.g. pizza"
                       className="profile-inputs"
                       type="text"
                       value={foodName || ""}
@@ -545,59 +598,64 @@ export default function Calendar() {
                         setFoodName(e.target.value);
                         // console.log(foodName);
                       }}
+                      onBlur={(e) => {
+                        setFoodName(e.target.value);
+                        console.log(e.target.value);
+                      }}
                     />
-                  </td>
-                </tr>
+                  </div>
+                </div>
 
-                <tr className="height">
-                  <td>Calories </td>
-                  <td>
+                <div style={{ display: "flex", justifyContent: "column" }}>
+                  <div id="addMealForm-title">Calories</div>
+                  <div id="addMealForm-input">
                     <input
                       className="profile-inputs"
-                      placeholder="Only Numbers allowed"
+                      placeholder="e.g. 800"
                       type="number"
                       value={calories || ""}
                       onChange={(e) => {
                         setCalories(e.target.value);
                       }}
                     />
-                  </td>
-                </tr>
+                  </div>
+                </div>
 
-                <tr className="height">
-                  <td>Recipe URL </td>
-                  <td>
+                <div style={{ display: "flex", justifyContent: "column" }}>
+                  <div id="addMealForm-title">Recipe URL</div>
+                  <div id="addMealForm-input">
                     <input
                       className="profile-inputs"
                       type="text"
+                      placeholder="e.g. allrecipes.com"
                       value={recipeURL || ""}
                       onChange={(e) => {
                         setRecipeURL(e.target.value);
                       }}
                     />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                  </div>
+                </div>
+                <div>
+                  <div className="smallFont">* required</div>
+                </div>
+                <br />
+                <div className="flexCenter">
+                  <button
+                    onClick={() => handlePopupSubmit()}
+                    className="update-button"
+                  >
+                    Save Meal
+                  </button>
+                  <button
+                    onClick={() => handleDeleteEvent()}
+                    className="delete-button"
+                  >
+                    Delete Meal
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
-          <br />
-
-          <div style={{ alignSelf: "center" }}>
-            <button
-              onClick={() => handlePopupSubmit()}
-              className="update-button"
-            >
-              Save Meal
-            </button>
-            <button
-              onClick={() => handleDeleteEvent()}
-              className="delete-button"
-            >
-              Delete Meal
-            </button>
-          </div>
-
-          {/* <div style={{ alignSelf: "center" }}></div> */}
         </div>
       </Popup>
     </div>
