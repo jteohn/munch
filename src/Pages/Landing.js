@@ -13,6 +13,7 @@ export default function Landing() {
       }}
     >
       <div
+        className="bounce"
         style={{
           marginTop: "10rem",
           fontFamily: "Inria Serif, Times New Roman",

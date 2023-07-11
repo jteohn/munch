@@ -202,3 +202,18 @@
   font-size: calc(10px + 2vmin);
   color: white;
 } */
+
+.bounce {
+  animation: bounce 3s infinite;
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-20px);
+  }
+}
