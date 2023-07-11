@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { ref, set, get, update, remove } from "firebase/database";
+import { ref, set, get, update, onValue } from "firebase/database";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase";
 import { database } from "../firebase";
@@ -7,33 +7,30 @@ import { UserContext } from "../App";
 import { useNavigate } from "react-router-dom";
 import Fullcalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
-import interactionPlugin from "@fullcalendar/interaction";
+import interactionPlugin, { Draggable } from "@fullcalendar/interaction";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-// import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
-// import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-// import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-// import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-// import { FocusTrap } from "@mui/base";
+import Swal from "sweetalert2";
 
 import Popup from "reactjs-popup";
 import "reactjs-popup/dist/index.css";
 // import dayjs from "dayjs";
 
-export default function Calendar(props) {
+export default function Calendar() {
   const user = useContext(UserContext);
   const navigate = useNavigate();
 
   const [startDate, setStartDate] = useState(new Date());
+  // const [newDate, setNewDate] = useState("");
 
   // setDatabase reference
   const DB_CALENDAR_KEY = "userCalendar/";
   const userRef = ref(database, DB_CALENDAR_KEY + user.uid);
 
   // Receive props from MealPlan.js
-  const { addMeal } = props;
-  const [savedMealData, setSavedMealData] = useState(addMeal);
+  const [savedMealData, setSavedMealData] = useState({});
   const [selectedMeal, setSelectedMeal] = useState(null);
+  const DB_SAVEMEAL_KEY = "userSavedMeal/";
 
   // initialize popup values
   const [open, setOpen] = useState(false);
@@ -55,16 +52,6 @@ export default function Calendar(props) {
   const [events, setEvents] = useState([]);
   const [today] = useState(new Date());
 
-  // to render each event in calendar
-  const renderEventContent = (eventInfo) => {
-    return (
-      <>
-        <b>{eventInfo.event.title} </b>
-        <i>{eventInfo.event.extendedProps.Food}</i>
-      </>
-    );
-  };
-
   // to reset input fields after event is saved
   const resetFields = () => {
     setMealType("");
@@ -73,7 +60,7 @@ export default function Calendar(props) {
     setRecipeURL("");
     setStart("");
     setStartStr("");
-    setMode("");
+    // setMode("");
     setFirstTime(false);
     console.log("Fields are reset, open is : ", open);
   };
@@ -88,6 +75,16 @@ export default function Calendar(props) {
 
   // when user clicks on any dates on the calendar
   const dateClickHandler = (info) => {
+    const entereddate = new Date(info.startStr);
+    if (entereddate < today) {
+      Swal.fire({
+        icon: "error",
+        title: "Sorry...",
+        text: "You cannot add a meal to a past date.",
+      }).then(() => {
+        return;
+      });
+    }
     setMode("newdate");
     setOpen(true);
     console.log("Selecting Date...");
@@ -132,6 +129,17 @@ export default function Calendar(props) {
     setStartStr(date);
   }, [startDate]);
 
+  // // to change start date after event dropped
+  // useEffect(() => {
+  //   console.log(newDate);
+  //   const year = startDate.toLocaleDateString("default", { year: "numeric" });
+  //   const month = startDate.toLocaleDateString("default", { month: "2-digit" });
+  //   const day = startDate.toLocaleDateString("default", { day: "2-digit" });
+  //   const date = [year, month, day].join("-");
+  //   console.log(date);
+  //   setStartStr(date);
+  // }, [startDate]);
+
   useEffect(() => {
     console.log(mealType);
   }, [mealType]);
@@ -147,25 +155,6 @@ export default function Calendar(props) {
   useEffect(() => {
     console.log(foodName);
   }, [foodName]);
-
-  // useEffect(() => {
-  //   console.log(eventInfo);
-  // }, [eventInfo]);
-
-  // // to double check start time is set
-  // useEffect(() => {
-  //   console.log("Start is : ", start);
-  // }, [start]);
-
-  // // to double check currentEventID is set correctly
-  // useEffect(() => {
-  //   console.log(currentEventID);
-  // }, [currentEventID]);
-
-  // to double check currentEventID is set correctly
-  // useEffect(() => {
-  //   console.log("Count is updated : ", count);
-  // }, [count]);
 
   useEffect(() => {
     console.log("Mode is ", mode);
@@ -230,30 +219,12 @@ export default function Calendar(props) {
         events: newEvents,
       });
       // check snapshot after replacing
-      get(userRef).then(
-        (snapshot) => {
-          const snapshott = snapshot.val();
-          console.log("After delete snapshot : ", snapshott);
-          //  if (snapshot.exists()) {
-          //    setDbSnapshot(snapshott);
-          //  console.log("Db data is being deleted... ");
-
-          //  if (snapshott && Array.isArray(snapshott.events)) {
-          //    console.log("Inside delete!!!!!");
-          //    setEvents(snapshott.events);
-          //    setFirstTime(false);
-          //    console.log(events);
-          //    return;
-          //  }
-        }
-        //  }
-      );
+      get(userRef).then((snapshot) => {
+        const snapshott = snapshot.val();
+        console.log("After delete snapshot : ", snapshott);
+      });
     }
   }, [events]);
-
-  // useEffect(() => {
-  //   console.log("First time is changed to : ", firstTime);
-  // }, [firstTime]);
 
   // to enable user to close pop ups without saving by clicking anywhere on document
   const handleClosePopupWithoutSubmit = () => {
@@ -266,12 +237,6 @@ export default function Calendar(props) {
     console.log("delete event");
     setOpen(false);
     setMode("deleteevent");
-    // setCount(events.length);
-    // console.log("Mode is : ", mode);
-    // console.log("Start is : ", recipeURL);
-    // console.log("Foodname is : ", foodName);
-    // console.log("Calories is : ", calories);
-
     console.log("Deleting existing event...");
     console.log(start);
     console.log("To be deleted : ", events[currentEventID]);
@@ -285,27 +250,34 @@ export default function Calendar(props) {
       console.log("After update id : ", eventsCopy[counter].id);
       counter++;
     }
-
-    // const currentEvent = {
-    //   id: currentEventID,
-    //   extendedProps: {
-    //     Food: foodName,
-    //     recipeURL: recipeURL,
-    //     calories: calories,
-    //     start: start,
-    //   },
-    //   title: mealType,
-    //   start: start,
-    // };
-
-    // eventsCopy[currentEventID] = currentEvent;
-    // console.log(eventsCopy[currentEventID]);
-    // console.log(eventsCopy);
     setEvents(eventsCopy);
+  };
+
+  // to render each event in calendar
+  const renderEventContent = (eventInfo) => {
+    return (
+      <>
+        <b>{eventInfo.event.title} </b>
+        <i>{eventInfo.event.extendedProps.Food}</i>
+      </>
+    );
   };
 
   // handle all submit buttons for pop up
   const handlePopupSubmit = () => {
+    if (mealType === "" || foodName === "") {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Please ensure you select the meal time and plan before submitting the form.",
+      }).then(() => {
+        setOpen(true);
+        console.log("Open is : ", open);
+        console.log("Mode is : ", mode);
+        setMode("newmeal");
+        Swal.close();
+      });
+    }
     setOpen(false);
     setCount(events.length);
     console.log("Mode is : ", mode);
@@ -380,13 +352,43 @@ export default function Calendar(props) {
     resetFields();
   };
 
-  // ===== BELOW SECTION IS FOR RENDERING OUT POPULATED FIELD BASED ON WHAT USER HAS ADDED FROM CALORIENINJA ===== //
-  // Update mealData state whenever there're changes to addMeal props.
-  useEffect(() => {
-    setSavedMealData(addMeal);
-  }, [addMeal]);
+  //event drop
+  const updateEventOnDragged = (eventInfo) => {
+    console.log("I am called! ", eventInfo);
+    let newStartStr = eventInfo.event.startStr;
+    newStartStr = newStartStr.substring(0, 19);
+    const eventID = eventInfo.event.id;
+    console.log("New Event ID is : ", eventInfo.event.id);
+    console.log("Dropped event");
+    setMode("deleteevent");
+    console.log("Updating existing event...");
+    console.log("To be edited : ", events[eventID]);
+    const eventsCopy = [...events];
+    eventsCopy[eventID].start = newStartStr;
+    eventsCopy[eventID].extendedProps.start = newStartStr;
+    console.log("After update start : ", eventsCopy[eventID]);
+    setEvents(eventsCopy);
+    console.log(events);
+  };
 
-  // Update setMealType and setCalories if user has already added their meal data using calorieNinja and they'd like to store the data in calendar.
+  // ===== BELOW SECTION IS FOR RENDERING OUT POPULATED FIELD BASED ON WHAT USER HAS ADDED FROM MEALPLAN.JS ===== //
+  // update useEffect to display saved meal(s) in Calendar.js
+  useEffect(() => {
+    const addMealRef = ref(database, DB_SAVEMEAL_KEY + user.uid);
+
+    onValue(addMealRef, (snapshot) => {
+      const data = snapshot.val();
+      console.log(`line 303 data:`, data);
+      if (data !== null) {
+        const addMealArray = Object.values(data);
+        setSavedMealData(addMealArray);
+      } else {
+        setSavedMealData([]);
+      }
+    });
+  }, []);
+
+  // update setMealType, setFoodName, and setCalories with the saved meal(s) data extracted from database.
   useEffect(() => {
     if (selectedMeal) {
       setMealType(selectedMeal.typeOfMeal);
@@ -396,16 +398,18 @@ export default function Calendar(props) {
     }
   }, [selectedMeal]);
 
+  // onClick handler to auto-populate the fields
   const handleSelectMeal = (meal) => {
     setSelectedMeal(meal);
     console.log("selected meal:", meal);
   };
 
+  // rendering it out in calendar.js 'Add Meal' form
   const renderPopulatedFields = (
     <div>
       <h3>Pick from your saved list:</h3>
       <ul>
-        {addMeal.map((meal, index) => {
+        {Object.values(savedMealData).map((meal, index) => {
           return (
             <li key={index} onClick={() => handleSelectMeal(meal)}>
               {meal.nameOfFood}
@@ -434,6 +438,7 @@ export default function Calendar(props) {
         }}
         nowIndicator={true}
         selectable={true}
+        editable={true}
         events={events}
         height={"90vh"}
         //      eventBackgroundColor="#efe9e0" : to set background color. default color is blue for all day event. Only works for all day event.
@@ -443,6 +448,7 @@ export default function Calendar(props) {
             click: () => chooseDateHandler(),
           },
         }}
+        eventDrop={(info) => updateEventOnDragged(info)}
         select={(info) => dateClickHandler(info)}
         eventClick={(info) => eventsHandler(info)}
         eventContent={renderEventContent}
@@ -475,6 +481,7 @@ export default function Calendar(props) {
 
           <br />
           <div>
+            <p alignSelf="left">* required</p>
             <table
               style={{
                 fontSize: "0.9rem",
@@ -484,26 +491,8 @@ export default function Calendar(props) {
               <tbody>
                 {mode === "newmeal" ? (
                   <tr className="height">
-                    <td style={{ width: "8rem" }}>Date of Meal </td>
+                    <td style={{ width: "8rem" }}>Date of Meal *</td>
                     <td>
-                      {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <DemoContainer components={["DatePicker"]}>
-                            <DatePicker
-                              label="Select Date of Meal"
-                              value={startStr}
-                              views={["year", "month", "day"]}
-                              slotProps={{
-                                textField: { helperText: "MM/DD/YYYY" },
-                              }}
-                              disablePast
-                              onChange={(newValue) => {
-                                setStartStr(newValue);
-                                console.log(newValue);
-                                console.log(startStr);
-                              }}
-                            />
-                          </DemoContainer>
-                        </LocalizationProvider> */}
                       <DatePicker
                         showIcon
                         closeOnDocumentClick
@@ -516,33 +505,22 @@ export default function Calendar(props) {
                           console.log(date);
                         }}
                         placeholderText="YYYY-MM-DD"
-                        required
                       />
-                      {/* <input
-                        className="profile-inputs"
-                        type="text"
-                        placeholder="yyyy-mm-dd"
-                        value={startStr}
-                        onChange={(e) => {
-                          setStartStr(e.target.value);
-                          console.log(startStr);
-                        }}
-                      /> */}
                     </td>
                   </tr>
                 ) : (
                   ""
                 )}
                 <tr className="height">
-                  <td style={{ width: "8rem" }}>Meal Type </td>
+                  <td style={{ width: "8rem" }}>Meal Type *</td>
                   <td>
                     <select
+                      required
                       value={mealType}
                       onChange={(e) => {
                         setMealType(e.target.value);
                         console.log(e.target.value);
                       }}
-                      required
                     >
                       <option disabled value="">
                         Select your option
@@ -551,30 +529,22 @@ export default function Calendar(props) {
                       <option value={"Lunch"}>Lunch</option>
                       <option value={"Dinner"}>Dinner</option>
                     </select>
-                    {/* <input
-                      className="profile-inputs"
-                      type="text"
-                      value={mealType}
-                      onChange={(e) => {
-                        setMealType(e.target.value);
-                        // console.log(mealType);
-                      }}
-                    /> */}
                   </td>
                 </tr>
 
                 <tr className="height">
-                  <td>Food Name </td>
+                  <td>Food Name * </td>
                   <td>
                     <input
+                      required
+                      placeholder="Name of food"
                       className="profile-inputs"
                       type="text"
-                      value={foodName}
+                      value={foodName || ""}
                       onChange={(e) => {
                         setFoodName(e.target.value);
                         // console.log(foodName);
                       }}
-                      required
                     />
                   </td>
                 </tr>
@@ -584,8 +554,9 @@ export default function Calendar(props) {
                   <td>
                     <input
                       className="profile-inputs"
-                      type="text"
-                      value={calories}
+                      placeholder="Only Numbers allowed"
+                      type="number"
+                      value={calories || ""}
                       onChange={(e) => {
                         setCalories(e.target.value);
                       }}
@@ -625,6 +596,7 @@ export default function Calendar(props) {
               Delete Meal
             </button>
           </div>
+
           {/* <div style={{ alignSelf: "center" }}></div> */}
         </div>
       </Popup>

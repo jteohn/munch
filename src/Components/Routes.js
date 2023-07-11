@@ -12,7 +12,6 @@ import About from "../Pages/About";
 import Posts from "../Pages/Posts";
 import MealPlan from "../Pages/MealPlan";
 import Recipe from "../Pages/Recipe";
-import Contact from "../Pages/Contact";
 import Profile from "../Pages/Profile";
 import ErrorPage from "../Pages/ErrorPage";
 
@@ -63,7 +62,6 @@ export default function MunchRoutes(props) {
           element={<Recipe dataFromRecipe={props.dataFromRecipe} />}
         />
         <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
         <Route path="/posts" element={<Posts />} />
         <Route path="*" element={<ErrorPage />} />
       </Routes>
