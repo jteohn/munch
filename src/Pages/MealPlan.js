@@ -155,6 +155,7 @@ export default function MealPlan() {
         icon: "error",
         title: "Import Failed",
         text: "Have you imported the data from Recipe page yet?",
+        footer: '<a href="/recipe" target="blank">Search Recipe</a>',
       });
       return;
     } else {
