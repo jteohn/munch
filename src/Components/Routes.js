@@ -58,7 +58,10 @@ export default function MunchRoutes(props) {
         />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/mealplan" element={<MealPlan />} />
-        <Route path="/recipe" element={<Recipe />} />
+        <Route
+          path="/recipe"
+          element={<Recipe dataFromRecipe={props.dataFromRecipe} />}
+        />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/posts" element={<Posts />} />

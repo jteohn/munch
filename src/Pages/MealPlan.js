@@ -22,6 +22,7 @@ import "../MealPlan.css";
 import { database } from "../firebase";
 import { push, ref } from "firebase/database";
 import { UserContext } from "../App";
+import { RecipeContext } from "../App";
 
 // now... do you have the discipline to follow through?
 
@@ -32,11 +33,15 @@ export default function MealPlan() {
 
   const [mealType, setMealType] = useState("");
   const [foodName, setFoodName] = useState("");
+  const [url, setUrl] = useState("");
+  const [importedMealPlan, setImportedMealPlan] = useState({});
+  const [importDependency, setImportDependency] = useState(0);
 
   const [isButtonDisabled, setIsButtonDisable] = useState(false);
   const [openEditModal, setOpenEditModal] = useState(false);
 
   const user = useContext(UserContext);
+  const recipe = useContext(RecipeContext);
   const DB_SAVEMEAL_KEY = "userSavedMeal/";
 
   // ===== PERFORM SEARCH + EXTRACT INFO FROM API ===== //
@@ -109,7 +114,7 @@ export default function MealPlan() {
 
   // ===== TO STORE SAVED MEAL IN DATABASE ===== //
   const writeData = (newMealPlan) => {
-    const { typeOfMeal, nameOfFood, totalCalories } = newMealPlan;
+    const { typeOfMeal, nameOfFood, totalCalories, url } = newMealPlan;
 
     const addMealRef = ref(database, DB_SAVEMEAL_KEY + user.uid);
 
@@ -117,6 +122,7 @@ export default function MealPlan() {
       typeOfMeal,
       nameOfFood,
       totalCalories,
+      url,
     })
       .then(() => {
         console.log(`Saved meal has been added to database`);
@@ -140,6 +146,41 @@ export default function MealPlan() {
     return true;
   };
 
+  // ===== TO IMPORT FROM RECIPE IF USER OPTS FOR IT
+  const handleImport = (e) => {
+    e.preventDefault();
+    if (!recipe) {
+      Swal.fire({
+        position: "center",
+        icon: "error",
+        title: "Import Failed",
+        text: "Have you imported the data from Recipe page yet?",
+      });
+      return;
+    } else {
+      const impMealPlan = {
+        typeOfMeal: recipe.mealType,
+        nameOfFood: recipe.recipeName,
+        totalCalories: recipe.calories,
+        url: recipe.url,
+      };
+      setImportedMealPlan(impMealPlan);
+      setImportDependency(importDependency + 1);
+    }
+  };
+
+  useEffect(() => {
+    if (importedMealPlan && importDependency !== 0) {
+      console.log(importDependency);
+      writeData(importedMealPlan);
+      Swal.fire({
+        position: "center",
+        icon: "success",
+        title: "Saved!",
+        text: "You can now add it to your calendar.",
+      });
+    }
+  }, [importDependency, importedMealPlan]);
   // ===== FUNCTION TO PASS SAVE MEAL DATA TO CALENDAR ===== //
   const handleAddCalories = () => {
     const addCalories = calculateTotalCalories(displayData);
@@ -152,6 +193,7 @@ export default function MealPlan() {
       typeOfMeal: mealType,
       nameOfFood: foodName,
       totalCalories: addCalories,
+      url: url,
     };
 
     writeData(newMealPlan);
@@ -267,6 +309,13 @@ export default function MealPlan() {
             Start planning your meal by searching up the ingredients! <br />
             <button className="track-button" onClick={handleOpenModal}>
               Track Calorie Consumption
+            </button>
+            <br />
+            <div style={{ textAlign: "center" }}>
+              Or.. Import your Recipe Here!
+            </div>
+            <button className="track-button" onClick={handleImport}>
+              Import from Recipe
             </button>
           </div>
         </Card>

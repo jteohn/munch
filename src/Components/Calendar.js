@@ -392,6 +392,7 @@ export default function Calendar(props) {
       setMealType(selectedMeal.typeOfMeal);
       setFoodName(selectedMeal.nameOfFood);
       setCalories(selectedMeal.totalCalories);
+      setRecipeURL(selectedMeal.url);
     }
   }, [selectedMeal]);
 
@@ -598,7 +599,7 @@ export default function Calendar(props) {
                     <input
                       className="profile-inputs"
                       type="text"
-                      value={recipeURL}
+                      value={recipeURL || ""}
                       onChange={(e) => {
                         setRecipeURL(e.target.value);
                       }}
