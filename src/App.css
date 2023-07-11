@@ -62,6 +62,34 @@
   width: 100%;
 }
 
+@media (max-width: 960px) {
+  .mobileView {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .welcome-image {
+    height: 180px;
+  }
+  .signup-image {
+    height: 130px;
+  }
+  .header-message {
+    font-size: 1.5rem;
+  }
+}
+
+@media (min-width: 960px) {
+  .desktopView {
+    gap: 80px;
+  }
+  .welcome-image {
+    height: 220px;
+  }
+  .signup-image {
+    height: 200px;
+  }
+}
+
 /* FOR DASHBOARD */
 .dashboard-outercontainer {
   background-color: #ded6ca;
@@ -133,6 +161,7 @@
   align-items: center;
 }
 
+/* DISPLAY BMI INDICATORS */
 .bold {
   font-weight: 600;
 }
@@ -153,7 +182,7 @@
   color: red;
 }
 
-/*For Calendar*/
+/* FOR CALENDAR */
 .fc-event-start {
   overflow: hidden;
 }
@@ -178,31 +207,6 @@
 
 .element.style {
   overflow: visible !important;
-}
-
-@media (max-width: 960px) {
-  .mobileView {
-    flex-direction: column;
-    gap: 10px;
-  }
-  .welcome-image {
-    height: 180px;
-  }
-  .signup-image {
-    height: 140px;
-  }
-}
-
-@media (min-width: 960px) {
-  .desktopView {
-    gap: 80px;
-  }
-  .welcome-image {
-    height: 220px;
-  }
-  .signup-image {
-    height: 200px;
-  }
 }
 
 /* padding: 1rem 2rem 0 2rem; */

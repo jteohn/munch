@@ -27,7 +27,7 @@ export default function Calendar() {
   const DB_CALENDAR_KEY = "userCalendar/";
   const userRef = ref(database, DB_CALENDAR_KEY + user.uid);
 
-  // Receive props from MealPlan.js
+  // Receive data from MealPlan.js
   const [savedMealData, setSavedMealData] = useState({});
   const [selectedMeal, setSelectedMeal] = useState(null);
   const DB_SAVEMEAL_KEY = "userSavedMeal/";
