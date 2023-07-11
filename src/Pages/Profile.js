@@ -2,7 +2,21 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { UserContext } from "../App";
 import defaultAvatar from "../assets/defaultAvatar.png";
 import "../Profile.css";
-import { Box, Modal, useMediaQuery } from "@mui/material";
+import {
+  Box,
+  Card,
+  Grid,
+  Modal,
+  Paper,
+  Table,
+  TableCell,
+  TableContainer,
+  TableFooter,
+  TableHead,
+  TableRow,
+  Tooltip,
+  useMediaQuery,
+} from "@mui/material";
 import Swal from "sweetalert2";
 
 import { ref as databaseRef, update } from "firebase/database";
