@@ -17,6 +17,7 @@ import MunchRoutes from "./Components/Routes";
 import Navbar from "./Components/Navbar";
 
 export const UserContext = React.createContext(null);
+export const RecipeContext = React.createContext(null);
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -30,7 +31,16 @@ export default function App() {
   const [avatar, setAvatar] = useState("");
   const [dateSignedUp, setDateSignedUp] = useState("");
   const [uid, setUID] = useState("");
+  //these for recipe context use
+  const [compiledRecipeData, setCompiledRecipeData] = useState();
 
+  const dataFromRecipe = (data) => {
+    setCompiledRecipeData(data);
+  };
+
+  useEffect(() => {
+    console.log(compiledRecipeData);
+  }, [compiledRecipeData]);
   // for context use
   const currUser = {
     isLoggedIn: isLoggedIn,
@@ -208,12 +218,15 @@ export default function App() {
       <header className="App-header"></header>
       {/* other codes here? or in body? */}
       <UserContext.Provider value={currUser}>
-        <Navbar isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
-        <MunchRoutes
-          handleSignup={handleSignup}
-          handleLogin={handleLogin}
-          setStates={setStates}
-        />
+        <RecipeContext.Provider value={compiledRecipeData}>
+          <Navbar isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
+          <MunchRoutes
+            handleSignup={handleSignup}
+            handleLogin={handleLogin}
+            setStates={setStates}
+            dataFromRecipe={dataFromRecipe}
+          />
+        </RecipeContext.Provider>
       </UserContext.Provider>
     </div>
   );
