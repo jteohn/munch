@@ -7,14 +7,10 @@ import { UserContext } from "../App";
 import { useNavigate } from "react-router-dom";
 import Fullcalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
-import interactionPlugin from "@fullcalendar/interaction";
+import interactionPlugin, { Draggable } from "@fullcalendar/interaction";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-// import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
-// import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-// import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-// import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-// import { FocusTrap } from "@mui/base";
+import Swal from "sweetalert2";
 
 import Popup from "reactjs-popup";
 import "reactjs-popup/dist/index.css";
@@ -25,6 +21,7 @@ export default function Calendar() {
   const navigate = useNavigate();
 
   const [startDate, setStartDate] = useState(new Date());
+  // const [newDate, setNewDate] = useState("");
 
   // setDatabase reference
   const DB_CALENDAR_KEY = "userCalendar/";
@@ -55,16 +52,6 @@ export default function Calendar() {
   const [events, setEvents] = useState([]);
   const [today] = useState(new Date());
 
-  // to render each event in calendar
-  const renderEventContent = (eventInfo) => {
-    return (
-      <>
-        <b>{eventInfo.event.title} </b>
-        <i>{eventInfo.event.extendedProps.Food}</i>
-      </>
-    );
-  };
-
   // to reset input fields after event is saved
   const resetFields = () => {
     setMealType("");
@@ -73,7 +60,7 @@ export default function Calendar() {
     setRecipeURL("");
     setStart("");
     setStartStr("");
-    setMode("");
+    // setMode("");
     setFirstTime(false);
     console.log("Fields are reset, open is : ", open);
   };
@@ -88,6 +75,16 @@ export default function Calendar() {
 
   // when user clicks on any dates on the calendar
   const dateClickHandler = (info) => {
+    const entereddate = new Date(info.startStr);
+    if (entereddate < today) {
+      Swal.fire({
+        icon: "error",
+        title: "Sorry...",
+        text: "You cannot add a meal to a past date.",
+      }).then(() => {
+        return;
+      });
+    }
     setMode("newdate");
     setOpen(true);
     console.log("Selecting Date...");
@@ -132,6 +129,17 @@ export default function Calendar() {
     setStartStr(date);
   }, [startDate]);
 
+  // // to change start date after event dropped
+  // useEffect(() => {
+  //   console.log(newDate);
+  //   const year = startDate.toLocaleDateString("default", { year: "numeric" });
+  //   const month = startDate.toLocaleDateString("default", { month: "2-digit" });
+  //   const day = startDate.toLocaleDateString("default", { day: "2-digit" });
+  //   const date = [year, month, day].join("-");
+  //   console.log(date);
+  //   setStartStr(date);
+  // }, [startDate]);
+
   useEffect(() => {
     console.log(mealType);
   }, [mealType]);
@@ -147,25 +155,6 @@ export default function Calendar() {
   useEffect(() => {
     console.log(foodName);
   }, [foodName]);
-
-  // useEffect(() => {
-  //   console.log(eventInfo);
-  // }, [eventInfo]);
-
-  // // to double check start time is set
-  // useEffect(() => {
-  //   console.log("Start is : ", start);
-  // }, [start]);
-
-  // // to double check currentEventID is set correctly
-  // useEffect(() => {
-  //   console.log(currentEventID);
-  // }, [currentEventID]);
-
-  // to double check currentEventID is set correctly
-  // useEffect(() => {
-  //   console.log("Count is updated : ", count);
-  // }, [count]);
 
   useEffect(() => {
     console.log("Mode is ", mode);
@@ -230,30 +219,12 @@ export default function Calendar() {
         events: newEvents,
       });
       // check snapshot after replacing
-      get(userRef).then(
-        (snapshot) => {
-          const snapshott = snapshot.val();
-          console.log("After delete snapshot : ", snapshott);
-          //  if (snapshot.exists()) {
-          //    setDbSnapshot(snapshott);
-          //  console.log("Db data is being deleted... ");
-
-          //  if (snapshott && Array.isArray(snapshott.events)) {
-          //    console.log("Inside delete!!!!!");
-          //    setEvents(snapshott.events);
-          //    setFirstTime(false);
-          //    console.log(events);
-          //    return;
-          //  }
-        }
-        //  }
-      );
+      get(userRef).then((snapshot) => {
+        const snapshott = snapshot.val();
+        console.log("After delete snapshot : ", snapshott);
+      });
     }
   }, [events]);
-
-  // useEffect(() => {
-  //   console.log("First time is changed to : ", firstTime);
-  // }, [firstTime]);
 
   // to enable user to close pop ups without saving by clicking anywhere on document
   const handleClosePopupWithoutSubmit = () => {
@@ -266,12 +237,6 @@ export default function Calendar() {
     console.log("delete event");
     setOpen(false);
     setMode("deleteevent");
-    // setCount(events.length);
-    // console.log("Mode is : ", mode);
-    // console.log("Start is : ", recipeURL);
-    // console.log("Foodname is : ", foodName);
-    // console.log("Calories is : ", calories);
-
     console.log("Deleting existing event...");
     console.log(start);
     console.log("To be deleted : ", events[currentEventID]);
@@ -285,27 +250,34 @@ export default function Calendar() {
       console.log("After update id : ", eventsCopy[counter].id);
       counter++;
     }
-
-    // const currentEvent = {
-    //   id: currentEventID,
-    //   extendedProps: {
-    //     Food: foodName,
-    //     recipeURL: recipeURL,
-    //     calories: calories,
-    //     start: start,
-    //   },
-    //   title: mealType,
-    //   start: start,
-    // };
-
-    // eventsCopy[currentEventID] = currentEvent;
-    // console.log(eventsCopy[currentEventID]);
-    // console.log(eventsCopy);
     setEvents(eventsCopy);
+  };
+
+  // to render each event in calendar
+  const renderEventContent = (eventInfo) => {
+    return (
+      <>
+        <b>{eventInfo.event.title} </b>
+        <i>{eventInfo.event.extendedProps.Food}</i>
+      </>
+    );
   };
 
   // handle all submit buttons for pop up
   const handlePopupSubmit = () => {
+    if (mealType === "" || foodName === "") {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Please ensure you select the meal time and plan before submitting the form.",
+      }).then(() => {
+        setOpen(true);
+        console.log("Open is : ", open);
+        console.log("Mode is : ", mode);
+        setMode("newmeal");
+        Swal.close();
+      });
+    }
     setOpen(false);
     setCount(events.length);
     console.log("Mode is : ", mode);
@@ -380,6 +352,25 @@ export default function Calendar() {
     resetFields();
   };
 
+  //event drop
+  const updateEventOnDragged = (eventInfo) => {
+    console.log("I am called! ", eventInfo);
+    let newStartStr = eventInfo.event.startStr;
+    newStartStr = newStartStr.substring(0, 19);
+    const eventID = eventInfo.event.id;
+    console.log("New Event ID is : ", eventInfo.event.id);
+    console.log("Dropped event");
+    setMode("deleteevent");
+    console.log("Updating existing event...");
+    console.log("To be edited : ", events[eventID]);
+    const eventsCopy = [...events];
+    eventsCopy[eventID].start = newStartStr;
+    eventsCopy[eventID].extendedProps.start = newStartStr;
+    console.log("After update start : ", eventsCopy[eventID]);
+    setEvents(eventsCopy);
+    console.log(events);
+  };
+
   // ===== BELOW SECTION IS FOR RENDERING OUT POPULATED FIELD BASED ON WHAT USER HAS ADDED FROM MEALPLAN.JS ===== //
   // update useEffect to display saved meal(s) in Calendar.js
   useEffect(() => {
@@ -447,6 +438,7 @@ export default function Calendar() {
         }}
         nowIndicator={true}
         selectable={true}
+        editable={true}
         events={events}
         height={"90vh"}
         //      eventBackgroundColor="#efe9e0" : to set background color. default color is blue for all day event. Only works for all day event.
@@ -456,6 +448,7 @@ export default function Calendar() {
             click: () => chooseDateHandler(),
           },
         }}
+        eventDrop={(info) => updateEventOnDragged(info)}
         select={(info) => dateClickHandler(info)}
         eventClick={(info) => eventsHandler(info)}
         eventContent={renderEventContent}
@@ -488,6 +481,7 @@ export default function Calendar() {
 
           <br />
           <div>
+            <p alignSelf="left">* required</p>
             <table
               style={{
                 fontSize: "0.9rem",
@@ -497,26 +491,8 @@ export default function Calendar() {
               <tbody>
                 {mode === "newmeal" ? (
                   <tr className="height">
-                    <td style={{ width: "8rem" }}>Date of Meal </td>
+                    <td style={{ width: "8rem" }}>Date of Meal *</td>
                     <td>
-                      {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <DemoContainer components={["DatePicker"]}>
-                            <DatePicker
-                              label="Select Date of Meal"
-                              value={startStr}
-                              views={["year", "month", "day"]}
-                              slotProps={{
-                                textField: { helperText: "MM/DD/YYYY" },
-                              }}
-                              disablePast
-                              onChange={(newValue) => {
-                                setStartStr(newValue);
-                                console.log(newValue);
-                                console.log(startStr);
-                              }}
-                            />
-                          </DemoContainer>
-                        </LocalizationProvider> */}
                       <DatePicker
                         showIcon
                         closeOnDocumentClick
@@ -530,25 +506,16 @@ export default function Calendar() {
                         }}
                         placeholderText="YYYY-MM-DD"
                       />
-                      {/* <input
-                        className="profile-inputs"
-                        type="text"
-                        placeholder="yyyy-mm-dd"
-                        value={startStr}
-                        onChange={(e) => {
-                          setStartStr(e.target.value);
-                          console.log(startStr);
-                        }}
-                      /> */}
                     </td>
                   </tr>
                 ) : (
                   ""
                 )}
                 <tr className="height">
-                  <td style={{ width: "8rem" }}>Meal Type </td>
+                  <td style={{ width: "8rem" }}>Meal Type *</td>
                   <td>
                     <select
+                      required
                       value={mealType}
                       onChange={(e) => {
                         setMealType(e.target.value);
@@ -562,22 +529,15 @@ export default function Calendar() {
                       <option value={"Lunch"}>Lunch</option>
                       <option value={"Dinner"}>Dinner</option>
                     </select>
-                    {/* <input
-                      className="profile-inputs"
-                      type="text"
-                      value={mealType}
-                      onChange={(e) => {
-                        setMealType(e.target.value);
-                        // console.log(mealType);
-                      }}
-                    /> */}
                   </td>
                 </tr>
 
                 <tr className="height">
-                  <td>Food Name </td>
+                  <td>Food Name * </td>
                   <td>
                     <input
+                      required
+                      placeholder="Name of food"
                       className="profile-inputs"
                       type="text"
                       value={foodName || ""}
@@ -594,7 +554,8 @@ export default function Calendar() {
                   <td>
                     <input
                       className="profile-inputs"
-                      type="text"
+                      placeholder="Only Numbers allowed"
+                      type="number"
                       value={calories || ""}
                       onChange={(e) => {
                         setCalories(e.target.value);
@@ -635,6 +596,7 @@ export default function Calendar() {
               Delete Meal
             </button>
           </div>
+
           {/* <div style={{ alignSelf: "center" }}></div> */}
         </div>
       </Popup>
