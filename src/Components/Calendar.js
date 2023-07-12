@@ -7,17 +7,15 @@ import { UserContext } from "../App";
 import { useNavigate } from "react-router-dom";
 import Fullcalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
-import interactionPlugin from "@fullcalendar/interaction";
+import interactionPlugin, { Draggable } from "@fullcalendar/interaction";
+import PreviewIcon from "@mui/icons-material/Preview";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-// import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
-// import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-// import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-// import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-// import { FocusTrap } from "@mui/base";
+import Swal from "sweetalert2";
 
 import Popup from "reactjs-popup";
 import "reactjs-popup/dist/index.css";
+import { StartwoTone } from "@mui/icons-material";
 // import dayjs from "dayjs";
 
 export default function Calendar() {
@@ -25,6 +23,7 @@ export default function Calendar() {
   const navigate = useNavigate();
 
   const [startDate, setStartDate] = useState(new Date());
+  // const [newDate, setNewDate] = useState("");
 
   // setDatabase reference
   const DB_CALENDAR_KEY = "userCalendar/";
@@ -55,16 +54,6 @@ export default function Calendar() {
   const [events, setEvents] = useState([]);
   const [today] = useState(new Date());
 
-  // to render each event in calendar
-  const renderEventContent = (eventInfo) => {
-    return (
-      <>
-        <b>{eventInfo.event.title} </b>
-        <i>{eventInfo.event.extendedProps.Food}</i>
-      </>
-    );
-  };
-
   // to reset input fields after event is saved
   const resetFields = () => {
     setMealType("");
@@ -73,7 +62,7 @@ export default function Calendar() {
     setRecipeURL("");
     setStart("");
     setStartStr("");
-    setMode("");
+    // setMode("");
     setFirstTime(false);
     console.log("Fields are reset, open is : ", open);
   };
@@ -88,6 +77,16 @@ export default function Calendar() {
 
   // when user clicks on any dates on the calendar
   const dateClickHandler = (info) => {
+    const entereddate = new Date(info.startStr);
+    if (entereddate < today) {
+      Swal.fire({
+        icon: "error",
+        title: "Sorry...",
+        text: "You cannot add a meal to a past date.",
+      }).then(() => {
+        return;
+      });
+    }
     setMode("newdate");
     setOpen(true);
     console.log("Selecting Date...");
@@ -104,6 +103,7 @@ export default function Calendar() {
   const eventsHandler = (info) => {
     setMode("editevent");
     console.log(`info:`, info);
+    console.log(`info startstr: `, info.event.startStr);
     setOpen(true);
     const event = info.event._def;
     console.log(event.publicId);
@@ -112,9 +112,13 @@ export default function Calendar() {
     console.log("Selected event...");
     console.log(info.event._def);
     const title = event.title;
+    const date = info.event.startStr.substring(0, 10);
+    const start = info.event.startStr.substring(0, 19);
+    setStartStr(date);
+    console.log("Date str is ", date);
     const extendedProps = event.extendedProps;
     console.log(title, extendedProps);
-    setStart(extendedProps.start);
+    setStart(start);
     setMealType(title);
     setCalories(extendedProps.calories);
     setFoodName(extendedProps.Food);
@@ -134,42 +138,30 @@ export default function Calendar() {
 
   useEffect(() => {
     console.log(mealType);
+    if (mealType === "Breakfast") {
+      setStart(`${startStr}T06:00:00`);
+    } else if (mealType === `Lunch`) {
+      setStart(`${startStr}T12:00:00`);
+    } else if (mealType === `Dinner`) {
+      setStart(`${startStr}T18:00:00`);
+    }
   }, [mealType]);
 
-  useEffect(() => {
-    console.log(calories);
-  }, [calories]);
-
-  useEffect(() => {
-    console.log(recipeURL);
-  }, [recipeURL]);
-
-  useEffect(() => {
-    console.log(foodName);
-  }, [foodName]);
+  // useEffect(() => {
+  //   console.log(calories);
+  // }, [calories]);
 
   // useEffect(() => {
-  //   console.log(eventInfo);
-  // }, [eventInfo]);
+  //   console.log(recipeURL);
+  // }, [recipeURL]);
 
-  // // to double check start time is set
   // useEffect(() => {
-  //   console.log("Start is : ", start);
-  // }, [start]);
-
-  // // to double check currentEventID is set correctly
-  // useEffect(() => {
-  //   console.log(currentEventID);
-  // }, [currentEventID]);
-
-  // to double check currentEventID is set correctly
-  // useEffect(() => {
-  //   console.log("Count is updated : ", count);
-  // }, [count]);
+  //   console.log(foodName);
+  // }, [foodName]);
 
   useEffect(() => {
-    console.log("Mode is ", mode);
-  }, [mode]);
+    console.log("start is ", start);
+  }, [start]);
 
   // when page loads runs once to get snapshot
   useEffect(() => {
@@ -230,30 +222,12 @@ export default function Calendar() {
         events: newEvents,
       });
       // check snapshot after replacing
-      get(userRef).then(
-        (snapshot) => {
-          const snapshott = snapshot.val();
-          console.log("After delete snapshot : ", snapshott);
-          //  if (snapshot.exists()) {
-          //    setDbSnapshot(snapshott);
-          //  console.log("Db data is being deleted... ");
-
-          //  if (snapshott && Array.isArray(snapshott.events)) {
-          //    console.log("Inside delete!!!!!");
-          //    setEvents(snapshott.events);
-          //    setFirstTime(false);
-          //    console.log(events);
-          //    return;
-          //  }
-        }
-        //  }
-      );
+      get(userRef).then((snapshot) => {
+        const snapshott = snapshot.val();
+        console.log("After delete snapshot : ", snapshott);
+      });
     }
   }, [events]);
-
-  // useEffect(() => {
-  //   console.log("First time is changed to : ", firstTime);
-  // }, [firstTime]);
 
   // to enable user to close pop ups without saving by clicking anywhere on document
   const handleClosePopupWithoutSubmit = () => {
@@ -266,12 +240,6 @@ export default function Calendar() {
     console.log("delete event");
     setOpen(false);
     setMode("deleteevent");
-    // setCount(events.length);
-    // console.log("Mode is : ", mode);
-    // console.log("Start is : ", recipeURL);
-    // console.log("Foodname is : ", foodName);
-    // console.log("Calories is : ", calories);
-
     console.log("Deleting existing event...");
     console.log(start);
     console.log("To be deleted : ", events[currentEventID]);
@@ -285,27 +253,67 @@ export default function Calendar() {
       console.log("After update id : ", eventsCopy[counter].id);
       counter++;
     }
-
-    // const currentEvent = {
-    //   id: currentEventID,
-    //   extendedProps: {
-    //     Food: foodName,
-    //     recipeURL: recipeURL,
-    //     calories: calories,
-    //     start: start,
-    //   },
-    //   title: mealType,
-    //   start: start,
-    // };
-
-    // eventsCopy[currentEventID] = currentEvent;
-    // console.log(eventsCopy[currentEventID]);
-    // console.log(eventsCopy);
     setEvents(eventsCopy);
   };
 
+  // to render each event in calendar
+  const renderEventContent = (eventInfo) => {
+    return (
+      <>
+        <b>{eventInfo.event.title} </b>
+        <i>{eventInfo.event.extendedProps.Food}</i>
+      </>
+    );
+  };
+
+  //load external events
+
+  // to handle meal type change
+  // const handleMealTypeChange = () => {
+  //   // console.log("b4 Start is ", this.start);
+  //   console.log("b4 StartStr is ", startStr);
+  //   console.log("new meal type is ", mealType);
+  //   console.log("Event to b changed is ", events[currentEventID]);
+  //   let start = "";
+  //   // if (mode === "newmeal") {
+  //   //   setStart(`${startStr}T00:00:00`);
+  //   // }
+  //   console.log(count);
+  //   if (foodName) {
+  //     console.log("Saving meal Before setEvents!");
+  //     if (mealType === "Breakfast") {
+  //       start = `${startStr}T06:00:00`;
+  //       console.log(start);
+  //       setStart(`${startStr}T06:00:00`);
+  //     } else if (mealType === "Lunch") {
+  //       start = `${startStr}T12:00:00`;
+  //       console.log(start);
+  //       setStart(`${startStr}T12:00:00`);
+  //     } else if (mealType === "Dinner") {
+  //       start = `${startStr}T18:00:00`;
+  //       console.log(start);
+  //       setStart(`${startStr}T18:00:00`);
+  //     }
+  //   }
+
+  //   return start;
+  // };
+
   // handle all submit buttons for pop up
   const handlePopupSubmit = () => {
+    if (mealType === "" || foodName === "") {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Please ensure you select the meal time and plan before submitting the form.",
+      }).then(() => {
+        setOpen(true);
+        console.log("Open is : ", open);
+        console.log("Mode is : ", mode);
+        setMode("newmeal");
+        Swal.close();
+      });
+    }
     setOpen(false);
     setCount(events.length);
     console.log("Mode is : ", mode);
@@ -317,6 +325,7 @@ export default function Calendar() {
       console.log(start);
       console.log("Yay! ", events[currentEventID]);
       const eventsCopy = [...events];
+      console.log(start);
       const currentEvent = {
         id: currentEventID,
         extendedProps: {
@@ -334,31 +343,29 @@ export default function Calendar() {
       console.log(eventsCopy);
       setEvents(eventsCopy);
     } else if (mode === "newdate" || mode === "newmeal") {
-      let start = "";
-      if (mode === "newmeal") {
-        setStart(`${startStr}T00:00:00`);
-      }
-      console.log(count);
-      console.log("NM Mode is : ", mode);
-      console.log("NM Start is : ", recipeURL);
-      console.log("NM Foodname is : ", foodName);
-      console.log("NM Calories is : ", calories);
       if (foodName) {
-        console.log("Saving meal Before setEvents!");
-        console.log(events);
-        if (mealType === "Breakfast") {
-          start = `${startStr}T06:00:00`;
-          console.log(start);
-          setStart(start);
-        } else if (mealType === "Lunch") {
-          start = `${startStr}T12:00:00`;
-          console.log(start);
-          setStart(start);
-        } else if (mealType === "Dinner") {
-          start = `${startStr}T18:00:00`;
-          console.log(start);
-          setStart(start);
-        }
+        // let start = "";
+        // if (mode === "newmeal") {
+        //   setStart(`${startStr}T00:00:00`);
+        // }
+        // console.log(count);
+        // if (foodName) {
+        //   console.log("Saving meal Before setEvents!");
+        //   console.log(events);
+        //   if (mealType === "Breakfast") {
+        //     start = `${startStr}T06:00:00`;
+        //     console.log(start);
+        //     setStart(start);
+        //   } else if (mealType === "Lunch") {
+        //     start = `${startStr}T12:00:00`;
+        //     console.log(start);
+        //     setStart(start);
+        //   } else if (mealType === "Dinner") {
+        //     start = `${startStr}T18:00:00`;
+        //     console.log(start);
+        //     setStart(start);
+        console.log("Start time is : ", start);
+        console.log("B4 set events, event is ", events[currentEventID]);
         setEvents((prevEvents) => [
           ...prevEvents,
           {
@@ -374,10 +381,30 @@ export default function Calendar() {
           },
         ]);
       }
+      console.log("After edit time, event is ", events[currentEventID]);
       console.log("Saving meal after setEvents");
       console.log(events);
     }
     resetFields();
+  };
+
+  //event drop
+  const updateEventOnDragged = (eventInfo) => {
+    console.log("I am called! ", eventInfo);
+    let newStartStr = eventInfo.event.startStr;
+    newStartStr = newStartStr.substring(0, 19);
+    const eventID = eventInfo.event.id;
+    console.log("New Event ID is : ", eventInfo.event.id);
+    console.log("Dropped event");
+    setMode("deleteevent");
+    console.log("Updating existing event...");
+    console.log("To be edited : ", events[eventID]);
+    const eventsCopy = [...events];
+    eventsCopy[eventID].start = newStartStr;
+    eventsCopy[eventID].extendedProps.start = newStartStr;
+    console.log("After update start : ", eventsCopy[eventID]);
+    setEvents(eventsCopy);
+    console.log(events);
   };
 
   // ===== BELOW SECTION IS FOR RENDERING OUT POPULATED FIELD BASED ON WHAT USER HAS ADDED FROM MEALPLAN.JS ===== //
@@ -447,6 +474,7 @@ export default function Calendar() {
         }}
         nowIndicator={true}
         selectable={true}
+        editable={true}
         events={events}
         height={"90vh"}
         //      eventBackgroundColor="#efe9e0" : to set background color. default color is blue for all day event. Only works for all day event.
@@ -456,6 +484,7 @@ export default function Calendar() {
             click: () => chooseDateHandler(),
           },
         }}
+        eventDrop={(info) => updateEventOnDragged(info)}
         select={(info) => dateClickHandler(info)}
         eventClick={(info) => eventsHandler(info)}
         eventContent={renderEventContent}
@@ -482,12 +511,11 @@ export default function Calendar() {
             <p>Fill up the form and save it to add a meal to your plan!</p>
           )}
           <br />
-
           {/* WIP J TO CONTINUE AFTER CONNIE IS DONE W CALENDAR */}
           {renderPopulatedFields}
-
           <br />
           <div>
+            <p alignSelf="left">* required</p>
             <table
               style={{
                 fontSize: "0.9rem",
@@ -497,26 +525,8 @@ export default function Calendar() {
               <tbody>
                 {mode === "newmeal" ? (
                   <tr className="height">
-                    <td style={{ width: "8rem" }}>Date of Meal </td>
+                    <td style={{ width: "8rem" }}>Date of Meal *</td>
                     <td>
-                      {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <DemoContainer components={["DatePicker"]}>
-                            <DatePicker
-                              label="Select Date of Meal"
-                              value={startStr}
-                              views={["year", "month", "day"]}
-                              slotProps={{
-                                textField: { helperText: "MM/DD/YYYY" },
-                              }}
-                              disablePast
-                              onChange={(newValue) => {
-                                setStartStr(newValue);
-                                console.log(newValue);
-                                console.log(startStr);
-                              }}
-                            />
-                          </DemoContainer>
-                        </LocalizationProvider> */}
                       <DatePicker
                         showIcon
                         closeOnDocumentClick
@@ -528,29 +538,28 @@ export default function Calendar() {
                           setStartDate(date);
                           console.log(date);
                         }}
+                        onBlur={(date) => {
+                          setStartDate(date);
+                          console.log(date);
+                        }}
                         placeholderText="YYYY-MM-DD"
                       />
-                      {/* <input
-                        className="profile-inputs"
-                        type="text"
-                        placeholder="yyyy-mm-dd"
-                        value={startStr}
-                        onChange={(e) => {
-                          setStartStr(e.target.value);
-                          console.log(startStr);
-                        }}
-                      /> */}
                     </td>
                   </tr>
                 ) : (
                   ""
                 )}
                 <tr className="height">
-                  <td style={{ width: "8rem" }}>Meal Type </td>
+                  <td style={{ width: "8rem" }}>Meal Type *</td>
                   <td>
                     <select
+                      required
                       value={mealType}
                       onChange={(e) => {
+                        setMealType(e.target.value);
+                        console.log(e.target.value);
+                      }}
+                      onBlur={(e) => {
                         setMealType(e.target.value);
                         console.log(e.target.value);
                       }}
@@ -562,28 +571,25 @@ export default function Calendar() {
                       <option value={"Lunch"}>Lunch</option>
                       <option value={"Dinner"}>Dinner</option>
                     </select>
-                    {/* <input
-                      className="profile-inputs"
-                      type="text"
-                      value={mealType}
-                      onChange={(e) => {
-                        setMealType(e.target.value);
-                        // console.log(mealType);
-                      }}
-                    /> */}
                   </td>
                 </tr>
 
                 <tr className="height">
-                  <td>Food Name </td>
+                  <td>Food Name * </td>
                   <td>
                     <input
+                      required
+                      placeholder="Name of food"
                       className="profile-inputs"
                       type="text"
                       value={foodName || ""}
                       onChange={(e) => {
                         setFoodName(e.target.value);
                         // console.log(foodName);
+                      }}
+                      onBlur={(e) => {
+                        setFoodName(e.target.value);
+                        console.log(e.target.value);
                       }}
                     />
                   </td>
@@ -594,7 +600,8 @@ export default function Calendar() {
                   <td>
                     <input
                       className="profile-inputs"
-                      type="text"
+                      placeholder="Only Numbers allowed"
+                      type="number"
                       value={calories || ""}
                       onChange={(e) => {
                         setCalories(e.target.value);
@@ -614,13 +621,23 @@ export default function Calendar() {
                         setRecipeURL(e.target.value);
                       }}
                     />
+                    {recipeURL !== "" ? (
+                      <a
+                        href={`${recipeURL}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <PreviewIcon />
+                      </a>
+                    ) : (
+                      ""
+                    )}
                   </td>
                 </tr>
               </tbody>
             </table>
           </div>
           <br />
-
           <div style={{ alignSelf: "center" }}>
             <button
               onClick={() => handlePopupSubmit()}
@@ -635,7 +652,7 @@ export default function Calendar() {
               Delete Meal
             </button>
           </div>
-          {/* <div style={{ alignSelf: "center" }}></div> */}
+          git {/* <div style={{ alignSelf: "center" }}></div> */}
         </div>
       </Popup>
     </div>
