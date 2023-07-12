@@ -98,7 +98,18 @@ export default function Calendar() {
 
   // when user clicks on any dates on the calendar
   const dateClickHandler = (info) => {
+    if (!user.isLoggedIn) {
+      Swal.fire({
+        icon: "error",
+        title: "Sorry...",
+        text: "You cannot add a meal if you are not logged in. Please login! ",
+        footer: `<a href="./login">Go to Login</a>`,
+      }).then(() => {
+        return;
+      });
+    }
     const entereddate = new Date(info.startStr);
+
     if (entereddate < today) {
       Swal.fire({
         icon: "error",
@@ -122,6 +133,16 @@ export default function Calendar() {
 
   // when user clicks on event
   const eventsHandler = (info) => {
+    if (!user.isLoggedIn) {
+      Swal.fire({
+        icon: "error",
+        title: "Sorry...",
+        text: "You cannot add a meal if you are not logged in. Please login! ",
+        footer: `<a href="./login">Go to Login</a>`,
+      }).then(() => {
+        return;
+      });
+    }
     const entereddate = new Date(info.startStr);
     if (entereddate < today) {
       Swal.fire({
