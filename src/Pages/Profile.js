@@ -370,11 +370,24 @@ export default function Profile(props) {
         <div className="container">
           <div className="inner-container">
             {user.avatar !== undefined ? (
-              <img src={user.avatar} alt="avatar" height="100%" />
+              <img
+                src={user.avatar}
+                alt="avatar"
+                style={{
+                  width: user.avatar.wdith > user.avatar.height ? "" : "100%",
+                  height: user.avatar.height > user.avatar.width ? "" : "100%",
+                  objectFit: "cover",
+                }}
+              />
             ) : (
-              <img src={defaultAvatar} alt="default avatar" width="100%" />
+              <img
+                src={defaultAvatar}
+                className="avatar-image"
+                alt="default avatar"
+                width="100%"
+              />
             )}
-            {console.log("user.avatar:", user.avatar)}
+            {/* {console.log("user.avatar:", user.avatar)} */}
           </div>
         </div>
         <div className="displaytext">
