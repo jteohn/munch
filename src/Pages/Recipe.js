@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import {
+  Box,
   Card,
   Modal,
   CardMedia,
   CardContent,
+  Typography,
   Grid,
   TableContainer,
   Paper,
@@ -16,8 +18,11 @@ import {
   IconButton,
   TableFooter,
 } from "@mui/material";
+import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import Swal from "sweetalert2";
+import userEvent from "@testing-library/user-event";
+import { UserContext } from "../App";
 
 export default function Recipe(props) {
   const [recipeSearchQuery, setRecipeSearchQuery] = useState("");
@@ -34,6 +39,8 @@ export default function Recipe(props) {
     useState("Breakfast");
   const { dataFromRecipe } = props;
   const [updateState, setUpdateState] = useState(0);
+  const user = useContext(UserContext);
+
   // just a testing option to see the current selectedSaveOption STATE
   // const testSavedOption = (e) => {
   //   e.preventDefault();
@@ -114,8 +121,14 @@ export default function Recipe(props) {
     console.log(`mealTypeQuery: ${mealTypeQuery}`);
     console.log(`recipeSearchQuery: ${recipeSearchQuery}`);
     if (recipeSearchQuery === "" || recipeSearchQuery === undefined) {
-      alert("You cannot search for nothingness!");
       setRecipeSearchQuery("");
+      Swal.fire({
+        position: "center",
+        icon: "error",
+        title: "Oooops!",
+        text: "You cannot search with an empty field.",
+      });
+
       return;
     }
     axios
@@ -207,7 +220,7 @@ export default function Recipe(props) {
             ? "Search for something to find FOOOOOOOOOOOOD!"
             : recipeResults.map((result, indexed) => {
                 return (
-                  <Grid item xs={6} sm={4} md={3} lg={2}>
+                  <Grid xs={6} sm={4} md={3} lg={2}>
                     <div key={indexed}>
                       <Card
                         style={{
@@ -233,7 +246,7 @@ export default function Recipe(props) {
                             </h2>
                           </a>
 
-                          <div className="labels">
+                          <Typography variant="body2" color="text.secondary">
                             <strong>Calories:</strong>{" "}
                             {result.recipe.calories.toFixed(0)}
                             <br />
@@ -251,15 +264,28 @@ export default function Recipe(props) {
                                 View ingredients
                               </div>
                               <Tooltip title="Save Recipe">
-                                <IconButton
-                                  id="save-recipe"
-                                  onClick={() => openSaveOptions(indexed)}
-                                >
-                                  <AddIcon />
+                                <IconButton id="save-recipe">
+                                  {user.isLoggedIn ? (
+                                    <AddIcon
+                                      onClick={() => openSaveOptions(indexed)}
+                                    />
+                                  ) : (
+                                    <AddIcon
+                                      onClick={() => {
+                                        Swal.fire({
+                                          position: "center",
+                                          icon: "error",
+                                          title: "Sorry...",
+                                          text: "Please login first to save a recipe!",
+                                          footer: `<a href="./login">Go to Login</a>`,
+                                        });
+                                      }}
+                                    />
+                                  )}
                                 </IconButton>
                               </Tooltip>
                             </div>
-                          </div>
+                          </Typography>
                         </CardContent>
                       </Card>
                       <br />
@@ -269,6 +295,74 @@ export default function Recipe(props) {
               })}
         </Grid>
       </div>
+      {/* <div>
+        <br />
+        <button onClick={testSavedOption}>test save data</button>
+        <form>
+          <label>Select Meal Time</label>
+        </form>
+        <select value={mealTypeQuery} onChange={changeMealType}>
+          <option value={"Breakfast"}>Breakfast</option>
+          <option value={"Lunch"}>Lunch</option>
+          <option value={"Dinner"}>Dinner</option>
+        </select>
+      </div> */}
+      {/* <div>
+        <input
+          type="text"
+          placeholder="search"
+          value={recipeSearchQuery}
+          onChange={(e) => setRecipeSearchQuery(e.target.value)}
+        />
+        <input type="submit" value="submit" onClick={handleSearch} />
+      </div> */}
+      {/* <div>
+        {recipeResults === null
+          ? "Search for something to find FOOOOOOOOOOOOD!"
+          : recipeResults.map((result, indexed) => {
+              return (
+                <div key={indexed}>
+                  <Card
+                    sx={{
+                      minWidth: 275,
+                      maxWidth: 300,
+                      bgcolor: "text.secondary",
+                    }}
+                  >
+                    <CardMedia
+                      sx={{ height: "300px", width: "300px" }}
+                      image={result.recipe.images.REGULAR.url}
+                    />
+                    <CardContent>
+                      <Typography variant="h5" gutterBottom>
+                        <a
+                          href={result.recipe.url}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Recipe {indexed + 1}
+                        </a>
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Calories: {result.recipe.calories.toFixed(0)}
+                      </Typography>
+                      <Button size="small" onClick={() => openModal(indexed)}>
+                        Ingredients
+                      </Button>
+                      <br />
+                      <Button
+                        size="small"
+                        onClick={() => openSaveOptions(indexed)}
+                      >
+                        Save Recipe!
+                      </Button>
+                    </CardContent>
+                  </Card>
+                  <br />
+                </div>
+              );
+            })}
+      </div> */}
 
       {/* RENDERING "VIEW INGREDIENTS MODAL" */}
       {modalStatus && recipeResults && recipeResults[selectedRecipeIndex] && (
@@ -314,6 +408,17 @@ export default function Recipe(props) {
           </TableContainer>
         </Modal>
       )}
+      {/* PREVIOUS CODE TO RENDER MODAL */}
+      {/* <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+              <ul>
+                {recipeResults[selectedRecipeIndex].recipe.ingredientLines.map(
+                  (ingredient, index) => (
+                    <li key={index + 1}>{ingredient}</li>
+                  )
+                )}
+              </ul>
+            </Typography> */}
+
       {/* modal for saving choices*/}
       {saveModalStatus &&
         recipeResults &&
