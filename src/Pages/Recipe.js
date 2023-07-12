@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import {
-  Box,
   Card,
   Modal,
   CardMedia,
@@ -18,10 +17,8 @@ import {
   IconButton,
   TableFooter,
 } from "@mui/material";
-import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import Swal from "sweetalert2";
-import userEvent from "@testing-library/user-event";
 import { UserContext } from "../App";
 
 export default function Recipe(props) {
@@ -264,11 +261,12 @@ export default function Recipe(props) {
                                 View ingredients
                               </div>
                               <Tooltip title="Save Recipe">
-                                <IconButton id="save-recipe">
+                                <IconButton
+                                  id="save-recipe"
+                                  onClick={() => openSaveOptions(indexed)}
+                                >
                                   {user.isLoggedIn ? (
-                                    <AddIcon
-                                      onClick={() => openSaveOptions(indexed)}
-                                    />
+                                    <AddIcon />
                                   ) : (
                                     <AddIcon
                                       onClick={() => {
@@ -295,74 +293,6 @@ export default function Recipe(props) {
               })}
         </Grid>
       </div>
-      {/* <div>
-        <br />
-        <button onClick={testSavedOption}>test save data</button>
-        <form>
-          <label>Select Meal Time</label>
-        </form>
-        <select value={mealTypeQuery} onChange={changeMealType}>
-          <option value={"Breakfast"}>Breakfast</option>
-          <option value={"Lunch"}>Lunch</option>
-          <option value={"Dinner"}>Dinner</option>
-        </select>
-      </div> */}
-      {/* <div>
-        <input
-          type="text"
-          placeholder="search"
-          value={recipeSearchQuery}
-          onChange={(e) => setRecipeSearchQuery(e.target.value)}
-        />
-        <input type="submit" value="submit" onClick={handleSearch} />
-      </div> */}
-      {/* <div>
-        {recipeResults === null
-          ? "Search for something to find FOOOOOOOOOOOOD!"
-          : recipeResults.map((result, indexed) => {
-              return (
-                <div key={indexed}>
-                  <Card
-                    sx={{
-                      minWidth: 275,
-                      maxWidth: 300,
-                      bgcolor: "text.secondary",
-                    }}
-                  >
-                    <CardMedia
-                      sx={{ height: "300px", width: "300px" }}
-                      image={result.recipe.images.REGULAR.url}
-                    />
-                    <CardContent>
-                      <Typography variant="h5" gutterBottom>
-                        <a
-                          href={result.recipe.url}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          Recipe {indexed + 1}
-                        </a>
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Calories: {result.recipe.calories.toFixed(0)}
-                      </Typography>
-                      <Button size="small" onClick={() => openModal(indexed)}>
-                        Ingredients
-                      </Button>
-                      <br />
-                      <Button
-                        size="small"
-                        onClick={() => openSaveOptions(indexed)}
-                      >
-                        Save Recipe!
-                      </Button>
-                    </CardContent>
-                  </Card>
-                  <br />
-                </div>
-              );
-            })}
-      </div> */}
 
       {/* RENDERING "VIEW INGREDIENTS MODAL" */}
       {modalStatus && recipeResults && recipeResults[selectedRecipeIndex] && (
@@ -408,16 +338,6 @@ export default function Recipe(props) {
           </TableContainer>
         </Modal>
       )}
-      {/* PREVIOUS CODE TO RENDER MODAL */}
-      {/* <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-              <ul>
-                {recipeResults[selectedRecipeIndex].recipe.ingredientLines.map(
-                  (ingredient, index) => (
-                    <li key={index + 1}>{ingredient}</li>
-                  )
-                )}
-              </ul>
-            </Typography> */}
 
       {/* modal for saving choices*/}
       {saveModalStatus &&
