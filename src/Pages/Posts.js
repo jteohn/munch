@@ -104,7 +104,6 @@ export default function Posts() {
             sx={{ height: 250, width: 250 }}
             image={message.val.url}
             title="picture"
-            borderRadius=""
           />
           <Paper
             variant="outlined"
