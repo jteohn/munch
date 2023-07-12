@@ -14,8 +14,12 @@ import {
   TableHead,
   TableRow,
   TableCell,
+  Tooltip,
+  IconButton,
+  TableFooter,
 } from "@mui/material";
 import Button from "@mui/material/Button";
+import AddIcon from "@mui/icons-material/Add";
 import Swal from "sweetalert2";
 
 export default function Recipe(props) {
@@ -141,9 +145,134 @@ export default function Recipe(props) {
     setSelectedChoiceOfMealType(e.target.value);
   };
   return (
-    <div>
-      <h1>Recipes!</h1>
+    <div style={{ margin: "1.5rem", height: "90vh" }}>
+      <h1 className="flexCenter font">Search Recipes</h1>
       <div>
+        <Card id="recipe-container">
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={12} className="flexCenter">
+              <label className="labels">
+                <strong>Select Meal Time</strong>
+              </label>
+              <input
+                type="radio"
+                name="mealType"
+                id="Breakfast"
+                value={"Breakfast"}
+                onChange={changeMealType}
+              />
+              <label className="labels">Breakfast</label>
+              <input
+                type="radio"
+                name="mealType"
+                id="Lunch"
+                value={"Lunch"}
+                onChange={changeMealType}
+                required
+              />
+              <label className="labels">Lunch</label>
+              <input
+                type="radio"
+                name="mealType"
+                id="Dinner"
+                value={"Dinner"}
+                onChange={changeMealType}
+                required
+              />
+              <label className="labels">Dinner</label>
+            </Grid>
+            <Grid item xs={12} md={12} className="flexCenter">
+              <Grid
+                className="flexCenter"
+                style={{
+                  width: "100%",
+                  margin: "auto",
+                }}
+              >
+                <input
+                  className="search"
+                  type="text"
+                  placeholder="e.g. salad"
+                  value={recipeSearchQuery}
+                  onChange={(e) => setRecipeSearchQuery(e.target.value)}
+                />
+                <button className="search-button" onClick={handleSearch}>
+                  search
+                </button>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Card>
+        <br />
+
+        <Grid container columns={{ xs: 4, sm: 8, md: 9, lg: 10 }}>
+          {recipeResults === null
+            ? "Search for something to find FOOOOOOOOOOOOD!"
+            : recipeResults.map((result, indexed) => {
+                return (
+                  <Grid xs={6} sm={4} md={3} lg={2}>
+                    <div key={indexed}>
+                      <Card
+                        style={{
+                          margin: "1rem 1rem",
+                          borderRadius: 15,
+                          backgroundColor: "#ded6ca",
+                        }}
+                      >
+                        <CardMedia
+                          sx={{ height: 180, opacity: "0.8" }}
+                          image={result.recipe.images.REGULAR.url}
+                        />
+
+                        <CardContent>
+                          <a
+                            href={result.recipe.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="recipe-card-title"
+                          >
+                            <h2 style={{ margin: "0.8rem auto" }}>
+                              Recipe {indexed + 1}
+                            </h2>
+                          </a>
+
+                          <Typography variant="body2" color="text.secondary">
+                            <strong>Calories:</strong>{" "}
+                            {result.recipe.calories.toFixed(0)}
+                            <br />
+                            <div
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                              }}
+                            >
+                              <div
+                                className="recipe-link"
+                                onClick={() => openModal(indexed)}
+                              >
+                                View ingredients
+                              </div>
+                              <Tooltip title="Save Recipe">
+                                <IconButton id="save-recipe">
+                                  <AddIcon
+                                    onClick={() => openSaveOptions(indexed)}
+                                  />
+                                </IconButton>
+                              </Tooltip>
+                            </div>
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                      <br />
+                    </div>
+                  </Grid>
+                );
+              })}
+        </Grid>
+      </div>
+      {/* <div>
+        <br />
         <button onClick={testSavedOption}>test save data</button>
         <form>
           <label>Select Meal Time</label>
@@ -153,9 +282,8 @@ export default function Recipe(props) {
           <option value={"Lunch"}>Lunch</option>
           <option value={"Dinner"}>Dinner</option>
         </select>
-      </div>
-      <br />
-      <div>
+      </div> */}
+      {/* <div>
         <input
           type="text"
           placeholder="search"
@@ -163,8 +291,8 @@ export default function Recipe(props) {
           onChange={(e) => setRecipeSearchQuery(e.target.value)}
         />
         <input type="submit" value="submit" onClick={handleSearch} />
-      </div>
-      <div>
+      </div> */}
+      {/* <div>
         {recipeResults === null
           ? "Search for something to find FOOOOOOOOOOOOD!"
           : recipeResults.map((result, indexed) => {
@@ -210,26 +338,54 @@ export default function Recipe(props) {
                 </div>
               );
             })}
-      </div>
+      </div> */}
+
+      {/* RENDERING "VIEW INGREDIENTS MODAL" */}
       {modalStatus && recipeResults && recipeResults[selectedRecipeIndex] && (
-        <Modal open={modalStatus} onClose={closeModal}>
-          <Box
+        <Modal
+          open={modalStatus}
+          onClose={closeModal}
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            margin: "auto 1.5rem",
+          }}
+        >
+          <TableContainer
+            component={Paper}
             sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: 400,
-              bgcolor: "background.paper",
-              border: "2px solid #000",
-              boxShadow: 24,
-              p: 4,
+              maxHeight: 550,
+              maxWidth: 400,
             }}
           >
-            <Typography id="modal-modal-title" variant="h6" component="h2">
-              Ingredients:
-            </Typography>
-            <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            <Table
+              sx={{ maxWidth: 400 }}
+              size="small"
+              aria-label="a dense table"
+            >
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ width: "25%" }}>
+                    <strong>Ingredients</strong>
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableFooter>
+                {recipeResults[selectedRecipeIndex].recipe.ingredientLines.map(
+                  (ingredient, index) => (
+                    <TableRow>
+                      <TableCell key={index + 1}>{ingredient}</TableCell>
+                    </TableRow>
+                  )
+                )}
+              </TableFooter>
+            </Table>
+          </TableContainer>
+        </Modal>
+      )}
+      {/* PREVIOUS CODE TO RENDER MODAL */}
+      {/* <Typography id="modal-modal-description" sx={{ mt: 2 }}>
               <ul>
                 {recipeResults[selectedRecipeIndex].recipe.ingredientLines.map(
                   (ingredient, index) => (
@@ -237,90 +393,78 @@ export default function Recipe(props) {
                   )
                 )}
               </ul>
-            </Typography>
-          </Box>
-        </Modal>
-      )}
+            </Typography> */}
+
       {/* modal for saving choices*/}
       {saveModalStatus &&
         recipeResults &&
         recipeResults[selectedRecipeIndex] && (
-          <Modal open={saveModalStatus} onClose={closeSaveModal}>
-            <Box
-              sx={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                width: 400,
-                bgcolor: "background.paper",
-                border: "2px solid #000",
-                boxShadow: 24,
-                p: 4,
-              }}
-            >
-              <Grid item xs={12} md={4} className="flexCenter">
-                <TableContainer
-                  component={Paper}
-                  sx={{ maxWidth: 500, borderRadius: "20px" }}
+          <Modal
+            open={saveModalStatus}
+            onClose={closeSaveModal}
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              margin: "auto 1.5rem",
+            }}
+          >
+            <Grid className="flexCenter">
+              <TableContainer
+                component={Paper}
+                sx={{ maxWidth: 500, borderRadius: "20px" }}
+              >
+                <Table
+                  sx={{ maxWidth: 500 }}
+                  size="small"
+                  aria-label="a dense table"
                 >
-                  <Table
-                    sx={{ maxWidth: 500 }}
-                    size="small"
-                    aria-label="a dense table"
-                  >
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>
-                          <label>Name your Recipe</label>
-                          <br />
-                          <input
-                            className="meal-input"
-                            type="text"
-                            placeholder="e.g. RECIPE 1"
-                            value={recipeName}
-                            onChange={(e) => setRecipeName(e.target.value)}
-                          />
-                        </TableCell>
-                        <TableCell sx={{ textAlign: "center" }}>
-                          <label>Desired Meal Timing</label>
-                          <select
-                            value={selectedChoiceOfMealType}
-                            onChange={saveChosenMealType}
-                          >
-                            <option value={"Breakfast"}>Breakfast</option>
-                            <option value={"Lunch"}>Lunch</option>
-                            <option value={"Dinner"}>Dinner</option>
-                          </select>
-                        </TableCell>
-                      </TableRow>
-                      <TableRow sx={{ textAlign: "center" }}>
-                        <TableCell>
-                          <div>Selected: Recipe {selectedRecipeIndex + 1}</div>
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>
-                          <img
-                            src={
-                              recipeResults[selectedRecipeIndex].recipe.images
-                                .SMALL.url
-                            }
-                            alt="imagehere"
-                          />
-                        </TableCell>
-                      </TableRow>
-                    </TableHead>
-                  </Table>
-                  <button className="button desktop" onClick={saveTheRecipe}>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>
+                        <label>Recipe Name</label>
+                        <br />
+                        <input
+                          className="meal-input"
+                          type="text"
+                          placeholder="e.g. Greek Salad"
+                          value={recipeName}
+                          onChange={(e) => setRecipeName(e.target.value)}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <label>Meal Type</label>
+                        <select
+                          value={selectedChoiceOfMealType}
+                          onChange={saveChosenMealType}
+                        >
+                          <option value={"Breakfast"}>Breakfast</option>
+                          <option value={"Lunch"}>Lunch</option>
+                          <option value={"Dinner"}>Dinner</option>
+                        </select>
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                </Table>
+                <div style={{ margin: 16 }}>
+                  <div>
+                    <strong>
+                      Your Selection: Recipe {selectedRecipeIndex + 1}
+                    </strong>
+                  </div>
+                  <img
+                    src={
+                      recipeResults[selectedRecipeIndex].recipe.images.SMALL.url
+                    }
+                    alt="imagehere"
+                  />
+                  <br />
+                  <button className="recipe-button" onClick={saveTheRecipe}>
                     Save
                   </button>
-                  <button className="button mobile" onClick={saveTheRecipe}>
-                    Save
-                  </button>
-                </TableContainer>
-              </Grid>
-            </Box>
+                </div>
+              </TableContainer>
+            </Grid>
           </Modal>
         )}
     </div>
