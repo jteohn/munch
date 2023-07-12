@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { onAuthStateChanged } from "firebase/auth";
-import { database, storage, auth } from "../firebase";
+import { database, storage } from "../firebase";
 import {
   ref as storageRef,
   uploadBytes,
@@ -27,8 +26,6 @@ const DB_MESSAGES_KEY = "messages";
 const STORAGE_KEY = "images/";
 
 export default function Posts() {
-  const [userName, setUserName] = useState("");
-  const [isLoggedOn, setIsLoggedOn] = useState(null);
   const [messages, setMessages] = useState([]);
   const [fileAdded, setFileAdded] = useState(null);
   const [fileValue, setFileValue] = useState("");
@@ -36,17 +33,6 @@ export default function Posts() {
 
   // getting user context
   const userInfo = useContext(UserContext);
-
-  useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setIsLoggedOn(user);
-        setUserName(userInfo.name);
-      } else {
-        setIsLoggedOn(null);
-      }
-    });
-  });
 
   useEffect(() => {
     const messagesRef = messageRef(database, DB_MESSAGES_KEY);
@@ -135,60 +121,12 @@ export default function Posts() {
     );
   };
 
-  // // Convert messages in state to message JSX elements to render
-  // let messageListItems = messages.map((message, index) => {
-  //   console.log(message);
-  //   return (
-  //     <div key={index}>
-  //       <div>
-  //         <div>
-  //           {message.val.time}
-  //           <br />
-  //           {message.val.name} says..
-  //           <br /> {message.val.message}
-  //         </div>
-  //         <img
-  //           src={message.val.url}
-  //           alt={message.val.name}
-  //           style={{ height: "30vh" }}
-  //         />
-  //       </div>
-  //     </div>
-  //   );
-  // });
-
-  // messageListItems.reverse();
   return (
     <div>
-      {/* {isLoggedOn ? (
-        <div>
-          <div>Upload Area!</div>
-          <input
-            type="text"
-            name="text"
-            value={input}
-            placeholder="type message here"
-            onChange={(e) => setInput(e.target.value)}
-          />
-          <br />
-          <input
-            type="file"
-            name="file"
-            value={fileValue}
-            onChange={(e) => {
-              setFileAdded(e.target.files[0]);
-              setFileValue(e.target.value);
-            }}
-          />
-          <br />
-          <button onClick={submitData}>Send</button>
-        </div>
-      ) : null} */}
       <h1>Sharing page to share some self found/created recipes!</h1>
-      {/* {messageListItems} */}
       <Box
         sx={{
-          height: "100vh",
+          height: "90vh",
           display: "flex",
           flexDirection: "column",
           bgcolor: "grey.200",
