@@ -38,9 +38,6 @@ export default function App() {
     setCompiledRecipeData(data);
   };
 
-  useEffect(() => {
-    console.log(compiledRecipeData);
-  }, [compiledRecipeData]);
   // for context use
   const currUser = {
     isLoggedIn: isLoggedIn,
@@ -65,7 +62,6 @@ export default function App() {
       //firebase authentication
       if (user) {
         const userID = user.uid;
-        console.log(`user.uid:`, user.uid);
         // to ensure data is only called when user logs in, not when user signs up
         // if (isLogin === true ) {
         setUID(userID);
@@ -76,11 +72,9 @@ export default function App() {
           if (userData) {
             setIsLoggedIn(true);
             setStates(userData);
-            // console.log(`updated setStates:`, userData);
           }
         });
       } else {
-        console.log("user is signed out!");
         handleLogout("");
       }
     });
@@ -122,7 +116,6 @@ export default function App() {
   };
 
   const handleSignup = () => {
-    console.log(name, email, height, weight, gender, name);
     createUserWithEmailAndPassword(auth, email, password)
       .then(() => {
         const user = auth.currentUser;
@@ -132,13 +125,10 @@ export default function App() {
         // update display name
         updateProfile(user, { displayName: name })
           .then(() => {
-            // console.log(`Display name has been updated successfully!`, name);
             // update RTDB with user info, currUser is our UserContext
             writeData(userID, currUser);
           })
-          .catch((error) => {
-            console.log(`Error: unable to update display name:`, error);
-          });
+          .catch((error) => {});
 
         Swal.fire({
           position: "top-end",
@@ -147,9 +137,6 @@ export default function App() {
           showConfirmButton: false,
           timer: 5000,
         });
-        // console.log(
-        //   `Hello ${name}, ! Welcome to munch, we are excited to have you here!`
-        // );
 
         navigate("/dashboard");
       })
@@ -159,10 +146,6 @@ export default function App() {
           title: "Oops!",
           text: "This email address has already been used!",
         });
-        // console.log(
-        //   `Unable to sign up! This email address has already been used!`,
-        //   error
-        // );
       });
   };
 
@@ -173,13 +156,11 @@ export default function App() {
         title: "Oops!",
         text: "Please enter your email and password!",
       });
-      // console.log(`Please enter your email and password!`);
       return;
     }
     try {
       const user = await signInWithEmailAndPassword(auth, email, password);
       //alert(`Welcome back, ${email}`);
-      console.log(user.user.displayName);
       setIsLoggedIn(true);
       // setIsLogin(true);
       navigate("/");
@@ -189,7 +170,6 @@ export default function App() {
         title: "Oops!",
         text: "Invalid email or password. Please try again!",
       });
-      // console.log("Invalid email or password. Please try again!");
     }
   };
 
@@ -206,10 +186,10 @@ export default function App() {
         setPassword("");
         setUID("");
         setAvatar("");
-        console.log(`Successfully logout from Munch!`);
       })
       .catch((error) => {
-        console.log(`Error logging out:`, error);
+        // console.log(`Error logging out:`, error);
+        return;
       });
   };
 

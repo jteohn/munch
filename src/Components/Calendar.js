@@ -73,7 +73,6 @@ export default function Calendar() {
     setStartStr("");
     // setMode("");
     setFirstTime(false);
-    console.log("Fields are reset, open is : ", open);
   };
 
   // when user clicks on "Add Meal" button
@@ -81,7 +80,6 @@ export default function Calendar() {
     setMode("newmeal");
     setStart("");
     setOpen(true);
-    console.log("Adding a new meal...", mode);
   };
 
   // when user clicks on any dates on the calendar
@@ -98,35 +96,25 @@ export default function Calendar() {
     }
     setMode("newdate");
     setOpen(true);
-    console.log("Selecting Date...");
     let date = info.start;
     const dateStr = info.startStr;
     date = `${dateStr}T00:00:00`;
     setStartStr(dateStr);
     setStart(date);
-    console.log("User selected date:", date);
-    console.log("All info is : ", info);
   };
 
   // when user clicks on event
   const eventsHandler = (info) => {
     setMode("editevent");
-    console.log(`info:`, info);
-    console.log(`info startstr: `, info.event.startStr);
     setOpen(true);
     const event = info.event._def;
-    console.log(event.publicId);
     setCurrentEventID(event.publicId);
     setEventInfo(event);
-    console.log("Selected event...");
-    console.log(info.event._def);
     const title = event.title;
     const date = info.event.startStr.substring(0, 10);
     const start = info.event.startStr.substring(0, 19);
     setStartStr(date);
-    console.log("Date str is ", date);
     const extendedProps = event.extendedProps;
-    console.log(title, extendedProps);
     setStart(start);
     setMealType(title);
     setCalories(extendedProps.calories);
@@ -136,17 +124,14 @@ export default function Calendar() {
 
   // to change start date from mini calendar into format for big calendar
   useEffect(() => {
-    console.log(startDate);
     const year = startDate.toLocaleDateString("default", { year: "numeric" });
     const month = startDate.toLocaleDateString("default", { month: "2-digit" });
     const day = startDate.toLocaleDateString("default", { day: "2-digit" });
     const date = [year, month, day].join("-");
-    console.log(date);
     setStartStr(date);
   }, [startDate]);
 
   useEffect(() => {
-    console.log(mealType);
     if (mealType === "Breakfast") {
       setStart(`${startStr}T06:00:00`);
     } else if (mealType === `Lunch`) {
@@ -157,20 +142,8 @@ export default function Calendar() {
   }, [mealType]);
 
   // useEffect(() => {
-  //   console.log(calories);
-  // }, [calories]);
-
-  // useEffect(() => {
-  //   console.log(recipeURL);
-  // }, [recipeURL]);
-
-  // useEffect(() => {
-  //   console.log(foodName);
-  // }, [foodName]);
-
-  useEffect(() => {
-    console.log("start is ", start);
-  }, [start]);
+  //   console.log("start is ", start);
+  // }, [start]);
 
   // when page loads runs once to get snapshot
   useEffect(() => {

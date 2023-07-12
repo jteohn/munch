@@ -38,10 +38,10 @@ export default function Recipe(props) {
   const { dataFromRecipe } = props;
   const [updateState, setUpdateState] = useState(0);
   // just a testing option to see the current selectedSaveOption STATE
-  const testSavedOption = (e) => {
-    e.preventDefault();
-    console.log(selectedSaveOption);
-  };
+  // const testSavedOption = (e) => {
+  //   e.preventDefault();
+  //   console.log(selectedSaveOption);
+  // };
   //these 2 for to send data
   const openSaveOptions = (index) => {
     setSelectedRecipeIndex(index);
@@ -50,7 +50,6 @@ export default function Recipe(props) {
 
   useEffect(() => {
     if (searchDone && saveDone) {
-      console.log(`selectedRecipeIndex: ${selectedRecipeIndex}`);
       setSelectedSaveOption({
         url: recipeResults[selectedRecipeIndex].recipe.url,
         calories: recipeResults[selectedRecipeIndex].recipe.calories.toFixed(0),
@@ -99,9 +98,7 @@ export default function Recipe(props) {
 
   useEffect(() => {
     if (saveDone) {
-      console.log(selectedSaveOption);
       dataFromRecipe(selectedSaveOption);
-      console.log("SAVE DONE");
       Swal.fire({
         position: "center",
         icon: "success",
@@ -114,8 +111,6 @@ export default function Recipe(props) {
   // handles the search function, shows recipe n stuff, does the fetch n all
   const handleSearch = (e) => {
     e.preventDefault();
-    console.log(`mealTypeQuery: ${mealTypeQuery}`);
-    console.log(`recipeSearchQuery: ${recipeSearchQuery}`);
     if (recipeSearchQuery === "" || recipeSearchQuery === undefined) {
       alert("You cannot search for nothingness!");
       setRecipeSearchQuery("");
@@ -128,12 +123,12 @@ export default function Recipe(props) {
       .then((result) => {
         setRecipeSearchQuery("");
         const savedRecipes = result.data.hits;
-        console.log(result.data.hits);
         setRecipeResults(savedRecipes);
         setSearchDone(true);
       })
       .catch((error) => {
-        console.log(`error: ${error}`);
+        // console.log(`error: ${error}`);
+        return;
       });
   };
   // this one is used when selecting before SEARCH, to search recipes of that timing
@@ -210,7 +205,7 @@ export default function Recipe(props) {
             ? "Search for something to find FOOOOOOOOOOOOD!"
             : recipeResults.map((result, indexed) => {
                 return (
-                  <Grid xs={6} sm={4} md={3} lg={2}>
+                  <Grid item xs={6} sm={4} md={3} lg={2}>
                     <div key={indexed}>
                       <Card
                         style={{
@@ -236,7 +231,7 @@ export default function Recipe(props) {
                             </h2>
                           </a>
 
-                          <Typography variant="body2" color="text.secondary">
+                          <div className="labels">
                             <strong>Calories:</strong>{" "}
                             {result.recipe.calories.toFixed(0)}
                             <br />
@@ -261,7 +256,7 @@ export default function Recipe(props) {
                                 </IconButton>
                               </Tooltip>
                             </div>
-                          </Typography>
+                          </div>
                         </CardContent>
                       </Card>
                       <br />

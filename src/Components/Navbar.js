@@ -194,7 +194,6 @@ export default function Navbar({ handleLogout, avatarURL, isLoggedIn }) {
                 name="anchorElUser"
                 onClose={handleCloseUserMenu}
               >
-                {console.log(user.isLoggedIn)}
                 {user.name !== "" && user.isLoggedIn ? (
                   <div>
                     {settings.map((setting) => (
@@ -209,10 +208,6 @@ export default function Navbar({ handleLogout, avatarURL, isLoggedIn }) {
                   </div>
                 ) : (
                   <div>
-                    {console.log(
-                      "I'm in else, isLoggedIn is : ",
-                      user.isLoggedIn
-                    )}
                     {settingsNotUser.map((setting1) => (
                       <MenuItem
                         key={setting1}

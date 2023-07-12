@@ -80,7 +80,8 @@ export default function Profile(props) {
         handleCloseModal();
       })
       .catch((error) => {
-        console.log("Error updating profile:", error);
+        // console.log("Error updating profile:", error);
+        return;
       });
   };
 
@@ -100,9 +101,7 @@ export default function Profile(props) {
       );
       uploadBytes(avatarStorageRef, avatarFile).then((snapshot) => {
         getDownloadURL(avatarStorageRef, avatarFile.name).then((url) => {
-          // console.log(`getDownloadURL filename:`, avatarFile.name);
           writeData(url);
-          // console.log(`Avatar updated`);
           setAvatarFile("");
           Swal.fire({
             position: "top-center",
@@ -135,14 +134,14 @@ export default function Profile(props) {
     // update avatar URL in RTDB
     update(userRef, { avatar: url })
       .then(() => {
-        // console.log("Profile picture updated successfully.");
         // update avatarFile state with the url
         setAvatarFile(url);
         // update user object with the new avatar url
         setStates({ ...user, avatar: url });
       })
       .catch((error) => {
-        console.log("Error updating profile picture:", error);
+        // console.log("Error updating profile picture:", error);
+        return;
       });
   };
 
@@ -170,24 +169,27 @@ export default function Profile(props) {
     if (user.avatar !== undefined) {
       const currentAvatar = user.avatar;
       const currentAvatarRef = storageRef(storage, currentAvatar);
-      deleteObject(currentAvatarRef)
-        .then(() => console.log("Deleted from storage"))
-        .catch((error) => console.log("Error deleting from storage!", error));
+      deleteObject(currentAvatarRef);
+      // .then(() => console.log("Deleted from storage"))
+      // .catch((error) => console.log("Error deleting from storage!", error));
     }
 
     const userID = user.uid;
     const deleteFromDB = databaseRef(database, `${DB_USER_KEY}/${userID}`);
-    update(deleteFromDB, { avatar: null }).then(() =>
-      console.log("Deleted from database")
-    );
+    update(deleteFromDB, { avatar: null }).then(() => {
+      return;
+    });
 
     // Update the user object in the state
     const updatedUser = { ...user, avatar: null };
     setStates(updatedUser)
       .then(() => {
         console.log("Removed avatar from user database");
+        return;
       })
-      .catch((error) => console.log("Error deleting from database!", error));
+      .catch((error) => {
+        return;
+      });
   };
 
   const renderModal = (

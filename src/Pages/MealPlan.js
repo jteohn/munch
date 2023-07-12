@@ -71,13 +71,14 @@ export default function MealPlan() {
         setIngredientSearchQuery("");
       })
       .catch((error) => {
-        console.log(`error: ${error}`);
+        // console.log(`error: ${error}`);
+        return;
       });
   };
 
-  useEffect(() => {
-    console.log("Updated totalResults:", totalResults);
-  }, [totalResults]);
+  // useEffect(() => {
+  //   console.log("Updated totalResults:", totalResults);
+  // }, [totalResults]);
 
   const handleReset = (e) => {
     setTotalResults([]);
@@ -125,10 +126,12 @@ export default function MealPlan() {
       url,
     })
       .then(() => {
-        console.log(`Saved meal has been added to database`);
+        // console.log(`Saved meal has been added to database`);
+        return;
       })
       .catch((error) => {
-        console.log(`Error. Unable to add saved meal to database`);
+        // console.log(`Error. Unable to add saved meal to database`);
+        return;
       });
   };
 

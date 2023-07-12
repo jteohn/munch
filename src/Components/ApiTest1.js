@@ -18,11 +18,10 @@ function ApiTest() {
       contentType: "application/json",
     })
       .then((data) => {
-        console.log(data);
         setInput("");
       })
       .catch((error) => {
-        console.log(`error: ${error}`);
+        return;
       });
   };
 

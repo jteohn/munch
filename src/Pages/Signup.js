@@ -48,7 +48,7 @@ export default function Signup(props) {
         gender: gender,
         age: age,
       };
-      console.log(userObj);
+      // console.log(userObj);
       //implement these next two lines of code to ensure state is set before calling signup function
       await setStates(userObj);
       setIsStateSetDone(true);
