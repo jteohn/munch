@@ -155,6 +155,7 @@ export default function MealPlan() {
         icon: "error",
         title: "Import Failed",
         text: "Have you imported the data from Recipe page yet?",
+        footer: '<a href="/recipe" target="blank">Search Recipe</a>',
       });
       return;
     } else {
@@ -181,7 +182,8 @@ export default function MealPlan() {
       });
     }
   }, [importDependency, importedMealPlan]);
-  // ===== FUNCTION TO PASS SAVE MEAL DATA TO CALENDAR ===== //
+
+  // ===== FUNCTION TO PASS SAVED MEAL DATA TO CALENDAR ===== //
   const handleAddCalories = () => {
     const addCalories = calculateTotalCalories(displayData);
 
@@ -307,14 +309,22 @@ export default function MealPlan() {
         <Card id="card">
           <div style={{ textAlign: "center" }}>
             Start planning your meal by searching up the ingredients! <br />
-            <button className="track-button" onClick={handleOpenModal}>
+            <button
+              className="track-button"
+              style={{ backgroundColor: "#FED0A3" }}
+              onClick={handleOpenModal}
+            >
               Track Calorie Consumption
             </button>
             <br />
             <div style={{ textAlign: "center" }}>
               Or.. Import your Recipe Here!
             </div>
-            <button className="track-button" onClick={handleImport}>
+            <button
+              className="track-button"
+              style={{ backgroundColor: "#E1E7AA" }}
+              onClick={handleImport}
+            >
               Import from Recipe
             </button>
           </div>
@@ -342,7 +352,6 @@ export default function MealPlan() {
                 >
                   search
                 </button>
-                {console.log(`isButtonDisabled`, isButtonDisabled)}
               </Grid>
             </Grid>
             <br />

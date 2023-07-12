@@ -2,6 +2,10 @@
   z-index: 9999 !important;
 }
 
+.redirect {
+  text-decoration: none;
+}
+
 #card {
   display: flex;
   justify-content: center;
@@ -55,7 +59,6 @@
   border: outset;
   padding: 0.5rem 1rem;
   border-radius: 10px;
-  background-color: #cbefde;
   margin-top: 0.5rem;
   cursor: pointer;
 }
