@@ -1,9 +1,9 @@
 import React, { useContext } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { UserContext } from "../App";
+// import { UserContext } from "../App";
 
 //import our pages
-import Home from "../Pages/Home";
+// import Home from "../Pages/Home";
 import Landing from "../Pages/Landing";
 import Dashboard from "../Pages/Dashboard";
 import Login from "../Pages/Login";
@@ -16,12 +16,12 @@ import Profile from "../Pages/Profile";
 import ErrorPage from "../Pages/ErrorPage";
 
 export default function MunchRoutes(props) {
-  const user = useContext(UserContext);
+  // const user = useContext(UserContext);
 
-  function RequireAuth({ children, redirectTo }) {
-    const isAuthenticated = user.isLoggedIn;
-    return isAuthenticated ? children : <Navigate to={redirectTo} />;
-  }
+  // function RequireAuth({ children, redirectTo }) {
+  //   const isAuthenticated = user.isLoggedIn;
+  //   return isAuthenticated ? children : <Navigate to={redirectTo} />;
+  // }
   // remember to pass setStates as props.setStates to the element you wish to pass this parent function to
   return (
     <>
@@ -40,17 +40,18 @@ export default function MunchRoutes(props) {
           path="/login"
           element={<Login handleLogin={props.handleLogin} />}
         />
-        {/* ONLY LOGGED IN USERS CAN ACCESS TO FOLLOWING PAGES */}
-        <Route
+
+        {/* <Route
           path="/"
           element={
             <RequireAuth redirectTo="/landing">
               <Home />
             </RequireAuth>
           }
-        />
-        {/* Connie: Should we rename as /users/pagename for these or? Which ones should we do as nested routes? */}
-        {/* J: hmm, do yall think the following routes should be nested under Home page so that only logged in users can access them? */}
+        /> */}
+
+        <Route path="/" element={<MealPlan />} />
+
         <Route
           path="/profile"
           element={<Profile setStates={props.setStates} />}

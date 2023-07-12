@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import signup from "../assets/signup.png";
 import Tooltip from "@mui/material/Tooltip";
+import Swal from "sweetalert2";
 import "../App.css";
 
 export default function Signup(props) {
@@ -18,7 +19,12 @@ export default function Signup(props) {
 
   const handleSubmit = async () => {
     if (password !== secondPassword) {
-      alert("The passwords are not identical!");
+      Swal.fire({
+        position: "center",
+        icon: "error",
+        title: "Oops!",
+        text: "The passwords are not identical!",
+      });
       return;
     }
     const hasUppercase = /[A-Z]/.test(password);
@@ -47,7 +53,12 @@ export default function Signup(props) {
       await setStates(userObj);
       setIsStateSetDone(true);
     } else {
-      alert("Your Password does not meet requirements!");
+      Swal.fire({
+        position: "center",
+        icon: "error",
+        title: "Oops!",
+        text: "Your password does not meet requirements!",
+      });
       return;
     }
   };
