@@ -81,7 +81,7 @@ export default function Signup(props) {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        height: "95vh",
+        height: "90vh",
         margin: "0 3rem",
       }}
     >

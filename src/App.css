@@ -12,6 +12,21 @@
   margin: 0 10px;
 }
 
+.bounce {
+  animation: bounce 3s infinite;
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
 /* FOR LOGIN & SIGNUP */
 .header-message {
   font-family: "Inria Serif", "Times New Roman", Times, serif;
@@ -118,6 +133,7 @@
   align-items: center;
 }
 
+/* DISPLAY BMI INDICATORS */
 .bold {
   font-weight: 600;
 }
@@ -138,13 +154,13 @@
   color: red;
 }
 
-/*For Calendar*/
+/* FOR CALENDAR */
 .fc-event-start {
   overflow: hidden;
 }
 
 .fc-event {
-  background-color: #58a8f3 !important;
+  background-color: #dcdcdc !important;
 }
 
 .fc-event-main {
@@ -152,9 +168,10 @@
 }
 
 .popup-content {
-  border-radius: 1em;
-  padding: 10px !important;
-  background: #f8f8f8 !important;
+  background-color: transparent !important;
+  padding: 0 !important;
+  border: none !important;
+  width: 60% !important;
 }
 
 .text-center {
@@ -165,6 +182,32 @@
   overflow: visible !important;
 }
 
+.select-meal {
+  cursor: pointer;
+}
+
+.select-meal:hover {
+  background-color: #f8f8f8;
+}
+
+.date-picker {
+  width: 50%;
+}
+
+#addMealForm-title {
+  font-weight: 600;
+  font-size: 0.8rem;
+  margin-right: 1rem;
+  /* margin-top: 0.8rem; */
+  margin: 0.8rem 0;
+  width: 6.5rem;
+}
+
+#addMealForm-input {
+  margin: auto 0;
+}
+
+/* MEDIA Q */
 @media (max-width: 960px) {
   .mobileView {
     flex-direction: column;
@@ -174,8 +217,14 @@
     height: 180px;
   }
   .signup-image {
-    height: 140px;
+    height: 130px;
   }
+  .header-message {
+    font-size: 1.5rem;
+  }
+  /* .small-button {
+    font-size: 0.5rem;
+  } */
 }
 
 @media (min-width: 960px) {

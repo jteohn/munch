@@ -76,7 +76,7 @@ export default function App() {
           if (userData) {
             setIsLoggedIn(true);
             setStates(userData);
-            console.log(`updated setStates:`, userData);
+            // console.log(`updated setStates:`, userData);
           }
         });
       } else {
