@@ -110,6 +110,16 @@ export default function Calendar() {
 
   // when user clicks on event
   const eventsHandler = (info) => {
+    const entereddate = new Date(info.startStr);
+    if (entereddate < today) {
+      Swal.fire({
+        icon: "error",
+        title: "Sorry...",
+        text: "You cannot add a meal to a past date.",
+      }).then(() => {
+        return;
+      });
+    }
     setMode("editevent");
     console.log(`info:`, info);
     console.log(`info startstr: `, info.event.startStr);
@@ -275,39 +285,6 @@ export default function Calendar() {
     );
   };
 
-  //load external events
-
-  // to handle meal type change
-  // const handleMealTypeChange = () => {
-  //   // console.log("b4 Start is ", this.start);
-  //   console.log("b4 StartStr is ", startStr);
-  //   console.log("new meal type is ", mealType);
-  //   console.log("Event to b changed is ", events[currentEventID]);
-  //   let start = "";
-  //   // if (mode === "newmeal") {
-  //   //   setStart(`${startStr}T00:00:00`);
-  //   // }
-  //   console.log(count);
-  //   if (foodName) {
-  //     console.log("Saving meal Before setEvents!");
-  //     if (mealType === "Breakfast") {
-  //       start = `${startStr}T06:00:00`;
-  //       console.log(start);
-  //       setStart(`${startStr}T06:00:00`);
-  //     } else if (mealType === "Lunch") {
-  //       start = `${startStr}T12:00:00`;
-  //       console.log(start);
-  //       setStart(`${startStr}T12:00:00`);
-  //     } else if (mealType === "Dinner") {
-  //       start = `${startStr}T18:00:00`;
-  //       console.log(start);
-  //       setStart(`${startStr}T18:00:00`);
-  //     }
-  //   }
-
-  //   return start;
-  // };
-
   // handle all submit buttons for pop up
   const handlePopupSubmit = () => {
     if (mealType === "" || foodName === "") {
@@ -353,26 +330,6 @@ export default function Calendar() {
       setEvents(eventsCopy);
     } else if (mode === "newdate" || mode === "newmeal") {
       if (foodName) {
-        // let start = "";
-        // if (mode === "newmeal") {
-        //   setStart(`${startStr}T00:00:00`);
-        // }
-        // console.log(count);
-        // if (foodName) {
-        //   console.log("Saving meal Before setEvents!");
-        //   console.log(events);
-        //   if (mealType === "Breakfast") {
-        //     start = `${startStr}T06:00:00`;
-        //     console.log(start);
-        //     setStart(start);
-        //   } else if (mealType === "Lunch") {
-        //     start = `${startStr}T12:00:00`;
-        //     console.log(start);
-        //     setStart(start);
-        //   } else if (mealType === "Dinner") {
-        //     start = `${startStr}T18:00:00`;
-        //     console.log(start);
-        //     setStart(start);
         console.log("Start time is : ", start);
         console.log("B4 set events, event is ", events[currentEventID]);
         setEvents((prevEvents) => [
@@ -522,6 +479,7 @@ export default function Calendar() {
           end: "today prev next",
         }}
         nowIndicator={true}
+        minDate={today}
         selectable={true}
         editable={true}
         events={events}
@@ -599,10 +557,6 @@ export default function Calendar() {
                         dateFormat="yyyy-MM-dd"
                         setOpen={false}
                         onChange={(date) => {
-                          setStartDate(date);
-                          console.log(date);
-                        }}
-                        onBlur={(date) => {
                           setStartDate(date);
                           console.log(date);
                         }}
