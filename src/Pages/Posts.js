@@ -123,7 +123,7 @@ export default function Posts() {
 
   return (
     <div>
-      <h1>Sharing page to share some self found/created recipes!</h1>
+      <h1>Show off your own recipes/creations!</h1>
       <Box
         sx={{
           height: "90vh",
