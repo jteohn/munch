@@ -4,10 +4,10 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase";
 import { database } from "../firebase";
 import { UserContext } from "../App";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, HistoryRouter } from "react-router-dom";
 import Fullcalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
-import interactionPlugin, { Draggable } from "@fullcalendar/interaction";
+import interactionPlugin from "@fullcalendar/interaction";
 import PreviewIcon from "@mui/icons-material/Preview";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -42,6 +42,8 @@ export default function Calendar() {
   const [savedMealData, setSavedMealData] = useState({});
   const [selectedMeal, setSelectedMeal] = useState(null);
   const DB_SAVEMEAL_KEY = "userSavedMeal/";
+
+  // const browserHistory = createBrowserHistory({window});
 
   // initialize popup values
   const [open, setOpen] = useState(false);
@@ -78,6 +80,16 @@ export default function Calendar() {
 
   // when user clicks on "Add Meal" button
   const chooseDateHandler = () => {
+    if (!user.isLoggedIn) {
+      Swal.fire({
+        icon: "error",
+        title: "Sorry...",
+        text: "You cannot add a meal if you are not logged in. Please login! ",
+        footer: `<a href="./login">Go to Login</a>`,
+      }).then(() => {
+        return;
+      });
+    }
     setMode("newmeal");
     setStart("");
     setOpen(true);
@@ -165,18 +177,6 @@ export default function Calendar() {
       setStart(`${startStr}T18:00:00`);
     }
   }, [mealType]);
-
-  // useEffect(() => {
-  //   console.log(calories);
-  // }, [calories]);
-
-  // useEffect(() => {
-  //   console.log(recipeURL);
-  // }, [recipeURL]);
-
-  // useEffect(() => {
-  //   console.log(foodName);
-  // }, [foodName]);
 
   useEffect(() => {
     console.log("start is ", start);
@@ -490,7 +490,11 @@ export default function Calendar() {
             {mode === "newdate" ? (
               <div>
                 <div className="font displaytext">
-                  Add a meal to your calendar
+                  {startStr !== "" ? (
+                    <div>Add a meal to your calendar on {startStr}.</div>
+                  ) : (
+                    <div>Add a meal to your calendar</div>
+                  )}
                 </div>
                 <div className="smallFont displaytext" style={{ margin: 0 }}>
                   You can choose from your list or fill up the form below:
@@ -528,23 +532,25 @@ export default function Calendar() {
                     justifyContent: "column",
                   }}
                 >
-                  <div id="addMealForm-title">Date of Meal *</div>
                   {mode === "newmeal" ? (
-                    <div id="addMealForm-input">
-                      <DatePicker
-                        className="date-picker"
-                        showIcon
-                        closeOnDocumentClick
-                        minDate={today}
-                        selected={startDate}
-                        dateFormat="yyyy-MM-dd"
-                        setOpen={false}
-                        onChange={(date) => {
-                          setStartDate(date);
-                          console.log(date);
-                        }}
-                        placeholderText="YYYY-MM-DD"
-                      />
+                    <div>
+                      <div id="addMealForm-title">Date of Meal *</div>
+                      <div id="addMealForm-input">
+                        <DatePicker
+                          className="date-picker"
+                          showIcon
+                          closeOnDocumentClick
+                          minDate={today}
+                          selected={startDate}
+                          dateFormat="yyyy-MM-dd"
+                          setOpen={false}
+                          onChange={(date) => {
+                            setStartDate(date);
+                            console.log(date);
+                          }}
+                          placeholderText="YYYY-MM-DD"
+                        />
+                      </div>
                     </div>
                   ) : (
                     ""
