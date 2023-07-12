@@ -142,7 +142,11 @@ export default function Posts() {
               <TextField
                 fullWidth
                 size="small"
-                placeholder="Type a message"
+                placeholder={
+                  userInfo.isLoggedIn
+                    ? "Type a message"
+                    : "Please login to send a message"
+                }
                 variant="outlined"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -150,6 +154,7 @@ export default function Posts() {
             </Grid>
             <Grid item xs={2} sx={{ fontSize: 25 }}>
               <input
+                disabled={!userInfo.isLoggedIn}
                 type="file"
                 name="file"
                 value={fileValue}
@@ -161,6 +166,7 @@ export default function Posts() {
               <br />
             </Grid>
             <Grid item xs={2}>
+              {console.log(userInfo.isLoggedIn)}
               <Button
                 fullWidth
                 size="large"
@@ -168,6 +174,7 @@ export default function Posts() {
                 variant="contained"
                 endIcon={<SendIcon />}
                 onClick={submitData}
+                disabled={!userInfo.isLoggedIn}
               >
                 Send
               </Button>

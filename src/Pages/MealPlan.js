@@ -39,9 +39,11 @@ export default function MealPlan() {
 
   const [isButtonDisabled, setIsButtonDisable] = useState(false);
   const [openEditModal, setOpenEditModal] = useState(false);
+  const [recipeButton, setRecipeButton] = useState(true);
 
   const user = useContext(UserContext);
   const recipe = useContext(RecipeContext);
+
   const DB_SAVEMEAL_KEY = "userSavedMeal/";
 
   // ===== PERFORM SEARCH + EXTRACT INFO FROM API ===== //
@@ -112,6 +114,19 @@ export default function MealPlan() {
     }
   };
 
+  // =====FUNCTION TO ALERT IF NOT LOGGED IN ======//
+  // const loginAlert = () => {
+  //   if (!user.isLoggedIn) {
+  //     Swal.fire({
+  //       position: "center",
+  //       icon: "error",
+  //       title: "Sorry...",
+  //       text: "Please login first to save a recipe!",
+  //       footer: `<a href="./login">Go to Login</a>`,
+  //     });
+  //   }
+  // };
+
   // ===== TO STORE SAVED MEAL IN DATABASE ===== //
   const writeData = (newMealPlan) => {
     const { typeOfMeal, nameOfFood, totalCalories, url } = newMealPlan;
@@ -149,6 +164,7 @@ export default function MealPlan() {
   // ===== TO IMPORT FROM RECIPE IF USER OPTS FOR IT
   const handleImport = (e) => {
     e.preventDefault();
+    setRecipeButton(false);
     if (!recipe) {
       Swal.fire({
         position: "center",
@@ -159,6 +175,7 @@ export default function MealPlan() {
       });
       return;
     } else {
+      setRecipeButton(false);
       const impMealPlan = {
         typeOfMeal: recipe.mealType,
         nameOfFood: recipe.recipeName,
@@ -318,12 +335,17 @@ export default function MealPlan() {
             </button>
             <br />
             <div style={{ textAlign: "center" }}>
-              Or.. Import your Recipe Here!
+              {user.isLoggedIn ? (
+                <div> Or.. Import your Recipe Here!</div>
+              ) : (
+                <div>You have to login to import a recipe.</div>
+              )}
             </div>
             <button
               className="track-button"
               style={{ backgroundColor: "#E1E7AA" }}
               onClick={handleImport}
+              disabled={!recipeButton || !user.isLoggedIn}
             >
               Import from Recipe
             </button>
@@ -397,6 +419,7 @@ export default function MealPlan() {
                         <button
                           className="button desktop"
                           onClick={handleAddCalories}
+                          disabled={!user.isLoggedIn}
                         >
                           Save
                         </button>
@@ -404,9 +427,20 @@ export default function MealPlan() {
                     </TableRow>
                   </TableHead>
                 </Table>
-                <button className="button mobile" onClick={handleAddCalories}>
+                <button
+                  className="button mobile"
+                  onClick={handleAddCalories}
+                  disabled={!user.isLoggedIn}
+                >
                   Save
                 </button>
+                {!user.isLoggedIn ? (
+                  <div style={{ textAlign: "center" }}>
+                    Please login to save your recipe.
+                  </div>
+                ) : (
+                  ""
+                )}
               </TableContainer>
             </Grid>
           </Box>

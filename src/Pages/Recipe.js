@@ -21,6 +21,8 @@ import {
 import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import Swal from "sweetalert2";
+import userEvent from "@testing-library/user-event";
+import { UserContext } from "../App";
 
 export default function Recipe(props) {
   const [recipeSearchQuery, setRecipeSearchQuery] = useState("");
@@ -37,11 +39,13 @@ export default function Recipe(props) {
     useState("Breakfast");
   const { dataFromRecipe } = props;
   const [updateState, setUpdateState] = useState(0);
+  const user = useContext(UserContext);
+
   // just a testing option to see the current selectedSaveOption STATE
-  const testSavedOption = (e) => {
-    e.preventDefault();
-    console.log(selectedSaveOption);
-  };
+  // const testSavedOption = (e) => {
+  //   e.preventDefault();
+  //   console.log(selectedSaveOption);
+  // };
   //these 2 for to send data
   const openSaveOptions = (index) => {
     setSelectedRecipeIndex(index);
@@ -117,8 +121,14 @@ export default function Recipe(props) {
     console.log(`mealTypeQuery: ${mealTypeQuery}`);
     console.log(`recipeSearchQuery: ${recipeSearchQuery}`);
     if (recipeSearchQuery === "" || recipeSearchQuery === undefined) {
-      alert("You cannot search for nothingness!");
       setRecipeSearchQuery("");
+      Swal.fire({
+        position: "center",
+        icon: "error",
+        title: "Oooops!",
+        text: "You cannot search with an empty field.",
+      });
+
       return;
     }
     axios
@@ -255,9 +265,23 @@ export default function Recipe(props) {
                               </div>
                               <Tooltip title="Save Recipe">
                                 <IconButton id="save-recipe">
-                                  <AddIcon
-                                    onClick={() => openSaveOptions(indexed)}
-                                  />
+                                  {user.isLoggedIn ? (
+                                    <AddIcon
+                                      onClick={() => openSaveOptions(indexed)}
+                                    />
+                                  ) : (
+                                    <AddIcon
+                                      onClick={() => {
+                                        Swal.fire({
+                                          position: "center",
+                                          icon: "error",
+                                          title: "Sorry...",
+                                          text: "Please login first to save a recipe!",
+                                          footer: `<a href="./login">Go to Login</a>`,
+                                        });
+                                      }}
+                                    />
+                                  )}
                                 </IconButton>
                               </Tooltip>
                             </div>
