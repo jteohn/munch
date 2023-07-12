@@ -446,23 +446,6 @@ export default function Calendar() {
   );
   // ===== END OF SECTION ===== //
 
-  // [OLD CODE] rendering it out in calendar.js 'Add Meal' form
-  // const renderPopulatedFields = (
-  //   <div>
-  //     <h3>Pick from your saved list:</h3>
-  //     <ul>
-  //       {Object.values(savedMealData).map((meal, index) => {
-  //         return (
-  //           <li key={index} onClick={() => handleSelectMeal(meal)}>
-  //             {meal.nameOfFood}
-  //           </li>
-  //         );
-  //       })}
-  //     </ul>
-  //   </div>
-  // );
-  // ===== END OF SECTION ===== //
-
   return (
     <div style={{ justifyContent: "center", padding: "1.5rem" }}>
       <Fullcalendar
@@ -631,7 +614,10 @@ export default function Calendar() {
 
                 <div style={{ display: "flex", justifyContent: "column" }}>
                   <div id="addMealForm-title">Recipe URL</div>
-                  <div id="addMealForm-input">
+                  <div
+                    id="addMealForm-input"
+                    style={{ display: "flex", alignItems: "center" }}
+                  >
                     <input
                       className="profile-inputs"
                       type="text"
@@ -647,7 +633,7 @@ export default function Calendar() {
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <PreviewIcon />
+                        <PreviewIcon style={{ color: "#9c9b9b" }} />
                       </a>
                     ) : (
                       ""
