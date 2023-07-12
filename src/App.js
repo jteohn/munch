@@ -132,7 +132,7 @@ export default function App() {
         // update display name
         updateProfile(user, { displayName: name })
           .then(() => {
-            console.log(`Display name has been updated successfully!`, name);
+            // console.log(`Display name has been updated successfully!`, name);
             // update RTDB with user info, currUser is our UserContext
             writeData(userID, currUser);
           })

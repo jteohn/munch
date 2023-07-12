@@ -135,7 +135,7 @@ export default function Profile(props) {
     // update avatar URL in RTDB
     update(userRef, { avatar: url })
       .then(() => {
-        console.log("Profile picture updated successfully.");
+        // console.log("Profile picture updated successfully.");
         // update avatarFile state with the url
         setAvatarFile(url);
         // update user object with the new avatar url
