@@ -96,8 +96,8 @@ export default function Dashboard() {
       <br />
 
       {/* For testing purposes: */}
-      <ApiTest1 />
-      <ApiTest2 />
+      {/* <ApiTest1 />
+      <ApiTest2 /> */}
     </div>
   );
 }
