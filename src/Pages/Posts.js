@@ -122,13 +122,16 @@ export default function Posts() {
 
   return (
     <div>
-      <h1>Show off your own recipes/creations!</h1>
+      <h1 style={{ margin: "1rem 3rem" }}>
+        Show off your own recipes/creations!
+      </h1>
       <Box
         sx={{
-          height: "90vh",
+          height: "80vh",
           display: "flex",
           flexDirection: "column",
-          bgcolor: "grey.200",
+          bgcolor: "#fbf7f1",
+          margin: "0 3rem",
         }}
       >
         <Box sx={{ flexGrow: 1, overflow: "auto", p: 2 }}>
