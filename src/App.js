@@ -182,7 +182,7 @@ export default function App() {
       console.log(user.user.displayName);
       setIsLoggedIn(true);
       // setIsLogin(true);
-      navigate("/");
+      navigate("/dashboard");
     } catch (error) {
       Swal.fire({
         icon: "error",
