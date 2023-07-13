@@ -16,6 +16,7 @@ import {
   Tooltip,
   IconButton,
   TableFooter,
+  useMediaQuery,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import Swal from "sweetalert2";
@@ -151,9 +152,12 @@ export default function Recipe(props) {
   const saveChosenMealType = (e) => {
     setSelectedChoiceOfMealType(e.target.value);
   };
+
+  const isLargeScreen = useMediaQuery("(min-width: 1250px)");
+
   return (
     <div style={{ margin: "1.5rem", height: "90vh" }}>
-      <h1 className="flexCenter font">Search Recipes</h1>
+      <h1 className="flexCenter">Search Recipes</h1>
       <div>
         <Card id="recipe-container">
           <Grid container spacing={2}>
@@ -212,12 +216,16 @@ export default function Recipe(props) {
         </Card>
         <br />
 
-        <Grid container columns={{ xs: 4, sm: 8, md: 9, lg: 10 }}>
+        <Grid
+          container
+          columns={{ xs: 4, sm: 8, md: 9, lg: 10 }}
+          className="flexCenter"
+        >
           {recipeResults === null
             ? "Search for something to find FOOOOOOOOOOOOD!"
             : recipeResults.map((result, indexed) => {
                 return (
-                  <Grid xs={6} sm={4} md={3} lg={2}>
+                  <Grid xs={4} sm={4} md={3} lg={2}>
                     <div key={indexed}>
                       <Card
                         style={{
@@ -227,7 +235,10 @@ export default function Recipe(props) {
                         }}
                       >
                         <CardMedia
-                          sx={{ height: 180, opacity: "0.8" }}
+                          sx={{
+                            height: isLargeScreen ? "20vh" : "200px",
+                            opacity: "0.8",
+                          }}
                           image={result.recipe.images.REGULAR.url}
                         />
 

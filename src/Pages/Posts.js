@@ -131,7 +131,6 @@ export default function Posts() {
           display: "flex",
           flexDirection: "column",
           bgcolor: "#fbf7f1",
-          margin: "0 3rem",
         }}
       >
         <Box sx={{ flexGrow: 1, overflow: "auto", p: 2 }}>
@@ -143,7 +142,7 @@ export default function Posts() {
           <Grid container spacing={2}>
             <Grid item xs={8}>
               <TextField
-                fullWidth
+                sx={{ width: "85%" }}
                 size="small"
                 placeholder={
                   userInfo.isLoggedIn
@@ -172,7 +171,7 @@ export default function Posts() {
               {console.log(userInfo.isLoggedIn)}
               <Button
                 fullWidth
-                size="large"
+                size="small"
                 color="primary"
                 variant="contained"
                 endIcon={<SendIcon />}
