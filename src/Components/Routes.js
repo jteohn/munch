@@ -16,17 +16,11 @@ import Profile from "../Pages/Profile";
 import ErrorPage from "../Pages/ErrorPage";
 
 export default function MunchRoutes(props) {
-  // const user = useContext(UserContext);
-
-  // function RequireAuth({ children, redirectTo }) {
-  //   const isAuthenticated = user.isLoggedIn;
-  //   return isAuthenticated ? children : <Navigate to={redirectTo} />;
-  // }
   // remember to pass setStates as props.setStates to the element you wish to pass this parent function to
   return (
     <>
       <Routes>
-        <Route path="/landing" element={<Landing />} />
+        <Route path="/" element={<Landing />} />
         <Route
           path="/signup"
           element={
@@ -40,24 +34,13 @@ export default function MunchRoutes(props) {
           path="/login"
           element={<Login handleLogin={props.handleLogin} />}
         />
-
-        {/* <Route
-          path="/"
-          element={
-            <RequireAuth redirectTo="/landing">
-              <Home />
-            </RequireAuth>
-          }
-        /> */}
-
-        <Route path="/" element={<MealPlan />} />
-
+        <Route path="/mealplan" element={<MealPlan />} />
         <Route
           path="/profile"
           element={<Profile setStates={props.setStates} />}
         />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/mealplan" element={<MealPlan />} />
+
         <Route
           path="/recipe"
           element={<Recipe dataFromRecipe={props.dataFromRecipe} />}

@@ -154,22 +154,20 @@ export default function Calendar() {
       });
     }
     setMode("editevent");
-    console.log(`info:`, info);
-    console.log(`info startstr: `, info.event.startStr);
+
     setOpen(true);
     const event = info.event._def;
-    console.log(event.publicId);
+
     setCurrentEventID(event.publicId);
     setEventInfo(event);
-    console.log("Selected event...");
-    console.log(info.event._def);
+
     const title = event.title;
     const date = info.event.startStr.substring(0, 10);
     const start = info.event.startStr.substring(0, 19);
     setStartStr(date);
-    console.log("Date str is ", date);
+
     const extendedProps = event.extendedProps;
-    console.log(title, extendedProps);
+
     setStart(start);
     setMealType(title);
     setCalories(extendedProps.calories);
@@ -179,12 +177,11 @@ export default function Calendar() {
 
   // to change start date from mini calendar into format for big calendar
   useEffect(() => {
-    console.log(startDate);
     const year = startDate.toLocaleDateString("default", { year: "numeric" });
     const month = startDate.toLocaleDateString("default", { month: "2-digit" });
     const day = startDate.toLocaleDateString("default", { day: "2-digit" });
     const date = [year, month, day].join("-");
-    console.log(date);
+
     setStartStr(date);
   }, [startDate]);
 
@@ -199,23 +196,16 @@ export default function Calendar() {
     }
   }, [mealType]);
 
-  useEffect(() => {
-    console.log("start is ", start);
-  }, [start]);
-
   // when page loads runs once to get snapshot
   useEffect(() => {
     onAuthStateChanged(auth, (currUser) => {
-      console.log("Auth state is changed! ");
       if (currUser) {
-        console.log("Curr User is : ", currUser);
         setCount(events.length);
         get(userRef).then((snapshot) => {
-          console.log(snapshot.val());
           const snapshott = snapshot.val();
           if (snapshot.exists()) {
             setDbSnapshot(snapshott);
-            console.log("Db data is being fetched, snapshot updated! ");
+
             if (snapshott && Array.isArray(snapshott.events)) {
               console.log("Success!!!!!");
               setEvents(snapshott.events);
@@ -224,33 +214,27 @@ export default function Calendar() {
               return;
             }
           } else {
-            console.log("User has no calendar on database!");
             setFirstTime(false);
             return;
           }
         });
       } else {
-        console.log("User is not logged in!");
         navigate("/");
       }
     });
   }, []);
 
   useEffect(() => {
-    console.log(events);
     setCount(events.length);
     if (!firstTime && mode !== "deleteevent") {
-      console.log(events);
       const newEvents = events;
       get(userRef).then((snapshot) => {
         // const snapshott = snapshot.val();
-        console.log(snapshot.val());
+
         // const snapshott = snapshot.val();
         if (snapshot.exists()) {
-          console.log("User has calendar, so updating DB! ");
           update(userRef, { events: newEvents });
         } else {
-          console.log("User has no calendar, so setting DB!");
           set(userRef, {
             events: newEvents,
           });
@@ -277,20 +261,16 @@ export default function Calendar() {
 
   // when delete event button is clicked on event popup
   const handleDeleteEvent = () => {
-    console.log("delete event");
     setOpen(false);
     setMode("deleteevent");
-    console.log("Deleting existing event...");
-    console.log(start);
-    console.log("To be deleted : ", events[currentEventID]);
+
     const eventsCopy = [...events];
     eventsCopy.splice(currentEventID, 1);
     let counter = currentEventID;
-    console.log(eventsCopy);
+
     while (counter < eventsCopy.length) {
-      console.log("Value of id ", count, " is : ", eventsCopy[counter].id);
       eventsCopy[counter].id = counter;
-      console.log("After update id : ", eventsCopy[counter].id);
+
       counter++;
     }
     setEvents(eventsCopy);
@@ -323,16 +303,10 @@ export default function Calendar() {
     }
     setOpen(false);
     setCount(events.length);
-    console.log("Mode is : ", mode);
-    console.log("Start is : ", recipeURL);
-    console.log("Foodname is : ", foodName);
-    console.log("Calories is : ", calories);
+
     if (mode === "editevent") {
-      console.log("Selected existing event...");
-      console.log(start);
-      console.log("Yay! ", events[currentEventID]);
       const eventsCopy = [...events];
-      console.log(start);
+
       const currentEvent = {
         id: currentEventID,
         extendedProps: {
@@ -344,15 +318,12 @@ export default function Calendar() {
         title: mealType,
         start: start,
       };
-      console.log(currentEvent);
+
       eventsCopy[currentEventID] = currentEvent;
-      console.log(eventsCopy[currentEventID]);
-      console.log(eventsCopy);
+
       setEvents(eventsCopy);
     } else if (mode === "newdate" || mode === "newmeal") {
       if (foodName) {
-        console.log("Start time is : ", start);
-        console.log("B4 set events, event is ", events[currentEventID]);
         setEvents((prevEvents) => [
           ...prevEvents,
           {
@@ -368,30 +339,23 @@ export default function Calendar() {
           },
         ]);
       }
-      console.log("After edit time, event is ", events[currentEventID]);
-      console.log("Saving meal after setEvents");
-      console.log(events);
     }
     resetFields();
   };
 
   //event drop
   const updateEventOnDragged = (eventInfo) => {
-    console.log("I am called! ", eventInfo);
     let newStartStr = eventInfo.event.startStr;
     newStartStr = newStartStr.substring(0, 19);
     const eventID = eventInfo.event.id;
-    console.log("New Event ID is : ", eventInfo.event.id);
-    console.log("Dropped event");
+
     setMode("deleteevent");
-    console.log("Updating existing event...");
-    console.log("To be edited : ", events[eventID]);
+
     const eventsCopy = [...events];
     eventsCopy[eventID].start = newStartStr;
     eventsCopy[eventID].extendedProps.start = newStartStr;
-    console.log("After update start : ", eventsCopy[eventID]);
+
     setEvents(eventsCopy);
-    console.log(events);
   };
 
   // ===== BELOW SECTION IS FOR RENDERING OUT POPULATED FIELD BASED ON WHAT USER HAS ADDED FROM MEALPLAN.JS ===== //
@@ -424,7 +388,6 @@ export default function Calendar() {
   // onClick handler to auto-populate the fields
   const handleSelectMeal = (meal) => {
     setSelectedMeal(meal);
-    console.log("selected meal:", meal);
   };
 
   // ===== FOR RENDERING TABLE IN MODAL ===== //

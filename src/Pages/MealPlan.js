@@ -204,9 +204,9 @@ export default function MealPlan() {
   const handleAddCalories = () => {
     const addCalories = calculateTotalCalories(displayData);
 
-    if (!inputValidation()) {
-      return;
-    }
+    // if (!inputValidation()) {
+    //   return;
+    // }
 
     const newMealPlan = {
       typeOfMeal: mealType,
