@@ -64,6 +64,7 @@ export default function Calendar() {
 
   const [events, setEvents] = useState([]);
   const [today] = useState(new Date());
+  const [yesterday] = useState(new Date() - 1);
 
   // to reset input fields after event is saved
   const resetFields = () => {
@@ -110,7 +111,7 @@ export default function Calendar() {
     }
     const entereddate = new Date(info.startStr);
 
-    if (entereddate < today) {
+    if (entereddate < yesterday) {
       Swal.fire({
         icon: "error",
         title: "Sorry...",
@@ -144,7 +145,7 @@ export default function Calendar() {
       });
     }
     const entereddate = new Date(info.startStr);
-    if (entereddate < today) {
+    if (entereddate < yesterday) {
       Swal.fire({
         icon: "error",
         title: "Sorry...",
