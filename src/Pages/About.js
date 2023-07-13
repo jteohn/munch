@@ -80,7 +80,7 @@ export default function About() {
                   <img
                     src={recipelogo}
                     alt="recipe"
-                    height="100px"
+                    height="90px"
                     style={{ opacity: "0.9" }}
                   />
                   <div className="labels">2.3 million recipes</div>
@@ -89,7 +89,7 @@ export default function About() {
                   <img
                     src={ingredients}
                     alt="ingredients"
-                    height="100px"
+                    height="90px"
                     style={{ opacity: "0.9" }}
                   />
                   <div className="labels">100,000+ ingredients</div>
@@ -98,7 +98,7 @@ export default function About() {
                   <img
                     src={mealplan}
                     alt="mealplan"
-                    height="100px"
+                    height="90px"
                     style={{ opacity: "0.9" }}
                   />
                   <div className="labels">Create meal plans</div>
